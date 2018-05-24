@@ -1,0 +1,4 @@
+node_modules/*
+public/static/bower_components/*
+**/.DS_Store
+package-lock.json
