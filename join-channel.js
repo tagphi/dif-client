@@ -4,6 +4,9 @@ var CONFIG = require("./config.json");
 var path = require('path');
 var fs = require('fs-extra');
 
+var log4js = require('log4js');
+var logger = log4js.getLogger('join-channel');
+
 var getGenesisBlock = async function(client, channel) {
     let tx_id = client.newTransactionID();
 
@@ -29,29 +32,15 @@ var joinPeer = async function() {
         txId :  tx_id
     };
 
-    let peersJsonStr = fs.readFileSync("./peers.json");
-    let peersJson = JSON.parse(Buffer.from(peersJsonStr).toString());
+    let peers = helper.getOwnPeers(client);
 
-    for (var key in peersJson) {
-        let peerJson = peersJson[key];
-
-        // 这是本组织Peer，加入网路
-        if (peerJson.MSPID == CONFIG.msp.id) {
-            let data = fs.readFileSync(CONFIG.peer.tls_cert_path);
-
-            let peer = client.newPeer(
-                peerJson.url,
-                {
-                    pem: Buffer.from(data).toString(),
-                    'ssl-target-name-override': peerJson["ssl-target-name-override"],
-                    'request-timeout' : 120
-                }
-            );
-
-            channel.addPeer(peer);
-            break;
-        }
+    if (peers.length == 0) {
+        console.log("can't find current org peers, please contact RTBAsia");
     }
+
+    peers.forEach(function(peer) {
+        channel.addPeer(peer);
+    })
 
     return channel.joinChannel(request, 30000);
 }

@@ -1,1 +1,11 @@
-[{"MSPID": "RTBAsia", "url": "grpcs://peer0.rtbasia.com:7051", "ssl-target-name-override": "peer0.rtbasia.com"}]
+[
+    {
+        "MSPID": "RTBAsia",
+        "peers": [
+            {
+                "url": "grpcs://peer0.rtbasia.com:7051",
+                "ssl-target-name-override": "peer0.rtbasia.com"
+            }
+        ]
+    }
+]

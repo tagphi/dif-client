@@ -77,11 +77,11 @@ var __setUserContext = async function(client, useAdmin) {
         var signedCertPEM = null;
 
         if (useAdmin) { // 使用admin的证书登记此user
-            privateKeyPEM = getCryptoDataPEM(CONFIG.msp.admin_key_path);
-            signedCertPEM = getCryptoDataPEM(CONFIG.msp.admin_cert_path);
+            privateKeyPEM = __getCryptoDataPEM(CONFIG.msp.admin_key_path);
+            signedCertPEM = __getCryptoDataPEM(CONFIG.msp.admin_cert_path);
         } else {
-            privateKeyPEM = getCryptoDataPEM(CONFIG.msp.prv_key_path);
-            signedCertPEM = getCryptoDataPEM(CONFIG.msp.sgn_cert_path);
+            privateKeyPEM = __getCryptoDataPEM(CONFIG.msp.prv_key_path);
+            signedCertPEM = __getCryptoDataPEM(CONFIG.msp.sgn_cert_path);
         }
 
         user = await client.createUser({username: username,
@@ -92,5 +92,37 @@ var __setUserContext = async function(client, useAdmin) {
     return user;
 }
 
+var getOwnPeers = function(client) {
+    let allPeersJsonStr = fs.readFileSync("./peers.json");
+    let allPeersJson = JSON.parse(Buffer.from(allPeersJsonStr).toString());
+
+    let peers = [];
+
+    for (var key in allPeersJson) {
+        let orgPeersJson = allPeersJson[key];
+
+        // 这是本组织Peer
+        if (orgPeersJson.MSPID == CONFIG.msp.id) {
+            let data = fs.readFileSync(CONFIG.peer.tls_cert_path);
+            
+            for (let key in orgPeersJson.peers) {
+                let peer = client.newPeer(
+                    orgPeersJson.peers[key].url,
+                    {
+                        pem: Buffer.from(data).toString(),
+                        'ssl-target-name-override': orgPeersJson.peers[key]["ssl-target-name-override"],
+                        'request-timeout' : 120
+                    }
+                );
+
+                peers.push(peer);
+            }
+        }
+    }
+
+    return peers;
+}
+
 exports.getClient = getClient;
 exports.getChannel = getChannel;
+exports.getOwnPeers = getOwnPeers;
