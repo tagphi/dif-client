@@ -5,10 +5,6 @@ const shim = require('fabric-shim');
 const ORG_IDX_NAME = "ORG";
 const ORG_DELTA_IDX_NAME = "ORGDELTA";
 
-const IDX_FINAL_NAME = "BLACK_LIST_FINAL";
-const COMMIT_HISTORY_IDX_NAME = "COMMIT_HISTORY";
-const MERGE_HISTORY_IDX_NAME = "MERGE_HISTORY";
-
 var Chaincode = class {
 
     // 初始化链码
@@ -38,12 +34,13 @@ var Chaincode = class {
         }
     }
 
-    async deltaUploadDevice(stub, args) {
+    async deltaUpload(stub, args) {
         let creator = stub.getCreator();
         let mspid = creator.mspid;
         let deltaList = args[0];
+        let type = args[1];
 
-        let orgIdxKey = stub.createCompositeKey(ORG_IDX_NAME, ["device", mspid]);
+        let orgIdxKey = stub.createCompositeKey(ORG_IDX_NAME, [type, mspid]);
         let oldListJSON = await stub.getState(orgIdxKey);
 
         let orgSet = new Set();
@@ -84,7 +81,7 @@ var Chaincode = class {
 
         // 保存此次更新的文件
         let timestamp = new Date().getTime().toString();
-        let deltaRecordsKey = stub.createCompositeKey(ORG_DELTA_IDX_NAME, [timestamp, mspid, "device"]);
+        let deltaRecordsKey = stub.createCompositeKey(ORG_DELTA_IDX_NAME, [timestamp, mspid, type]);
 
         await stub.putState(deltaRecordsKey, Buffer.from(deltaList));
     }

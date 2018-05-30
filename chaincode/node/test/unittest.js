@@ -51,7 +51,7 @@ describe('Chaincode', function() {
             let chaincode = new Chaincode();
             let mockStub = new MockStub();
 
-            sinon.stub(mockStub, 'getFunctionAndParameters').returns({fcn: "deltaUploadDevice", params: ["invalidlist"]});
+            sinon.stub(mockStub, 'getFunctionAndParameters').returns({fcn: "deltaUpload", params: ["invalidlist", "device"]});
             sinon.stub(mockStub, 'getCreator').returns({mspid: "RTBAsia"});
 
             let rt = await chaincode.Invoke(mockStub);
@@ -66,7 +66,7 @@ describe('Chaincode', function() {
             let ids2Add = ["device1", "device2"];
             let deltaList = idArray2String(ids2Add, "1");
 
-            sinon.stub(mockStub, 'getFunctionAndParameters').returns({fcn: "deltaUploadDevice", params: [deltaList]});
+            sinon.stub(mockStub, 'getFunctionAndParameters').returns({fcn: "deltaUpload", params: [deltaList, "device"]});
             sinon.stub(mockStub, 'getCreator').returns({mspid: "RTBAsia"});
 
             let rt = await chaincode.Invoke(mockStub);
@@ -90,7 +90,7 @@ describe('Chaincode', function() {
             let deltaList = idArray2String(ids2Add1, "1");
 
             let getFunctionAndParameters = sinon.stub(mockStub, 'getFunctionAndParameters');
-            getFunctionAndParameters.returns({fcn: "deltaUploadDevice", params: [deltaList]});
+            getFunctionAndParameters.returns({fcn: "deltaUpload", params: [deltaList, "device"]});
 
             sinon.stub(mockStub, 'getCreator').returns({mspid: "RTBAsia"});
 
@@ -100,7 +100,7 @@ describe('Chaincode', function() {
             let ids2Add2 = ["device3", "device4"];
             deltaList = idArray2String(ids2Add2, "1");
 
-            getFunctionAndParameters.returns({fcn: "deltaUploadDevice", params: [deltaList]});
+            getFunctionAndParameters.returns({fcn: "deltaUpload", params: [deltaList, "device"]});
 
             rt = await chaincode.Invoke(mockStub);
 
@@ -122,7 +122,7 @@ describe('Chaincode', function() {
             let deltaList = idArray2String(ids2Add1, "1");
 
             let getFunctionAndParameters = sinon.stub(mockStub, 'getFunctionAndParameters');
-            getFunctionAndParameters.returns({fcn: "deltaUploadDevice", params: [deltaList]});
+            getFunctionAndParameters.returns({fcn: "deltaUpload", params: [deltaList, "device"]});
 
             sinon.stub(mockStub, 'getCreator').returns({mspid: "RTBAsia"});
 
@@ -132,7 +132,7 @@ describe('Chaincode', function() {
             let ids2Add2 = ["device1"];
             deltaList = idArray2String(ids2Add2, "0");
 
-            getFunctionAndParameters.returns({fcn: "deltaUploadDevice", params: [deltaList]});
+            getFunctionAndParameters.returns({fcn: "deltaUpload", params: [deltaList, "device"]});
             rt = await chaincode.Invoke(mockStub);
 
             let expectedMergedList = ["device2"];
@@ -153,7 +153,7 @@ describe('Chaincode', function() {
             let deltaList = idArray2String(ids2Add, "1");
 
             let getFunctionAndParameters = sinon.stub(mockStub, 'getFunctionAndParameters');
-            getFunctionAndParameters.returns({fcn: "deltaUploadDevice", params: [deltaList]});
+            getFunctionAndParameters.returns({fcn: "deltaUpload", params: [deltaList, "device"]});
             sinon.stub(mockStub, 'getCreator').returns({mspid: "RTBAsia"});
             let rt = await chaincode.Invoke(mockStub);
 
@@ -184,7 +184,7 @@ describe('Chaincode', function() {
                 let deltaList = idArray2String(ids2Add, "1");
 
                 let getFunctionAndParameters = sinon.stub(mockStub, 'getFunctionAndParameters');
-                getFunctionAndParameters.returns({fcn: "deltaUploadDevice", params: [deltaList]});
+                getFunctionAndParameters.returns({fcn: "deltaUpload", params: [deltaList, "device"]});
                 sinon.stub(mockStub, 'getCreator').returns({mspid: "RTBAsia"});
                 let rt = await chaincode.Invoke(mockStub);
 
@@ -204,7 +204,7 @@ describe('Chaincode', function() {
                 let deltaList = idArray2String(ids2Add, "1");
 
                 let getFunctionAndParameters = sinon.stub(mockStub, 'getFunctionAndParameters');
-                getFunctionAndParameters.returns({fcn: "deltaUploadDevice", params: [deltaList]});
+                getFunctionAndParameters.returns({fcn: "deltaUpload", params: [deltaList, "device"]});
                 sinon.stub(mockStub, 'getCreator').returns({mspid: "RTBAsia"});
                 let rt = await chaincode.Invoke(mockStub);
 
