@@ -3,9 +3,14 @@
     "version": "1.1.0",
     "description": "dif chaincode implemented in node.js",
     "main": "dif.js",
-    "scripts": { "start" : "node dif.js" },
+    "scripts": {
+        "start": "node dif.js",
+        "test": "mocha --recursive -R dot test/"
+    },
     "license": "Apache-2.0",
     "dependencies": {
-        "fabric-shim": "unstable"
+        "fabric-shim": "unstable",
+        "mocha": "^4.1.0",
+        "sinon": "latest"
     }
 }
