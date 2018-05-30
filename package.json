@@ -31,6 +31,8 @@
     "multer": "latest",
     "superagent-promise": "latest",
     "superagent": "latest",
-    "request": "latest"
+    "request": "latest",
+    "mocha": "^4.1.0",
+    "sinon": "latest"
   }
 }
