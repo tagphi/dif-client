@@ -4,6 +4,7 @@ const shim = require('fabric-shim');
 
 const ORG_IDX_NAME = "ORG";
 const ORG_DELTA_IDX_NAME = "ORGDELTA";
+const MERGED_IDX_NAME = "MERGED";
 
 var Chaincode = class {
 
@@ -35,6 +36,10 @@ var Chaincode = class {
     }
 
     async deltaUpload(stub, args) {
+        if (!args || args.length != 2) {
+            throw new Error("2 arguments are expected");
+        }
+
         let creator = stub.getCreator();
         let mspid = creator.mspid;
         let deltaList = args[0];
@@ -100,11 +105,15 @@ var Chaincode = class {
     }
 
     async listDeltaUploadHistory(stub, args) {
+        if (!args || args.length != 2) {
+            throw new Error("should provide 2 timestamp as args");
+        }
+
         let startTs = args[0];
-        let endTx = args[1];
+        let endTs = args[1];
 
         let startKey = stub.createCompositeKey(ORG_DELTA_IDX_NAME, [startTs]);
-        let endKey = stub.createCompositeKey(ORG_DELTA_IDX_NAME, [endTx]);
+        let endKey = stub.createCompositeKey(ORG_DELTA_IDX_NAME, [endTs]);
 
         let ite = await stub.getStateByRange(startKey, endKey);
 
@@ -132,7 +141,65 @@ var Chaincode = class {
             });
         }
 
-        return JSON.stringify(results);
+        return Buffer.from(JSON.stringify(results));
+    }
+
+    async merge(stub, args) {
+        let type = args[0];
+
+        let orgs = await stub.getStateByPartialCompositeKey(ORG_IDX_NAME, [type]);
+
+        let mergedList = {};
+
+        while (true) {
+            let oneOrg = await orgs.next();
+
+            if (!oneOrg || !oneOrg.value || !oneOrg.value.key) {
+                break;
+            }
+
+            let objectType;
+            let attributes;
+
+            ({
+                objectType,
+                attributes
+            } = stub.splitCompositeKey(oneOrg.value.key));
+
+            let mspid = attributes[1];
+
+            var items = JSON.parse(oneOrg.value.value.toString('utf8'));
+
+            items.forEach((item) => {
+                if (item in mergedList) {
+                    mergedList[item].add(mspid);
+                } else {
+                    mergedList[item] = new Set([mspid]);
+                }
+            });
+        };
+
+        let key;
+        let finnalList = {};
+
+        if ("device" === type) {
+            for (key in mergedList) {
+                finnalList[key] = Array.from(mergedList[key]);
+            }
+        } else {
+            for (key in mergedList) {
+                let concurredOrg = Array.from(mergedList[key]);
+
+                if (concurredOrg.length >= 2) {
+                    finnalList[key] = concurredOrg;
+                }
+            }
+        }
+
+        let mergedListKey = stub.createCompositeKey(MERGED_IDX_NAME, [type]);
+
+        await stub.putState(mergedListKey, 
+            Buffer.from(JSON.stringify(finnalList)));
     }
 };
 
