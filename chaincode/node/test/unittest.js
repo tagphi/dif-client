@@ -35,6 +35,28 @@ var listEquals = function(a, b) {
 }
 
 describe('Chaincode', function() {
+    var chaincode = new Chaincode();
+    var mockStub;
+    var getFunctionAndParameters;
+    var getCreator;
+
+    beforeEach(function() {
+        mockStub = new MockStub(); // 清除数据
+        getCreator = sinon.stub(mockStub, 'getCreator');
+
+        getCreator.returns({mspid: "RTBAsia"}); // 默认组织
+
+        getFunctionAndParameters = sinon.stub(mockStub, 'getFunctionAndParameters');
+    });
+
+    var setOrg = function(org) {
+        getCreator.returns({mspid: org});
+    }
+
+    var makeCall = function(fcn, args) {
+        getFunctionAndParameters.returns({fcn: fcn, params: args});
+    }
+
     describe('#Init()', function() {
         it('we do nothing in init function', async function() {
             let chaincode = new Chaincode();
@@ -48,11 +70,7 @@ describe('Chaincode', function() {
 
     describe('#deltaUpload()', function() {
         it('should returns error if format is invalid', async function() {
-            let chaincode = new Chaincode();
-            let mockStub = new MockStub();
-
-            sinon.stub(mockStub, 'getFunctionAndParameters').returns({fcn: "deltaUpload", params: ["invalidlist", "device"]});
-            sinon.stub(mockStub, 'getCreator').returns({mspid: "RTBAsia"});
+            makeCall("deltaUpload", ["invalidlist", "device"]);
 
             let rt = await chaincode.Invoke(mockStub);
 
@@ -60,14 +78,10 @@ describe('Chaincode', function() {
         });
 
         it('should merge new devicies to this org empty list', async function() {
-            let chaincode = new Chaincode();
-            let mockStub = new MockStub();
-
             let ids2Add = ["device1", "device2"];
             let deltaList = idArray2String(ids2Add, "1");
 
-            sinon.stub(mockStub, 'getFunctionAndParameters').returns({fcn: "deltaUpload", params: [deltaList, "device"]});
-            sinon.stub(mockStub, 'getCreator').returns({mspid: "RTBAsia"});
+            makeCall("deltaUpload", [deltaList, "device"]);
 
             let rt = await chaincode.Invoke(mockStub);
 
@@ -82,17 +96,11 @@ describe('Chaincode', function() {
         });
 
         it('should merge new devicies to an existed list', async function() {
-            let chaincode = new Chaincode();
-            let mockStub = new MockStub();
-
             // 先存入两个设备号作为组织的已有设备黑名单列表
             let ids2Add1 = ["device1", "device2"];
             let deltaList = idArray2String(ids2Add1, "1");
 
-            let getFunctionAndParameters = sinon.stub(mockStub, 'getFunctionAndParameters');
-            getFunctionAndParameters.returns({fcn: "deltaUpload", params: [deltaList, "device"]});
-
-            sinon.stub(mockStub, 'getCreator').returns({mspid: "RTBAsia"});
+            makeCall("deltaUpload", [deltaList, "device"]);
 
             let rt = await chaincode.Invoke(mockStub);
 
@@ -100,7 +108,7 @@ describe('Chaincode', function() {
             let ids2Add2 = ["device3", "device4"];
             deltaList = idArray2String(ids2Add2, "1");
 
-            getFunctionAndParameters.returns({fcn: "deltaUpload", params: [deltaList, "device"]});
+            makeCall("deltaUpload", [deltaList, "device"]);
 
             rt = await chaincode.Invoke(mockStub);
 
@@ -108,23 +116,17 @@ describe('Chaincode', function() {
 
             let idxKey = mockStub.createCompositeKey("ORG", ["device", "RTBAsia"]);
             let orgDeviceListBuffer = await mockStub.getState(idxKey);
-            let orgDeviceList = JSON.parse(orgDeviceListBuffer.toString())
+            let orgDeviceList = JSON.parse(orgDeviceListBuffer.toString());
 
             assert.ok(listEquals(expectedMergedList, orgDeviceList));
         });
 
         it('should remove device from existed list', async function() {
-            let chaincode = new Chaincode();
-            let mockStub = new MockStub();
-
             // 先存入两个设备号作为组织的已有设备黑名单列表
             let ids2Add1 = ["device1", "device2"];
             let deltaList = idArray2String(ids2Add1, "1");
 
-            let getFunctionAndParameters = sinon.stub(mockStub, 'getFunctionAndParameters');
-            getFunctionAndParameters.returns({fcn: "deltaUpload", params: [deltaList, "device"]});
-
-            sinon.stub(mockStub, 'getCreator').returns({mspid: "RTBAsia"});
+            makeCall("deltaUpload", [deltaList, "device"]);
 
             let rt = await chaincode.Invoke(mockStub);
 
@@ -132,7 +134,8 @@ describe('Chaincode', function() {
             let ids2Add2 = ["device1"];
             deltaList = idArray2String(ids2Add2, "0");
 
-            getFunctionAndParameters.returns({fcn: "deltaUpload", params: [deltaList, "device"]});
+            makeCall("deltaUpload", [deltaList, "device"]);
+
             rt = await chaincode.Invoke(mockStub);
 
             let expectedMergedList = ["device2"];
@@ -146,15 +149,11 @@ describe('Chaincode', function() {
         });    
 
         it('should save delta list', async function() {
-            let chaincode = new Chaincode();
-            let mockStub = new MockStub();
-
             let ids2Add = ["device1", "device2"];
             let deltaList = idArray2String(ids2Add, "1");
+            
+            makeCall("deltaUpload", [deltaList, "device"]);
 
-            let getFunctionAndParameters = sinon.stub(mockStub, 'getFunctionAndParameters');
-            getFunctionAndParameters.returns({fcn: "deltaUpload", params: [deltaList, "device"]});
-            sinon.stub(mockStub, 'getCreator').returns({mspid: "RTBAsia"});
             let rt = await chaincode.Invoke(mockStub);
 
             let partialKey = mockStub.createCompositeKey("ORGDELTA", []);
@@ -177,18 +176,14 @@ describe('Chaincode', function() {
 
         describe('#getOrgList()', function() {
             it('should get whatever we saved', async function() {
-                let chaincode = new Chaincode();
-                let mockStub = new MockStub();
-
                 let ids2Add = ["device1", "device2"];
                 let deltaList = idArray2String(ids2Add, "1");
+                
+                makeCall("deltaUpload", [deltaList, "device"]);
 
-                let getFunctionAndParameters = sinon.stub(mockStub, 'getFunctionAndParameters');
-                getFunctionAndParameters.returns({fcn: "deltaUpload", params: [deltaList, "device"]});
-                sinon.stub(mockStub, 'getCreator').returns({mspid: "RTBAsia"});
                 let rt = await chaincode.Invoke(mockStub);
 
-                getFunctionAndParameters.returns({fcn: "getOrgList", params: ["device"]});
+                makeCall("getOrgList", ["device"]);
                 rt = await chaincode.Invoke(mockStub);
 
                 assert.ok(listEquals(JSON.parse(rt.payload.toString()), ids2Add));
@@ -197,15 +192,11 @@ describe('Chaincode', function() {
 
         describe('#listDeltaUploadHistory()', function() {
             it('should list all history uploads', async function() {
-                let chaincode = new Chaincode();
-                let mockStub = new MockStub();
-
                 let ids2Add = ["device1", "device2"];
                 let deltaList = idArray2String(ids2Add, "1");
 
-                let getFunctionAndParameters = sinon.stub(mockStub, 'getFunctionAndParameters');
-                getFunctionAndParameters.returns({fcn: "deltaUpload", params: [deltaList, "device"]});
-                sinon.stub(mockStub, 'getCreator').returns({mspid: "RTBAsia"});
+                makeCall("deltaUpload", [deltaList, "device"]);
+
                 let rt = await chaincode.Invoke(mockStub);
 
                 let date = new Date();
@@ -216,7 +207,8 @@ describe('Chaincode', function() {
                 date.setDate(date.getDate() + 2);
                 let endTimestamp = date.getTime().toString();
 
-                getFunctionAndParameters.returns({fcn: "listDeltaUploadHistory", params: [startTimestamp, endTimestamp]});
+                makeCall("listDeltaUploadHistory", [startTimestamp, endTimestamp]);
+
                 rt = await chaincode.Invoke(mockStub);
 
                 let results = JSON.parse(rt.payload.toString());
@@ -226,6 +218,81 @@ describe('Chaincode', function() {
                 let row = results[0];
                 assert.equal(row.mspid, "RTBAsia");
                 assert.ok(row.key);
+            });
+        });
+
+        describe('#merge()', function() {
+            it('should merge device list committed by two orgs', async function() {
+                let ids2Add1 = ["device1", "device2"];
+                let deltaList = idArray2String(ids2Add1, "1");
+
+                makeCall("deltaUpload", [deltaList, "device"]);
+                let rt = await chaincode.Invoke(mockStub);
+
+                setOrg("HTT"); // 切换到另一个组织上传
+
+                let ids2Add2 = ["device2", "device3"];
+                deltaList = idArray2String(ids2Add2, "1");
+
+                makeCall("deltaUpload", [deltaList, "device"]);
+                
+                rt = await chaincode.Invoke(mockStub);
+
+                makeCall("merge", ["device"]); //合并device id
+                rt = await chaincode.Invoke(mockStub);
+
+                let mergedListKey = mockStub.createCompositeKey("MERGED", ["device"]);
+                let mergedListKeyBuffer = await mockStub.getState(mergedListKey);
+                let mergedList = JSON.parse(mergedListKeyBuffer.toString());
+
+                assert.ok("device1" in mergedList);
+                let device1Orgs = mergedList["device1"];
+                assert.ok(device1Orgs.length == 1);
+                assert.ok(device1Orgs.indexOf("RTBAsia") != -1);
+
+                assert.ok("device3" in mergedList);
+                let device3Orgs = mergedList["device3"];
+                assert.ok(device3Orgs.length == 1);
+                assert.ok(device3Orgs.indexOf("HTT") != -1);
+
+                assert.ok("device2" in mergedList);
+                let device2Orgs = mergedList["device2"];
+                assert.ok(device2Orgs.length == 2);
+                assert.ok(device2Orgs.indexOf("RTBAsia") != -1 && device2Orgs.indexOf("HTT") != -1);
+            });
+        });
+
+        describe('#merge()', function() {
+            it('should merge ip list committed by two orgs', async function() {
+                let ip2Add1 = ["192.168.0.1", "192.168.0.2"];
+                let deltaList = idArray2String(ip2Add1, "1");
+
+                makeCall("deltaUpload", [deltaList, "ip"]);
+                let rt = await chaincode.Invoke(mockStub);
+
+                setOrg("HTT"); // 切换到另一个组织上传
+
+                let ip2Add2 = ["192.168.0.2", "192.168.0.3"];
+                deltaList = idArray2String(ip2Add2, "1");
+
+                makeCall("deltaUpload", [deltaList, "ip"]);
+                
+                rt = await chaincode.Invoke(mockStub);
+
+                makeCall("merge", ["ip"]); //合并device id
+                rt = await chaincode.Invoke(mockStub);
+
+                let mergedListKey = mockStub.createCompositeKey("MERGED", ["ip"]);
+                let mergedListKeyBuffer = await mockStub.getState(mergedListKey);
+                let mergedList = JSON.parse(mergedListKeyBuffer.toString());
+
+                let keys = Object.keys(mergedList);
+                assert.equal(keys.length, 1); // 应该只有一条结果
+
+                assert.ok("192.168.0.2" in mergedList);
+
+                let ip2Orgs = mergedList["192.168.0.2"];
+                assert.ok(ip2Orgs.indexOf("RTBAsia") != -1 && ip2Orgs.indexOf("HTT") != -1);
             });
         });
   });
