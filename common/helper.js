@@ -15,7 +15,7 @@ var getChannel = async function(client) {
 }
 
 var __newOrderer = function(client) {
-    let data = fs.readFileSync(CONFIG.orderer.tls_cert_path);
+    let data = fs.readFileSync(path.join(__dirname, CONFIG.orderer.tls_cert_path));
     let caroots = Buffer.from(data).toString();
 
     return client.newOrderer(CONFIG.orderer.url, {
@@ -45,8 +45,8 @@ var __getCryptoDataPEM = function(keyPath) {
 
 var __setAdminSigningIdentity = function(client) {
     // set admin identity
-    var keyPEM = __getCryptoDataPEM(CONFIG.msp.admin_key_path);
-    var certPEM = __getCryptoDataPEM(CONFIG.msp.admin_cert_path);
+    var keyPEM = __getCryptoDataPEM(path.join(__dirname, CONFIG.msp.admin_key_path));
+    var certPEM = __getCryptoDataPEM(path.join(__dirname, CONFIG.msp.admin_cert_path));
 
     client.setAdminSigningIdentity(keyPEM, certPEM, CONFIG.msp.id);
 }
@@ -67,8 +67,6 @@ var getClient = async function (useAdmin) {
 }
 
 var __setUserContext = async function(client, useAdmin) {
-    client._userContext = null;
-
     let username = useAdmin ? "admin" : "user1";
     let user = await client.getUserContext(username, true);
 
@@ -77,11 +75,11 @@ var __setUserContext = async function(client, useAdmin) {
         var signedCertPEM = null;
 
         if (useAdmin) { // 使用admin的证书登记此user
-            privateKeyPEM = __getCryptoDataPEM(CONFIG.msp.admin_key_path);
-            signedCertPEM = __getCryptoDataPEM(CONFIG.msp.admin_cert_path);
+            privateKeyPEM = __getCryptoDataPEM(path.join(__dirname, CONFIG.msp.admin_key_path));
+            signedCertPEM = __getCryptoDataPEM(path.join(__dirname, CONFIG.msp.admin_cert_path));
         } else {
-            privateKeyPEM = __getCryptoDataPEM(CONFIG.msp.prv_key_path);
-            signedCertPEM = __getCryptoDataPEM(CONFIG.msp.sgn_cert_path);
+            privateKeyPEM = __getCryptoDataPEM(path.join(__dirname, CONFIG.msp.prv_key_path));
+            signedCertPEM = __getCryptoDataPEM(path.join(__dirname, CONFIG.msp.sgn_cert_path));
         }
 
         user = await client.createUser({username: username,
@@ -92,18 +90,54 @@ var __setUserContext = async function(client, useAdmin) {
     return user;
 }
 
-var getOwnPeers = function(client) {
-    let allPeersJsonStr = fs.readFileSync("./peers.json");
+var __getPeersConfig = function() {
+    let allPeersJsonStr = fs.readFileSync(path.join(__dirname, "../peers.json"));
     let allPeersJson = JSON.parse(Buffer.from(allPeersJsonStr).toString());
+
+    return allPeersJson;
+}
+
+var getEndorsers = function(client) {
+    let allPeersJson = __getPeersConfig();
+    let endorsers = [];
+
+    let data = fs.readFileSync(path.join(__dirname, CONFIG.peer.tls_cert_path));
+
+    for (let key in allPeersJson) {
+        let orgPeersJson = allPeersJson[key];
+
+        for (let key in orgPeersJson.peers) {
+            let peerConfig = orgPeersJson.peers[key];
+
+            if (peerConfig.endorser) {
+                let peer = client.newPeer(
+                    orgPeersJson.peers[key].url,
+                    {
+                        pem: Buffer.from(data).toString(), // TODO: tls证书是必须的，但是我们不一定开启了tls验证
+                        'ssl-target-name-override': peerConfig["ssl-target-name-override"],
+                        'request-timeout' : 120
+                    }
+                );
+
+                endorsers.push(peer);
+            }
+        }
+    }
+
+    return endorsers;
+}
+
+var getOwnPeers = function(client) {
+    let allPeersJson = __getPeersConfig();
 
     let peers = [];
 
-    for (var key in allPeersJson) {
+    for (let key in allPeersJson) {
         let orgPeersJson = allPeersJson[key];
 
         // 这是本组织Peer
         if (orgPeersJson.MSPID == CONFIG.msp.id) {
-            let data = fs.readFileSync(CONFIG.peer.tls_cert_path);
+            let data = fs.readFileSync(path.join(__dirname, CONFIG.peer.tls_cert_path));
             
             for (let key in orgPeersJson.peers) {
                 let peer = client.newPeer(
@@ -126,3 +160,4 @@ var getOwnPeers = function(client) {
 exports.getClient = getClient;
 exports.getChannel = getChannel;
 exports.getOwnPeers = getOwnPeers;
+exports.getEndorsers = getEndorsers;

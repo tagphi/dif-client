@@ -46,12 +46,13 @@ var Chaincode = class {
         let type = args[1];
 
         let orgIdxKey = stub.createCompositeKey(ORG_IDX_NAME, [type, mspid]);
-        let oldListJSON = await stub.getState(orgIdxKey);
+        let oldListStrBuff = await stub.getState(orgIdxKey);
+        let oldListStr = oldListStrBuff.toString();
 
         let orgSet = new Set();
 
-        if (oldListJSON && typeof(oldListJSON) != "undefined") {
-            let oldList = JSON.parse(oldListJSON);
+        if (oldListStr) {
+            let oldList = JSON.parse(oldListStr);
 
             oldList.forEach((item) => {
                 orgSet.add(item);
@@ -200,6 +201,16 @@ var Chaincode = class {
 
         await stub.putState(mergedListKey, 
             Buffer.from(JSON.stringify(finnalList)));
+    }
+
+    async getMergedList(stub, args) {
+        let type = args[0];
+
+        let mergedListKey = stub.createCompositeKey(MERGED_IDX_NAME, [type]);
+
+        let result = await stub.getState(mergedListKey);
+
+        return result;
     }
 };
 
