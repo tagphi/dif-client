@@ -1,0 +1,152 @@
+<div>
+	<header class="header">
+		<h1 class="hlogo"></h1>
+		<div class="header-info">
+			RTBAsia
+		</div>
+	</header>
+	<section class="main">
+		<div ng-show="showStatusBar"
+			 ng-class="{'alert-success':isSuccStatus,'alert-err':isErrStatus}">{{statusTip}}</div>
+		<h2 class="history-head">
+			<strong>历史提交记录</strong>
+			<a ng-click="showDlg('showUploadDlg')" class="link-normal"><i class="icon-upload"></i> 上传</a>
+			<a href="#" class="link-default"><i class="icon-git-merge"></i> 合并版本</a>
+		</h2>
+		<section class="mainarea">
+			<div class="htitle">
+				<div class="htime">
+					<p>日期范围</p>
+					<div class="calendar-box">
+						<input type="text" placeholder="日期范围" id="date">
+						<i class="icon-calendar"></i>
+					</div>
+				</div>
+				<span class="hlink">
+					<a href="#" class="link-default"> 查询</a><a href="#" class="link-normal"><i class="icon-trash"></i> 清空</a>
+				</span>
+			</div>
+			<nav class="history-tab">
+				<ul>
+					<li class="on">IP</li>
+					<li>设备</li>
+					<li>默认设备</li>
+				</ul>
+			</nav>
+			<table class="table tc">
+				<thead>
+					<tr>
+						<th>成员名</th>
+						<th>日期</th>
+						<th>类型</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>RTBAsia</td>
+						<td>20180521</td>
+						<td>IP</td>
+						<td><a href="">下载</a></td>
+					</tr>
+					<tr>
+						<td>RTBAsia</td>
+						<td>20180521</td>
+						<td>IP</td>
+						<td><a href="">下载</a></td>
+					</tr>
+					<tr>
+						<td>RTBAsia</td>
+						<td>20180521</td>
+						<td>IP</td>
+						<td><a href="">下载</a></td>
+					</tr>
+					<tr>
+						<td>RTBAsia</td>
+						<td>20180521</td>
+						<td>IP</td>
+						<td><a href="">下载</a></td>
+					</tr>
+					<tr>
+						<td>RTBAsia</td>
+						<td>20180521</td>
+						<td>IP</td>
+						<td><a href="">下载</a></td>
+					</tr>
+					<tr>
+						<td>RTBAsia</td>
+						<td>20180521</td>
+						<td>IP</td>
+						<td><a href="">下载</a></td>
+					</tr>
+					<tr>
+						<td>RTBAsia</td>
+						<td>20180521</td>
+						<td>IP</td>
+						<td><a href="">下载</a></td>
+					</tr>
+					<tr>
+						<td>RTBAsia</td>
+						<td>20180521</td>
+						<td>IP</td>
+						<td><a href="">下载</a></td>
+					</tr>
+				</tbody>
+			</table>
+			<nav aria-label="Page navigation" class="tr">
+			  <ul class="pagination">
+			    <li class="disabled">
+			      <a href="#" aria-label="Previous">
+			        <span aria-hidden="true"><i class="icon-chevron-left"></i></span>
+			      </a>
+			    </li>
+			    <li class="active"><a href="#">1</a></li>
+			    <li><a href="#">2</a></li>
+			    <li><a href="#">3</a></li>
+			    <li><a href="#">4</a></li>
+			    <li><a href="#">5</a></li>
+			    <li>
+			      <a href="#" aria-label="Next">
+			        <span aria-hidden="true"><i class="icon-chevron-right"></i></span>
+			      </a>
+			    </li>
+			  </ul>
+			</nav>
+		</section>
+	</section>
+	<footer class="footer">
+		powred by hyperledger fabric
+	</footer>
+
+	<!--上传对话框-->
+	<div ng-show="showUploadDlg" class="modal" style="display: ;">
+		<div class="modal-dialog" role="document">
+	    	<div class="modal-content">
+	      		<div class="modal-header">
+	      			<h3>上传</h3>
+	      			<a ng-click="hideDlgs()"><i class="icon-x"></i></a>
+	      		</div>
+	      		<div class="modal-body">
+	      			<ul class="plist">
+	      				<li>
+	      					<span class="pname">上传类型</span>
+	      					<div class="pinfo">
+	      						<input type="radio"> <label for="">黑名单</label>
+	      						<input type="radio"> <label for="">移除列表</label>
+	      					</div>
+	      				</li>
+	      				<li><span class="pname">文件</span><span class="pcon">peer1.rtbasia.com:8080</span></li>
+	      			</ul>
+	      		</div>
+	      		<div class="modal-footer">
+	      			<button ng-click="hideDlgs()" type="button" class="btn-cancel">取消</button>
+        			<button type="button" class="btn-remove">删除</button>
+	      		</div>
+	     	</div>
+	     </div>
+	</div>
+
+
+	<div ng-click="hideDlgs()" ng-show="showDlgBg" class="dialog-bg" style="display: ;"></div>
+
+</div>

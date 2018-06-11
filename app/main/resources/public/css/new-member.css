@@ -1,0 +1,58 @@
+/**
+ *  【添加新的成员的页面】
+ **/
+.new-member{
+
+}
+
+/*mspid的输入框*/
+.new-member-mspid{
+    width: 40%;
+    margin-left: 1.5rem;
+}
+
+/*提交按钮*/
+.new-member-submit-btn{
+    position: relative;
+    top: -2px;
+    margin-left: 20px;
+    /* padding: 4px; */
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+/*三个证书的容器*/
+.new-member-cert-ctn {
+    margin-top: 2.7rem;
+}
+
+/*证书面板*/
+.new-member-cert-board {
+    height: 16rem;
+}
+
+/*必须的选项*/
+.new-member-required{
+    color: #e45252;
+}
+
+/*左侧提示点*/
+.new-member-required-left {
+    position: relative;
+    top: -237px;
+    left: -34px;
+}
+
+/*中间提示点*/
+.new-member-required-mid{
+    position: relative;
+    top: -237px;
+    right: -2px;
+}
+
+/*右侧提示点*/
+.new-member-required-right{
+    position: relative;
+    top: -237px;
+    left: 258px;
+}
