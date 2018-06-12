@@ -2,11 +2,12 @@
  *  【认证模块管理器】
  **/
 //管理员
-var admin=require("../../resources/application").server.admin;
+var admin=require("../../config").site;
 
 var respUtils = require('../utils/resp-utils');
 // token管理器
 var tokenManager=require("../interceptors/token-manager");
+
 
 //验证器
 var authValidator=require("../validators/auth-validator");

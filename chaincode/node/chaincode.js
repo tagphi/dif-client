@@ -156,18 +156,23 @@ var Chaincode = class {
             throw new Error("should provide 2 timestamp as args");
         }
 
+
         let startTs = args[0];
         let endTs = args[1];
 
+
         let startKey = stub.createCompositeKey(ORG_DELTA_IDX_NAME, [startTs]);
+
         let endKey = stub.createCompositeKey(ORG_DELTA_IDX_NAME, [endTs]);
 
         let ite = await stub.getStateByRange(startKey, endKey);
+
 
         let results = [];
 
         while (true) {
             let history = await ite.next();
+            throw new Error(">>5");
 
             if (!history) {
               return Buffer.from(JSON.stringify(results));

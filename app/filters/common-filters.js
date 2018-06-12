@@ -23,7 +23,7 @@ function configPreFilters(expApp) {
     expApp.use(bearerToken());
 
     //配置静态文件
-    let staticDir=path.join(__dirname, '../../resources/public');
+    let staticDir=path.join(__dirname, '../../public');
     expApp.use(express.static(staticDir));
 }
 

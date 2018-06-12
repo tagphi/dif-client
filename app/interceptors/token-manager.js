@@ -5,7 +5,7 @@
 var jwt = require('jsonwebtoken');
 
 //读取token相关配置
-var jwtConfig = require('../../resources/application').server.jwt;
+var jwtConfig = require('../../config').site;
 var secretOrPrivateKey = jwtConfig.jwt_secret;
 
 //应用共享的token池

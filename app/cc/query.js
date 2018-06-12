@@ -7,7 +7,7 @@ var helper = require('../../common/helper.js');
 var CONFIG = require('../../config');
 var chaincodeUtil = require('../../common/chaincode-util');
 
-var query = async function(chaincodeName, args, fcn) {
+var query = async function(args, fcn) {
     try {
         let client = await helper.getClient(CONFIG.msp.id, true);
         let channel = await helper.getChannel(client);
@@ -19,6 +19,8 @@ var query = async function(chaincodeName, args, fcn) {
             args: args,
             chainId: CONFIG.channel_name
         };
+
+        request.targets = helper.getEndorsers(client);
 
         let response_payloads = await channel.queryByChaincode(request);
 

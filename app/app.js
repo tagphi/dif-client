@@ -1,27 +1,65 @@
-'use strict';
+/**
+ *  【客户端入口】
+ **/
+var appConfig = require("../config").site;
 
 var express = require('express');
-var path = require('path');
+
+
+/**
+ * 工具组
+ **/
+let uploadHelper = require("./utils/upload-helper");
+let asyncWrapper = require("express-async-wrapper");
+
+/**
+ * 过滤器
+ **/
+var commonFilters = require("./filters/common-filters");
+var exceptionFilter = require("./filters/exception-filter");
+var tokenManager = require("./interceptors/token-manager");
+
+/**
+ * 模块控制器
+ **/
+var authController = require("./controllers/auth-controller");
+var blacklistController = require("./controllers/blacklist-controller");
+
+var controllerToRoutes = require("./utils/controller-router-mapper");
+
+// 上传文件表单的处理
 var multer = require('multer');
 
-var bodyParser = require('body-parser');
+var app;
 
-var log4js = require('log4js');
-var logger = log4js.getLogger('app');
+/**
+ *  入口函数
+ **/
+(function init() {
 
-var CONFIG = require('../config.json');
+    app = express();
 
-var app = express();
-var upload = multer();
+    //配置通用前置过滤器
+    commonFilters.configPreFilters(app);
 
-app.use(bodyParser.json());
+    //配置token管理器
+    // tokenManager.init(app);
 
-app.use(bodyParser.urlencoded({
-    extended: false
-}));
+    //【配置各控制器】
+    controllerToRoutes(app, authController);
+    controllerToRoutes(app, blacklistController, ["uploadBlacklist"]);
+    //上传
+    app.post(blacklistController.BASE_ROUTE + "/uploadBlacklist",
+        uploadHelper.single("file"),
+        asyncWrapper(blacklistController.uploadBlacklist));
 
-app.listen(CONFIG.site.port, () => console.log('listen ' + CONFIG.site.port + ' , server started!'));
 
-var chaincodeService = require('./services/chaincode-service');
+    //全局异常处理
+    app.use(exceptionFilter);
 
-app.post('/chaincode/delta-upload', upload.single('file'), chaincodeService.deltaUpload);
+    //启动服务器
+    let port = appConfig.port;
+    app.listen(port, () => console.log('listen ' + port + ' , server started!'));
+})();
+
+

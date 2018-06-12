@@ -6,4 +6,4 @@ package-lock.json
 chaincode/build/
 .idea
 *.iml
-app/main/resources/upload
+upload/

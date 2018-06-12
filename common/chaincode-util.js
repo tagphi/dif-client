@@ -96,4 +96,5 @@ var sendNConfirm = async function(txId, channel, sendFn, validateProposalFn) {
     });
 }
 
+
 exports.sendNConfirm = sendNConfirm;
