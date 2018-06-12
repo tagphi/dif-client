@@ -3,6 +3,7 @@
         "MSPID": "RTBAsia",
         "peers": [
             {
+                "endorser": true,
                 "url": "grpcs://peer0.rtbasia.com:7051",
                 "ssl-target-name-override": "peer0.rtbasia.com"
             }
