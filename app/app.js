@@ -25,3 +25,4 @@ app.listen(CONFIG.site.port, () => console.log('listen ' + CONFIG.site.port + ' 
 var chaincodeService = require('./services/chaincode-service');
 
 app.post('/chaincode/delta-upload', upload.single('file'), chaincodeService.deltaUpload);
+app.get('/chaincode/list-delta-upload-history', chaincodeService.listDeltaUploadHistory);
