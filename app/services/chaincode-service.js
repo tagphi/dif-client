@@ -8,25 +8,51 @@ var invoke = require('../cc/invoke');
 
 var responseUtils = require('./response-utils.js');
 
-// TODO: ip和device格式不同, device还需要提供加密格式和舍
 var __validateFormat = function(list, type) {
-    let lines = list.split("\n"); // 换行符分割，每行第一列为id第二列为标识符，0表示删除，1表示增加
+    let lines = list.split("\n");
 
-    lines.forEach((line) => {
-        if (!line) {
+    lines.forEach((row) => {
+        if (!row) {
             return; // 接受空行作为文件结尾
         }
 
-        let cols = line.split("\t");
+        let cols = row.split("\t");
 
-        if (cols.length != 2) {
-            throw new Error("数据格式错误: " + line);
+        if ("device" === type && cols.length !== 4 || "ip" === type && cols.length !== 2
+            || "default" === type && cols.length !== 3) {
+            throw new Error("invalid format " + row);
         }
 
-        let flag = cols[1];
+        let flagPos = row.lastIndexOf("\t");
+        flagPos++;
+        let flag = row.substring(flagPos);
 
-        if (["0", "1"].indexOf(flag) == -1) {
-            throw new Error("未知的标识列: " + line);
+        if (flag !== "1" && flag !== "0") {
+            throw new Error("unknown flag " + row);
+        }
+
+        let validDeviceTypes = ["IMEI", "IDFA", "MAC", "ANDROIDID"];
+        let validEncryptTypes = ["MD5", "RAW"];
+
+        if ("device" === type) {
+            let deviceType = cols[1];
+            let encryptType = cols[2];
+
+            if(validEncryptTypes.indexOf(encryptType) === -1) {
+                throw new Error("unknown device type " + row);
+            }
+
+            if(validDeviceTypes.indexOf(deviceType) === -1) {
+                throw new Error("unknown device type " + row);
+            }
+        }
+
+        if ("default" === type) {
+            let deviceType = cols[1];
+
+            if(validDeviceTypes.indexOf(deviceType) === -1) {
+                throw new Error("unknown device type " + row);
+            }
         }
     });
 }

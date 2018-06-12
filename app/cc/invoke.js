@@ -22,8 +22,6 @@ var invoke = async function(fcn, args) {
 
     request.targets = helper.getEndorsers(client);
 
-    console.log(request);
-
     await chaincodeUtil.sendNConfirm(tx_id, channel,
         async function() {
             return channel.sendTransactionProposal(request, 180000);
