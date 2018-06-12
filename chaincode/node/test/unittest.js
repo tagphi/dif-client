@@ -78,7 +78,7 @@ describe('Chaincode', function() {
         });
 
         it('should merge new devicies to this org empty list', async function() {
-            let ids2Add = ["device1", "device2"];
+            let ids2Add = ["device1\tIMEI\tMD5", "device2\tIMEI\tMD5"];
             let deltaList = idArray2String(ids2Add, "1");
 
             makeCall("deltaUpload", [deltaList, "device"]);
@@ -90,14 +90,16 @@ describe('Chaincode', function() {
             let idxKey = mockStub.createCompositeKey("ORG", ["device", "RTBAsia"]);
 
             let orgDeviceListBuffer = await mockStub.getState(idxKey);
-            let orgDeviceList = JSON.parse(orgDeviceListBuffer.toString())
+            let orgDeviceList = JSON.parse(orgDeviceListBuffer.toString());
+
+            console.log(orgDeviceList);
 
             assert.ok(listEquals(orgDeviceList, ids2Add));
         });
 
         it('should merge new devicies to an existed list', async function() {
             // 先存入两个设备号作为组织的已有设备黑名单列表
-            let ids2Add1 = ["device1", "device2"];
+            let ids2Add1 = ["device1\tIMEI\tMD5", "device2\tIMEI\tMD5"];
             let deltaList = idArray2String(ids2Add1, "1");
 
             makeCall("deltaUpload", [deltaList, "device"]);
@@ -105,7 +107,7 @@ describe('Chaincode', function() {
             let rt = await chaincode.Invoke(mockStub);
 
             // 添加两个新id
-            let ids2Add2 = ["device3", "device4"];
+            let ids2Add2 = ["device3\tIMEI\tMD5", "device4\tIMEI\tMD5"];
             deltaList = idArray2String(ids2Add2, "1");
 
             makeCall("deltaUpload", [deltaList, "device"]);
@@ -123,7 +125,7 @@ describe('Chaincode', function() {
 
         it('should remove device from existed list', async function() {
             // 先存入两个设备号作为组织的已有设备黑名单列表
-            let ids2Add1 = ["device1", "device2"];
+            let ids2Add1 = ["device1\tIMEI\tMD5", "device2\tIMEI\tMD5"];
             let deltaList = idArray2String(ids2Add1, "1");
 
             makeCall("deltaUpload", [deltaList, "device"]);
@@ -131,14 +133,14 @@ describe('Chaincode', function() {
             let rt = await chaincode.Invoke(mockStub);
 
             // 删除一个设备号
-            let ids2Add2 = ["device1"];
+            let ids2Add2 = ["device1\tIMEI\tMD5"];
             deltaList = idArray2String(ids2Add2, "0");
 
             makeCall("deltaUpload", [deltaList, "device"]);
 
             rt = await chaincode.Invoke(mockStub);
 
-            let expectedMergedList = ["device2"];
+            let expectedMergedList = ["device2\tIMEI\tMD5"];
 
             let idxKey = mockStub.createCompositeKey("ORG", ["device", "RTBAsia"]);
 
@@ -149,7 +151,7 @@ describe('Chaincode', function() {
         });    
 
         it('should save delta list', async function() {
-            let ids2Add = ["device1", "device2"];
+            let ids2Add = ["device1\tIMEI\tMD5", "device2\tIMEI\tMD5"];
             let deltaList = idArray2String(ids2Add, "1");
             
             makeCall("deltaUpload", [deltaList, "device"]);
@@ -176,7 +178,7 @@ describe('Chaincode', function() {
 
         describe('#getOrgList()', function() {
             it('should get whatever we saved', async function() {
-                let ids2Add = ["device1", "device2"];
+                let ids2Add = ["device1\tIMEI\tMD5", "device2\tIMEI\tMD5"];
                 let deltaList = idArray2String(ids2Add, "1");
                 
                 makeCall("deltaUpload", [deltaList, "device"]);
@@ -192,7 +194,7 @@ describe('Chaincode', function() {
 
         describe('#listDeltaUploadHistory()', function() {
             it('should list all history uploads', async function() {
-                let ids2Add = ["device1", "device2"];
+                let ids2Add = ["device1\tIMEI\tMD5", "device2\tIMEI\tMD5"];
                 let deltaList = idArray2String(ids2Add, "1");
 
                 makeCall("deltaUpload", [deltaList, "device"]);
@@ -223,7 +225,7 @@ describe('Chaincode', function() {
 
         describe('#merge()', function() {
             it('should merge device list committed by two orgs', async function() {
-                let ids2Add1 = ["device1", "device2"];
+                let ids2Add1 = ["device1\tIMEI\tMD5", "device2\tIMEI\tMD5"];
                 let deltaList = idArray2String(ids2Add1, "1");
 
                 makeCall("deltaUpload", [deltaList, "device"]);
@@ -231,7 +233,7 @@ describe('Chaincode', function() {
 
                 setOrg("HTT"); // 切换到另一个组织上传
 
-                let ids2Add2 = ["device2", "device3"];
+                let ids2Add2 = ["device2\tIMEI\tMD5", "device3\tIMEI\tMD5"];
                 deltaList = idArray2String(ids2Add2, "1");
 
                 makeCall("deltaUpload", [deltaList, "device"]);
@@ -245,18 +247,18 @@ describe('Chaincode', function() {
                 let mergedListKeyBuffer = await mockStub.getState(mergedListKey);
                 let mergedList = JSON.parse(mergedListKeyBuffer.toString());
 
-                assert.ok("device1" in mergedList);
-                let device1Orgs = mergedList["device1"];
+                assert.ok("device1\tIMEI\tMD5" in mergedList);
+                let device1Orgs = mergedList["device1\tIMEI\tMD5"];
                 assert.ok(device1Orgs.length == 1);
                 assert.ok(device1Orgs.indexOf("RTBAsia") != -1);
 
-                assert.ok("device3" in mergedList);
-                let device3Orgs = mergedList["device3"];
+                assert.ok("device3\tIMEI\tMD5" in mergedList);
+                let device3Orgs = mergedList["device3\tIMEI\tMD5"];
                 assert.ok(device3Orgs.length == 1);
                 assert.ok(device3Orgs.indexOf("HTT") != -1);
 
-                assert.ok("device2" in mergedList);
-                let device2Orgs = mergedList["device2"];
+                assert.ok("device2\tIMEI\tMD5" in mergedList);
+                let device2Orgs = mergedList["device2\tIMEI\tMD5"];
                 assert.ok(device2Orgs.length == 2);
                 assert.ok(device2Orgs.indexOf("RTBAsia") != -1 && device2Orgs.indexOf("HTT") != -1);
             });
