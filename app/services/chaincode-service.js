@@ -5,6 +5,7 @@ var logger = log4js.getLogger('chaincode-service');
 
 var CONFIG = require('../../config.json');
 var invoke = require('../cc/invoke');
+var query = require('../cc/query');
 
 var responseUtils = require('./response-utils.js');
 
@@ -89,4 +90,21 @@ var deltaUpload = async function(req, res) {
     res.end();
 }
 
-exports.deltaUpload = deltaUpload;
+var listDeltaUploadHistory = async function(req, res) {
+    let date = new Date();
+
+    date.setDate(date.getDate() - 1)
+    let startTimestamp = date.getTime().toString()
+
+    date.setDate(date.getDate() + 2)
+    let endTimestamp = date.getTime().toString()
+
+    let data = await query("listDeltaUploadHistory", [startTimestamp, endTimestamp])
+
+    console.log(data)
+
+    res.end()
+}
+
+exports.deltaUpload = deltaUpload
+exports.listDeltaUploadHistory = listDeltaUploadHistory
