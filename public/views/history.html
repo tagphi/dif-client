@@ -7,7 +7,6 @@
     </header>
     <section class="main">
         <alert-msg alert-messages="alertMessages"></alert-msg>
-
         <h2 class="history-head">
             <strong>历史提交记录</strong>
             <a ng-click="openUploadDlg()" class="link-normal"><i class="icon-upload"></i> 上传</a>
@@ -23,7 +22,7 @@
                     </div>
                 </div>
                 <span class="hlink">
-					<a ng-click="query()" class="link-default"> 查询</a>
+					<a ng-click="queryHistories()" class="link-default"> 查询</a>
 					<a ng-click="clearDate()" class="link-normal"><i class="icon-trash"></i> 清空</a>
 				</span>
             </div>
@@ -35,76 +34,115 @@
                 </ul>
             </nav>
             <!--ip表-->
-            <table ng-show="showip" class="table tc">
-                <thead>
-                <tr>
-                    <th>成员名</th>
-                    <th>日期</th>
-                    <th>类型</th>
-                    <th>操作</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr ng-repeat="ipHist in ipHistories">
-                    <td>{{ipHist.mspid}}</td>
-                    <td>{{ipHist.date}}</td>
-                    <td>{{ipHist.type}}</td>
-                    <td><a ng-href="/blacklist/downloadBlacklist?type=ip">下载</a></td>
-                </tr>
-                <tr>
-                    <td>ip</td>
-                </tr>
-                </tbody>
-            </table>
+            <div ng-show="showip" class="text-center">
+                <div class="empty-container" ng-show="ipHistories.length==0">
+                    <div class="empty-content">
+                        <span class="iconfont  empty-icon">&#xe60b;</span><br>
+                        <div class="empty-label">暂无数据</div>
+                    </div>
+                </div>
+                <table ng-show="ipHistories.length!=0"  class="table tc">
+                    <thead>
+                    <tr>
+                        <th>成员名</th>
+                        <th>日期</th>
+                        <th>类型</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="ipHist in ipHistories">
+                        <td>{{ipHist.mspid}}</td>
+                        <td>{{ipHist.date}}</td>
+                        <td>{{ipHist.type}}</td>
+                        <td><a ng-href="/blacklist/downloadBlacklist?type=ip">下载</a></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <nav aria-label="Page navigation" class="tr">
+                    <common-pagination
+                            list="ipHistories"
+                            url="/blacklist/uploadHistories"
+                            event="event-pagination-query-ip"
+                            method="POST">
+                    </common-pagination>
+                </nav>
+            </div>
 
             <!--device表-->
-            <table ng-show="showdevice" class="table tc">
-                <thead>
-                <tr>
-                    <th>成员名</th>
-                    <th>日期</th>
-                    <th>类型</th>
-                    <th>操作</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr ng-repeat="deviceHist in deviceHistories">
-                    <td>{{deviceHist.mspid}}</td>
-                    <td>{{deviceHist.date}}</td>
-                    <td>{{deviceHist.type}}</td>
-                    <td><a ng-href="/blacklist/downloadBlacklist?type=device">下载</a></td>
-                </tr>
-                <tr>
-                    <td>device</td>
-                </tr>
-                </tbody>
-            </table>
+            <div ng-show="showdevice">
+                <div class="empty-container" ng-show="deviceHistories.length==0">
+                    <div class="empty-content">
+                        <span class="iconfont  empty-icon">&#xe60b;</span><br>
+                        <div class="empty-label">暂无数据</div>
+                    </div>
+                </div>
+                <table ng-show="deviceHistories.length!=0" class="table tc">
+                    <thead>
+                    <tr>
+                        <th>成员名</th>
+                        <th>日期</th>
+                        <th>类型</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="deviceHist in deviceHistories">
+                        <td>{{deviceHist.mspid}}</td>
+                        <td>{{deviceHist.date}}</td>
+                        <td>{{deviceHist.type}}</td>
+                        <td><a ng-href="/blacklist/downloadBlacklist?type=device">下载</a></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <nav aria-label="Page navigation" class="tr">
+                    <common-pagination
+                            list="deviceHistories"
+                            url="/blacklist/uploadHistories"
+                            event="event-pagination-query-device"
+                            method="POST">
+                    </common-pagination>
+                </nav>
+            </div>
 
             <!--default表-->
-            <table ng-show="showdefault" class="table tc">
-                <thead>
-                <tr>
-                    <th>成员名</th>
-                    <th>日期</th>
-                    <th>类型</th>
-                    <th>操作</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr ng-repeat="defaultHist in defaultHistories">
-                    <td>{{defaultHist.mspid}}</td>
-                    <td>{{defaultHist.date}}</td>
-                    <td>{{defaultHist.type}}</td>
-                    <td><a ng-href="/blacklist/downloadBlacklist?type=default">下载</a></td>
-                </tr>
-                <tr>
-                    <td>default</td>
-                </tr>
-                </tbody>
-            </table>
+            <div ng-show="showdefault">
+                <div class="empty-container" ng-show="defaultHistories.length==0">
+                    <div class="empty-content">
+                        <span class="iconfont  empty-icon">&#xe60b;</span><br>
+                        <div class="empty-label">暂无数据</div>
+                    </div>
+                </div>
+                <table ng-show="defaultHistories.length!=0" class="table tc">
+                    <thead>
+                    <tr>
+                        <th>成员名</th>
+                        <th>日期</th>
+                        <th>类型</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="defaultHist in defaultHistories">
+                        <td>{{defaultHist.mspid}}</td>
+                        <td>{{defaultHist.date}}</td>
+                        <td>{{defaultHist.type}}</td>
+                        <td><a ng-href="/blacklist/downloadBlacklist?type=default">下载</a></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <nav aria-label="Page navigation" class="tr">
+                    <common-pagination
+                            list="defaultHistories"
+                            url="/blacklist/uploadHistories"
+                            event="event-pagination-query-default"
+                            method="POST">
+                    </common-pagination>
+                </nav>
+            </div>
         </section>
     </section>
-    <footer class="footer fixed-bottom match-width">
+    <footer class="footer">
         powred by hyperledger fabric
     </footer>
 </div>

@@ -97,6 +97,12 @@ exports.uploadHistories = async function (req, res, next) {
     let type = req.body.type;
     let startTimestamp = Date.parse(req.body.startDate) + "";
     let endTimestamp = Date.parse(req.body.endDate) + "";
+    let pageNO = req.body.pageNO || 1;
+    let pageSize = req.body.pageSize || 10;
+
+    //计算偏移
+    let startOffset = (pageNO - 1) * pageSize;
+    let endOffset = startOffset + pageSize - 1;
 
     let result = await queryChaincode("listDeltaUploadHistory", [startTimestamp, endTimestamp]);
     result = JSON.parse(result);
@@ -111,7 +117,20 @@ exports.uploadHistories = async function (req, res, next) {
         })
     }
 
-    respUtils.succResponse(res, "获取成功", result);
+    // 获取页面数据
+    let pageResult = [];
+    typedResult.forEach(function (row, id) {
+        if (id >= startOffset && id <= endOffset) {
+            pageResult.push(row);
+        }
+    })
+
+    res.json({
+        success: true,
+        message: "获取成功",
+        total: typedResult.length,
+        data: pageResult,
+    })
 }
 
 

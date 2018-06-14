@@ -6,7 +6,7 @@ var path = require('path')
 var express = require('express')
 const {check, validationResult} = require('express-validator/check')
 
-var asyncWrapper=require("express-async-wrapper");
+var asyncWrapper = require("express-async-wrapper");
 
 var utils = require('./utils/resp-utils')
 
@@ -47,7 +47,7 @@ module.exports = function (app) {
 
                 if (validator) {
 
-                    app.post(subUrl, validator, (req, res, next) => { // 如果有表单验证器的话这里装饰一下，有错误直接返回
+                    app.post(subUrl, validator, asyncWrapper(async (req, res, next) => { // 如果有表单验证器的话这里装饰一下，有错误直接返回
                         let errors = validationResult(req)
 
                         if (!errors.isEmpty()) {
@@ -56,9 +56,9 @@ module.exports = function (app) {
                         } else {
                             handler(req, res, next)
                         }
-                    })
+                    }))
                 } else {
-                    app.post(subUrl, handler)
+                    app.post(subUrl, asyncWrapper(handler))
                 }
             }
         }

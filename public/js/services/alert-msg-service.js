@@ -2,6 +2,10 @@ angular.module('dif').service('alertMsgService', ['$rootScope', '$timeout', func
     $rootScope.alertMessages = []
 
     this.alert = function (msg, isGood) {
+
+        if ($rootScope.alertMessages && $rootScope.alertMessages.length>=1){
+            return;
+        }
         $rootScope.alertMessages.push({msg: msg, good: isGood})
 
         $timeout(function () {

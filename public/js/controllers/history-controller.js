@@ -1,14 +1,15 @@
 app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout,
                                               HttpService, ngDialog, alertMsgService) {
+
     /**
      * 上传黑名单对话框
      **/
     $scope.openUploadDlg = function () {
-
         let dlgOpts = {
             template: 'views/dlgs/upload-dlg.html',
             scope: $scope,
             controller: ['$scope', 'HttpService', function ($scope, HttpService) {
+                $scope.selectFileName="...";
 
                 $scope.confirmActionText = "上传";
                 $scope.upFlag = "blacklist";
@@ -18,6 +19,8 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
                  **/
                 $scope.fileNameChanged = function (files) {
                     $scope.uploadFile = files[0];
+                    $scope.selectFileName=$scope.uploadFile.name;
+                    document.getElementById("labelSelectFile").innerText=$scope.selectFileName;
                 }
 
                 /**
@@ -47,7 +50,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
 
                     var formData = new FormData();
                     formData.append('file', $scope.uploadFile);
-                    formData.set("type", $scope.tabID);
+                    formData.set("type", "device");
 
                     let payload = {
                         method: 'POST',
@@ -59,16 +62,17 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
 
                     $scope.closeThisDialog();
                     $http(payload)
-                        .then(function (data) {
+                        .then(function (resp) {
+                            data = resp.data;
                             if (data.success) {
                                 alertMsgService.alert("提交成功", true);
-                                $scope.query();
+                                // $scope.queryHistories();
                             } else {
                                 alertMsgService.alert("提交失败", false);
                             }
-                        }, function (err) {
-                            alertMsgService.alert("提交失败", false);
-                        })
+                        }).catch(function (err) {
+                        alertMsgService.alert("提交失败", false);
+                    })
                 }
             }]
         }
@@ -79,14 +83,13 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     /**
      * 查询
      **/
-    $scope.query = function () {
+    $scope.queryHistories = function () {
+
         // 获取日期范围
         let dataRange = getDateRange();
 
         let selectedTabID = $scope.tabID;
 
-        console.log("选中时候————>",selectedTabID);
-        let api = "/blacklist/uploadHistories";
 
         let payload = {
             type: $scope.tabID,
@@ -94,24 +97,9 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             endDate: dataRange[1]
         }
 
-        HttpService.post(api, payload)
-            .then(function (respData) {
-                if (respData.success) {
-                    respData.data.forEach(function (row) { //转换时间戳
-                        let date = new Date();
-                        date.setTime(row.timestamp);
-                        row.date = date.format("yyyy-MM-dd");
-                    })
-
-                    console.log("回来之后————>",selectedTabID);
-
-                    $scope[selectedTabID + "Histories"] = respData.data; //更新数据源
-                }
-            })
-            .catch(function (err) {
-                alertMsgService.alert("查询错误", false);
-            })
+        $scope.$broadcast('event-pagination-query-'+$scope.tabID, payload);
     }
+
 
     /**
      * 退出
@@ -148,7 +136,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
         $scope["show" + tabID] = true;
 
         //查询
-        $scope.query();
+        $scope.queryHistories();
     }
 
     /**
@@ -206,6 +194,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     function initState() {
         $scope.tabID = "ip"; //默认选中的标签为ip
         $scope.showip = true;
+
     }
 
     /**
@@ -217,6 +206,11 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
 
         //初始化日期选择器
         initDatePicker();
+
+        //加载ip历史
+        setTimeout(function () {
+            $scope.queryHistories();
+        },0.5*1000)
     }
 
     init();

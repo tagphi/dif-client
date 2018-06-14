@@ -11,7 +11,7 @@
             </div>
             <div class="form-group">
                 <input name="passwd" ng-model="password" type="password" placeholder="密码"
-                required minlength="6" ng-maxlength="30">
+                       required minlength="6" ng-maxlength="30">
                 <p class="form-tip errow" ng-show="loginForm.passwd.$error.required">请输入密码</p>
                 <p class="form-tip errow" ng-show="loginForm.passwd.$error.minlength">密码长度必须在3-30之间</p>
                 <p class="form-tip errow" ng-show="loginForm.passwd.$error.maxlength">密码长度必须在3-30之间</p>

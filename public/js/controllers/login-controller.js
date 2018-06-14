@@ -10,8 +10,7 @@ app.controller('LoginController', function ($q, $scope, $http, $rootScope, $loca
         var loginUrl = '/auth/login';
 
         $http.post(loginUrl, {'username': username, 'password': password})
-            .then(
-            function(response) {
+            .then(function(response) {
                 var data = response.data;
                 if (data.success === true) {
                     $location.path("/history");
@@ -20,9 +19,9 @@ app.controller('LoginController', function ($q, $scope, $http, $rootScope, $loca
                     $scope.errmsg = data.message;
                     alert(data.message);
                 }
-            }, function(response) {
-                $scope.errmsg = "请检查网络";
             }
-        );
+        ).catch(function(response) {
+            $scope.errmsg = "请检查网络";
+        });
     }
 });
