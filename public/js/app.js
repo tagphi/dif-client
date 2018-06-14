@@ -6,8 +6,9 @@ var app = angular.module('dif', [
     'ngRoute',
     'ngFileUpload',
     'nl2br',
-    'ngStorage'
-]).config(function($routeProvider){
+    'ngStorage',
+    'ngDialog'
+]).config(function ($routeProvider) {
     $routeProvider
         .when('/', {
             controller: 'LoginController',
@@ -17,10 +18,10 @@ var app = angular.module('dif', [
             controller: 'HistoryController',
             templateUrl: 'views/history.html'
         })
-}).run(function($rootScope,$location) {
-    $rootScope.$on('$routeChangeStart', function(evt, next, current) {
-        let token= sessionStorage.getItem("token");
-        if (!token){
+}).run(function ($rootScope, $location) {
+    $rootScope.$on('$routeChangeStart', function (evt, next, current) {
+        let token = sessionStorage.getItem("token");
+        if (!token) {
             // $location.path("/");
         }
     });

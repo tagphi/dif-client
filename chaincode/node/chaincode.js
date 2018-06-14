@@ -172,9 +172,8 @@ var Chaincode = class {
 
         while (true) {
             let history = await ite.next();
-            throw new Error(">>5");
 
-            if (!history) {
+            if (!history || !history.value || !history.value.key) {
               return Buffer.from(JSON.stringify(results));
             }
 

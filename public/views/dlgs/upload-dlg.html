@@ -1,0 +1,31 @@
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>上传</h3>
+        </div>
+        <form name="uploadForm" class="modal-body form">
+            <ul class="plist">
+                <li>
+                    <span class="pname">上传类型</span>
+                    <div class="pinfo">
+                        <input ng-click="selectUploadFlag('blacklist')" ng-model="upFlag" value="blacklist" ng-checked="true" type="radio"> <label
+                            for="">黑名单</label>
+                        <input ng-click="selectUploadFlag('deleteList')" ng-model="upFlag" value="deleteList" type="radio"> <label for="">移除列表</label>
+                    </div>
+                </li>
+                <li>
+                    <span class="pname">文件</span>
+                    <span class="pcon">
+                    <input name="file" ng-model="uploadFile"
+                           onchange="angular.element(this).scope().fileNameChanged(this.files)" class="form-control"
+                           type="file" required />
+                    </span>
+                </li>
+            </ul>
+        </form>
+        <div class="modal-footer">
+            <button ng-click="closeThisDialog()" type="button" class="btn-cancel">取消</button>
+            <button ng-click="postBlacklist()" type="button" class="btn-remove">{{confirmActionText}}</button>
+        </div>
+    </div>
+</div>

@@ -1,3 +1,2 @@
-device1 IMEI    MD5
-device2 IMEI    MD5
-device3 IMEI    MD5
+device1	IMEI	MD5	1
+device2	IMEI	MD5	1

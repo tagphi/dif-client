@@ -9,13 +9,25 @@ var respUtils=require("../utils/resp-utils");
  * 异常过滤器
  **/
 function exceptionFilter(err,req,res,next) {
+    logger.error(err);
+
     if (err.code === 'LIMIT_FILE_SIZE') {
         respUtils.errResonse(res,"不能上传超过1M的文件");
         return
     }
 
-    logger.error(err);
-    return respUtils.errResonse(res,"服务器错误");
+    if (typeof err == "string") {
+        return respUtils.errResonse(res,err);
+    }
+
+
+    if (typeof err == "object"){
+        let errMsg=err.message || err.errmsg || err.error;
+        if (errMsg) {
+            return respUtils.errResonse(res,errMsg);
+        }
+        return respUtils.errResonse(res,"服务器错误");
+    }
 }
 
 

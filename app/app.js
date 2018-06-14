@@ -5,11 +5,9 @@ var appConfig = require("../config").site;
 
 var express = require('express');
 
-
 /**
  * 工具组
  **/
-let uploadHelper = require("./utils/upload-helper");
 let asyncWrapper = require("express-async-wrapper");
 
 /**
@@ -22,15 +20,14 @@ var tokenManager = require("./interceptors/token-manager");
 /**
  * 模块控制器
  **/
-var authController = require("./controllers/auth-controller");
-var blacklistController = require("./controllers/blacklist-controller");
-
-var controllerToRoutes = require("./utils/controller-router-mapper");
+var authController = require("./controllers/auth/index");
+var blacklistController = require("./controllers/blacklist/index");
 
 // 上传文件表单的处理
 var multer = require('multer');
 
 var app;
+var router = require('./router');
 
 /**
  *  入口函数
@@ -43,16 +40,24 @@ var app;
     commonFilters.configPreFilters(app);
 
     //配置token管理器
-    // tokenManager.init(app);
+    // TODO:
+    // tokenManager.checkToken(app);
 
-    //【配置各控制器】
-    controllerToRoutes(app, authController);
-    controllerToRoutes(app, blacklistController, ["uploadBlacklist"]);
+    //映射路由
+    router(app);
+
     //上传
-    app.post(blacklistController.BASE_ROUTE + "/uploadBlacklist",
+    let uploadHelper = multer({
+        limits: {fileSize: 1 * 1024}
+    });
+
+    // 上传黑名单
+    app.post(blacklistController.url + "/uploadBlacklist",
         uploadHelper.single("file"),
         asyncWrapper(blacklistController.uploadBlacklist));
 
+    // 下载黑名单
+    app.get(blacklistController.url+"/downloadBlacklist",blacklistController.downloadBlacklist);
 
     //全局异常处理
     app.use(exceptionFilter);
@@ -61,5 +66,4 @@ var app;
     let port = appConfig.port;
     app.listen(port, () => console.log('listen ' + port + ' , server started!'));
 })();
-
 
