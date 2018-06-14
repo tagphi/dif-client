@@ -92,8 +92,6 @@ describe('Chaincode', function() {
             let orgDeviceListBuffer = await mockStub.getState(idxKey);
             let orgDeviceList = JSON.parse(orgDeviceListBuffer.toString());
 
-            console.log(orgDeviceList);
-
             assert.ok(listEquals(orgDeviceList, ids2Add));
         });
 
@@ -237,7 +235,6 @@ describe('Chaincode', function() {
                 deltaList = idArray2String(ids2Add2, "1");
 
                 makeCall("deltaUpload", [deltaList, "device"]);
-                
                 rt = await chaincode.Invoke(mockStub);
 
                 makeCall("merge", ["device"]); //合并device id
@@ -262,9 +259,7 @@ describe('Chaincode', function() {
                 assert.ok(device2Orgs.length == 2);
                 assert.ok(device2Orgs.indexOf("RTBAsia") != -1 && device2Orgs.indexOf("HTT") != -1);
             });
-        });
 
-        describe('#merge()', function() {
             it('should merge ip list committed by two orgs', async function() {
                 let ip2Add1 = ["192.168.0.1", "192.168.0.2"];
                 let deltaList = idArray2String(ip2Add1, "1");
@@ -295,6 +290,142 @@ describe('Chaincode', function() {
 
                 let ip2Orgs = mergedList["192.168.0.2"];
                 assert.ok(ip2Orgs.indexOf("RTBAsia") != -1 && ip2Orgs.indexOf("HTT") != -1);
+            });
+        });
+
+        describe('#uploadRemoveList()', function() {
+            it('should returns error if format is invalid', async function() {
+                makeCall("uploadRemoveList", ["invalidlist", "device"]);
+
+                let rt = await chaincode.Invoke(mockStub);
+
+                assert.ok(rt.status == 500 && (rt.message.toString().indexOf("invalid format") > -1));
+            });
+
+            it('should save deviceid remove list', async function() {
+                let removeList = "device1\tIMEI\tMD5\ndevice2\tIMEI\tMD5";
+
+                makeCall("uploadRemoveList", [removeList, "device"]);
+
+                let rt = await chaincode.Invoke(mockStub);
+
+                assert.equal(200, rt.status);
+
+                let partialKey = mockStub.createCompositeKey("ORGREMOVE", []);
+                let removeListsIterator = await mockStub.getStateByPartialCompositeKey(partialKey);
+
+                let savedRemoveList = null;
+
+                while (true) {
+                    let removeListRecored = await removeListsIterator.next();
+
+                    if (!removeListRecored || !removeListRecored.value || !removeListRecored.value.key) {
+                        break;
+                    }
+
+                    savedRemoveList = removeListRecored.value.value.toString();
+                }
+
+                assert.equal(savedRemoveList, removeList);
+            });
+
+            it('should skip the device in remove list', async function() {
+                let ids2Add1 = ["device1\tIMEI\tMD5", "device2\tIMEI\tMD5"];
+                let deltaList = idArray2String(ids2Add1, "1");
+
+                makeCall("deltaUpload", [deltaList, "device"]);
+                let rt = await chaincode.Invoke(mockStub);
+
+                setOrg("HTT"); // 切换到另一个组织上传
+
+                let ids2Add2 = ["device2\tIMEI\tMD5", "device3\tIMEI\tMD5"];
+                deltaList = idArray2String(ids2Add2, "1");
+
+                makeCall("deltaUpload", [deltaList, "device"]);
+                rt = await chaincode.Invoke(mockStub);
+
+                // 上传一个移除列表
+                let removeList = "device1\tIMEI\tMD5\ndevice2\tIMEI\tMD5";
+
+                makeCall("uploadRemoveList", [removeList, "device"]);
+
+                rt = await chaincode.Invoke(mockStub);
+
+                // 合并device id
+                makeCall("merge", ["device"]);
+                rt = await chaincode.Invoke(mockStub);
+
+                let mergedListKey = mockStub.createCompositeKey("MERGED", ["device"]);
+                let mergedListKeyBuffer = await mockStub.getState(mergedListKey);
+                let mergedList = JSON.parse(mergedListKeyBuffer.toString());
+
+                assert.ok(!("device1\tIMEI\tMD5" in mergedList));
+                assert.ok(!("device2\tIMEI\tMD5" in mergedList));
+
+                assert.ok("device3\tIMEI\tMD5" in mergedList);
+                let device3Orgs = mergedList["device3\tIMEI\tMD5"];
+                assert.ok(device3Orgs.length == 1);
+                assert.ok(device3Orgs.indexOf("HTT") != -1);
+            });
+
+            it('should return remove list when query history', async function() {
+                let removeList = "device1\tIMEI\tMD5\ndevice2\tIMEI\tMD5";
+
+                makeCall("uploadRemoveList", [removeList, "device"]);
+
+                let rt = await chaincode.Invoke(mockStub);
+
+                let date = new Date();
+
+                date.setDate(date.getDate() - 1);
+                let startTimestamp = date.getTime().toString();
+
+                date.setDate(date.getDate() + 2);
+                let endTimestamp = date.getTime().toString();
+
+                makeCall("listRemoveListUploadHistory", [startTimestamp, endTimestamp]);
+
+                rt = await chaincode.Invoke(mockStub);
+
+                let results = JSON.parse(rt.payload.toString());
+
+                assert.equal(results.length, 1);
+                assert.equal(results[0].mspid, "RTBAsia");
+            });
+
+            it('should download uploaded remove list', async function() {
+                let removeList = "device1\tIMEI\tMD5\ndevice2\tIMEI\tMD5";
+
+                makeCall("uploadRemoveList", [removeList, "device"]);
+
+                let rt = await chaincode.Invoke(mockStub);
+
+                let date = new Date();
+
+                date.setDate(date.getDate() - 1);
+                let startTimestamp = date.getTime().toString();
+
+                date.setDate(date.getDate() + 2);
+                let endTimestamp = date.getTime().toString();
+
+                makeCall("listRemoveListUploadHistory", [startTimestamp, endTimestamp]);
+
+                rt = await chaincode.Invoke(mockStub);
+
+                let results = JSON.parse(rt.payload.toString());
+
+                assert.equal(results.length, 1);
+                assert.equal(results[0].mspid, "RTBAsia");
+
+                let key = results[0].key;
+
+                makeCall("getRemoveList", [key]);
+
+                rt = await chaincode.Invoke(mockStub);
+
+                assert.equal(rt.status, 200);
+
+                assert.equal(rt.payload.toString(), removeList);
             });
         });
   });
