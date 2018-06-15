@@ -107,6 +107,7 @@ exports.download = async function (req, res, next) {
         result = await queryChaincode("getRemoveList", [key]);
     }
 
+
     let filename=isUpload?"blacklist":"removesList"
     res.set({
         'Content-Type': 'application/octet-stream',
