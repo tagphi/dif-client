@@ -25,6 +25,8 @@
     "angular-nl2br": "1.0.3",
     "angular-sanitize": "1.7.0",
     "ngstorage": "0.3.11",
-    "ng-dialog": "1.4.0"
+    "ng-dialog": "1.4.0",
+    "animate.css": "^3.5.2",
+    "magic-check": "^1.0.3"
   }
 }

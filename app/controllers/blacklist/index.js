@@ -6,6 +6,12 @@ var respUtils = require("../../utils/resp-utils");
 var logger = require('log4js').getLogger("blacklist-controller");
 let csvHelper = require("../../utils/csv-helper");
 let asyncWrapper = require("express-async-wrapper");
+
+var iconv = require('iconv-lite');
+let stringUtils=require("../../utils/string-utils");
+let base64=require("base-64");
+
+
 var {check} = require('express-validator/check')
 
 let blacklistValidator = require("../../validators/blacklist-validator");
@@ -59,7 +65,7 @@ exports.removeBlacklist = async function (req, res, next) {
 
     // 调用链码上传名单
     let result = await invokeChaincode("uploadRemoveList", [dataStr, type]);
-    respUtils.succResponse(res, "上传成功");
+    respUtils.succResponse(res, "移除成功");
 }
 
 
@@ -80,7 +86,8 @@ exports.mergeBlacklist = async function (req, res, next) {
  * 下载黑名单
  *
  * result 示例
- *      {"device1\tIMEI\tMD5":["RTBAsia"],"device2\tIMEI\tMD5":["RTBAsia"]}
+ device1	IMEI	MD5	1
+ device2	IMEI	MD5	1
  **/
 exports.validateDownload = [
     check('isUpload').not().isEmpty().withMessage('isUpload不能为空'),
@@ -89,7 +96,8 @@ exports.validateDownload = [
 
 exports.download = async function (req, res, next) {
     let isUpload = req.query.isUpload;
-    let key = req.query.key;
+    let key =req.query.key;
+    key=base64.decode(key);
 
     let result =[];
 
@@ -99,20 +107,13 @@ exports.download = async function (req, res, next) {
         result = await queryChaincode("getRemoveList", [key]);
     }
 
-    result = JSON.parse(result.toString());
-
-    //筛选
-    let tmpResult = "";
-    for (let prop in result) {
-        tmpResult += prop + "\n";
-    }
-
+    let filename=isUpload?"blacklist":"removesList"
     res.set({
         'Content-Type': 'application/octet-stream',
-        'Content-Disposition': 'attachment; filename=' + type + new Date().getTime() + ".txt",
+        'Content-Disposition': 'attachment; filename=' + filename +"--"+ new Date().getTime() + ".txt",
     });
 
-    res.send(tmpResult);
+    res.send(result);
 }
 
 /**
@@ -149,13 +150,14 @@ exports.histories = async function (req, res, next) {
         result = await queryChaincode("listRemoveListUploadHistory", [startTimestamp, endTimestamp]);
     }
 
-    result = JSON.parse(result.toString());
+    result = JSON.parse(iconv.encode(result,"GBK"));
 
     let typedResult = [];
     //筛选指定的类型
     if (result) {
         result.forEach(function (row) {
             if (row.type == type) {
+                row.key=base64.encode(row.key);
                 typedResult.push(row);
             }
         })

@@ -88,15 +88,18 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
 
                     var formData = new FormData();
                     formData.append('file', $scope.uploadFile);
-                    formData.set("type", "device");
+                    formData.set("type", $scope.selectType); //类型
+
+
 
                     let payload = {
                         method: 'POST',
-                        url: "/blacklist/uploadBlacklist",
                         data: formData,
                         headers: {'Content-Type': undefined},
                         transformRequest: angular.identity
                     }
+
+                    payload.url=$scope.upFlag=="blacklist"?"/blacklist/uploadBlacklist":"/blacklist/removeBlacklist";
 
                     $scope.closeThisDialog();
                     $http(payload)
@@ -129,6 +132,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
         let selectedTabID = $scope.selectTabID;
 
         let payload = {
+            isUpload:true,
             type: $scope[selectedTabID].type,
             startDate: dataRange[0],
             endDate: dataRange[1],
@@ -137,7 +141,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
 
         payload.pageNO=pageNO | $scope[selectedTabID].currentPage,
 
-        HttpService.post("/blacklist/uploadHistories", payload)
+        HttpService.post("/blacklist/histories", payload)
             .then(function (respData) {
                 if (respData.success) {
                     alertMsgService.alert("获取成功", true);
@@ -209,7 +213,8 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
      * 合并黑名单
      **/
     $scope.mergeBlacklist = function () {
-        HttpService.post("/blacklist/mergeBlacklist", {type: $scope.selectTabID})
+        let type=$scope[$scope.selectTabID].type;
+        HttpService.post("/blacklist/mergeBlacklist", {type: type})
             .then(function (respData) {
                 if (respData.success) {
                     alertMsgService.alert("合并成功", true);

@@ -7,20 +7,39 @@
         <form name="uploadForm" class="modal-body form">
             <ul class="plist">
                 <li>
-                    <span class="pname">上传类型</span>
+                    <span class="pname">操作</span>
+                    <!--选择操作-->
                     <div class="pinfo">
-                        <input ng-click="selectUploadFlag('blacklist')" ng-model="upFlag" value="blacklist"
-                               ng-checked="true" type="radio"> <label
-                            for="">黑名单</label>
-                        <input ng-click="selectUploadFlag('deleteList')" ng-model="upFlag" value="deleteList"
-                               type="radio"> <label for="">移除列表</label>
+                        <input id="blacklist" ng-click="selectUploadFlag('blacklist')" ng-model="upFlag"
+                               value="blacklist"
+                               ng-checked="true" type="radio" class="hide-lowlever">
+                        <label for="blacklist" ng-class="{'opt-common':true,'opt-active':upFlag=='blacklist'}">黑名单</label>
+                        <input id="removeList" ng-click="selectUploadFlag('deleteList')" ng-model="upFlag"
+                               value="deleteList"
+                               type="radio" class="hide-lowlever">
+                        <label for="removeList"  ng-class="{'opt-common':true,'opt-active':upFlag=='deleteList'}">移除列表</label>
+                    </div>
+                </li>
+                <li>
+                    <span class="pname">类型</span>
+                    <!--选择类型-->
+                    <div class="pname upload-dlg-types">
+                        <input id="type_ip" ng-model="selectType" value="ip" type="radio" class="magic-radio"
+                               ng-checked="true">
+                        <label for="type_ip" ng-class="{'d-inline':true,'color-lightslategray':selectType!='ip','color-blue-raido':selectType=='ip'}">ip</label>
+
+                        <input id="type_device" ng-model="selectType" value="device" type="radio" class="magic-radio">
+                        <label for="type_device" ng-class="{'d-inline':true,'color-lightslategray':selectType!='device','color-blue-raido':selectType=='device'}">device</label>
+
+                        <input id="type_default" ng-model="selectType" value="default" type="radio" class="magic-radio">
+                        <label for="type_default" ng-class="{'d-inline':true,'color-lightslategray':selectType!='default','color-blue-raido':selectType=='default'}">default</label>
                     </div>
                 </li>
                 <li>
                     <span class="pname">文件</span>
                     <span class="pcon">
-                        <label id="labelSelectFile"  class="input-filename" for="file">{{selectFileName}}</label>
-                        <label for="file" class="input-file" >选择文件</label>
+                        <label id="labelSelectFile" class="input-filename" for="file">{{selectFileName}}</label>
+                        <label for="file" class="input-file">选择文件</label>
                     <input id="file" name="file" ng-model="uploadFile"
                            onchange="angular.element(this).scope().fileNameChanged(this.files)" class=""
                            type="file" required style="display: none"/>

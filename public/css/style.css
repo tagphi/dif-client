@@ -139,25 +139,32 @@ input[type=text].errow, select.errow {
 }
 
 .alert-success {
+    position: fixed;
+    left: 43%;
     background-color: #bdedbc;
     border-radius: 5px;
-    font-size: 12px;
-    padding: 12px 24px;
+    font-size: 14px;
+    padding: 6px 0px;
     line-height: 32px;
     color: #045702;
-    width: 600px;
-    margin: 0 auto
+    width: 220px;
+    margin: 0 auto;
+    text-align: center;
 }
 
 .alert-err {
     background-color: #ed896e;
+    position: fixed;
+    left: 43%;
+    background-color: #bdedbc;
     border-radius: 5px;
-    font-size: 12px;
-    padding: 12px 24px;
+    font-size: 14px;
+    padding: 6px 0px;
     line-height: 32px;
-    color: white;
-    width: 600px;
-    margin: 0 auto
+    color: #045702;
+    width: 220px;
+    margin: 0 auto;
+    text-align: center;
 }
 
 .main .alert-success,.main .alert-err {
@@ -647,24 +654,4 @@ input, button {
     color: #999;
     left: 156px;
     top: 10px
-}
-
-
-/***/
-.container-match-parent{
-    width: 100%;
-    height: 100%;
-}
-
-.match-height{
-    height: 100%;
-}
-
-.match-width{
-    width: 100%;
-}
-
-.fixed-bottom{
-    position: fixed;
-    bottom: 0;
 }
