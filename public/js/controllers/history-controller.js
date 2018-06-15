@@ -1,6 +1,44 @@
 app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout,
                                               HttpService, ngDialog, alertMsgService) {
 
+    TAB_IDS=["ipTab", "deviceTab", "defaultTab"];
+    $scope.selectTabID = "ipTab"; //默认选中的标签为ip
+    $scope.showip = true;
+
+    $scope.pageSize = 3;
+    /**
+     * ip面板状态
+     **/
+    $scope.ipTab = {
+        type: "ip",
+        show: true,//显示
+        histories: [],//历史数据
+        total: 0,//总历史记录数
+        currentPage: 1, //页面指针
+    }
+
+    /**
+     * device面板状态
+     **/
+    $scope.deviceTab = {
+        type: "device",
+        show: false,//默认不显示
+        histories: [],//历史数据
+        total: 0,//总历史记录数
+        currentPage: 1, //页面指针
+    }
+
+    /**
+     * default面板状态
+     **/
+    $scope.defaultTab = {
+        type: "default",
+        show: false,//默认不显示
+        histories: [],//历史数据
+        total: 0,//总历史记录数
+        currentPage: 1, //页面指针
+    }
+
     /**
      * 上传黑名单对话框
      **/
@@ -9,7 +47,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             template: 'views/dlgs/upload-dlg.html',
             scope: $scope,
             controller: ['$scope', 'HttpService', function ($scope, HttpService) {
-                $scope.selectFileName="...";
+                $scope.selectFileName = "...";
 
                 $scope.confirmActionText = "上传";
                 $scope.upFlag = "blacklist";
@@ -19,8 +57,8 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
                  **/
                 $scope.fileNameChanged = function (files) {
                     $scope.uploadFile = files[0];
-                    $scope.selectFileName=$scope.uploadFile.name;
-                    document.getElementById("labelSelectFile").innerText=$scope.selectFileName;
+                    $scope.selectFileName = $scope.uploadFile.name;
+                    document.getElementById("labelSelectFile").innerText = $scope.selectFileName;
                 }
 
                 /**
@@ -66,7 +104,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
                             data = resp.data;
                             if (data.success) {
                                 alertMsgService.alert("提交成功", true);
-                                // $scope.queryHistories();
+                                $scope.queryHistories();
                             } else {
                                 alertMsgService.alert("提交失败", false);
                             }
@@ -83,23 +121,46 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     /**
      * 查询
      **/
-    $scope.queryHistories = function () {
+    $scope.queryHistories = function (pageNO) {
 
         // 获取日期范围
         let dataRange = getDateRange();
 
-        let selectedTabID = $scope.tabID;
-
+        let selectedTabID = $scope.selectTabID;
 
         let payload = {
-            type: $scope.tabID,
+            type: $scope[selectedTabID].type,
             startDate: dataRange[0],
-            endDate: dataRange[1]
+            endDate: dataRange[1],
+            pageSize:$scope.pageSize
         }
 
-        $scope.$broadcast('event-pagination-query-'+$scope.tabID, payload);
-    }
+        payload.pageNO=pageNO | $scope[selectedTabID].currentPage,
 
+        HttpService.post("/blacklist/uploadHistories", payload)
+            .then(function (respData) {
+                if (respData.success) {
+                    alertMsgService.alert("获取成功", true);
+                    respData.data.forEach(function (row) { //转换时间戳
+                        let date = new Date();
+                        date.setTime(row.timestamp);
+                        row.date = date.format("yyyy-MM-dd");
+                    })
+
+                    $scope[selectedTabID].histories = respData.data;
+                    $scope[selectedTabID].total = respData.total;
+
+                } else {
+                    alertMsgService.alert("获取失败", false);
+                    $scope[selectedTabID].histories = [];
+                    $scope[selectedTabID].total = [];
+                }
+
+                if (!pageNO){
+                    $scope[selectedTabID].currentPage=1;
+                }
+            });
+    }
 
     /**
      * 退出
@@ -128,22 +189,27 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
      * 标签选择
      **/
     $scope.selectTab = function (tabID) {
-        $scope.tabID = tabID;
-        //取消所有选中
-        ["showip", "showdevice", "showdefault"].forEach(function (showFlag) {
-            $scope[showFlag] = false;
-        })
-        $scope["show" + tabID] = true;
+        $scope.selectTabID = tabID;
 
-        //查询
-        $scope.queryHistories();
+        //隐藏所有面板
+        TAB_IDS.forEach(function (tab) {
+            $scope[tab].show = false;
+        })
+
+        // 显示指定面板
+        $scope[tabID].show = true;
+
+        if ($scope[tabID].histories.length == 0) { //无数据才查询
+            //查询
+            $scope.queryHistories();
+        }
     }
 
     /**
      * 合并黑名单
      **/
     $scope.mergeBlacklist = function () {
-        HttpService.post("/blacklist/mergeBlacklist", {type: $scope.tabID})
+        HttpService.post("/blacklist/mergeBlacklist", {type: $scope.selectTabID})
             .then(function (respData) {
                 if (respData.success) {
                     alertMsgService.alert("合并成功", true);
@@ -189,28 +255,29 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     }
 
     /**
-     * 初始化状态
-     **/
-    function initState() {
-        $scope.tabID = "ip"; //默认选中的标签为ip
-        $scope.showip = true;
-
-    }
-
-    /**
      * 初始化入口函数
      **/
     function init() {
-        //初始化状态
-        initState();
 
         //初始化日期选择器
         initDatePicker();
 
         //加载ip历史
-        setTimeout(function () {
+        $timeout(function () {
             $scope.queryHistories();
-        },0.5*1000)
+        }, 0.5 * 1000)
+
+        $timeout(function () {
+            // $scope.topTotal=5;
+            // $scope.topPageSize=3;
+        }, 2000);
+
+        //监听所有面板的选项中页面的变化
+        TAB_IDS.forEach(function (tabID) {
+            $scope.$watch(tabID+".currentPage",function (newCurPage) {
+                $scope.queryHistories(newCurPage);
+            })
+        })
     }
 
     init();

@@ -28,20 +28,20 @@
             </div>
             <nav class="history-tab">
                 <ul>
-                    <li ng-click="selectTab('ip')" ng-class="{on:showip}">IP</li>
-                    <li ng-click="selectTab('device')" ng-class="{on:showdevice}">设备</li>
-                    <li ng-click="selectTab('default')" ng-class="{on:showdefault}">默认设备</li>
+                    <li ng-click="selectTab('ipTab')" ng-class="{on:ipTab.show}">IP</li>
+                    <li ng-click="selectTab('deviceTab')" ng-class="{on:deviceTab.show}">设备</li>
+                    <li ng-click="selectTab('defaultTab')" ng-class="{on:defaultTab.show}">默认设备</li>
                 </ul>
             </nav>
             <!--ip表-->
-            <div ng-show="showip" class="text-center">
-                <div class="empty-container" ng-show="ipHistories.length==0">
+            <div ng-show="ipTab.show" class="text-center">
+                <div class="empty-container" ng-show="ipTab.histories.length==0">
                     <div class="empty-content">
                         <span class="iconfont  empty-icon">&#xe60b;</span><br>
                         <div class="empty-label">暂无数据</div>
                     </div>
                 </div>
-                <table ng-show="ipHistories.length!=0"  class="table tc">
+                <table ng-show="ipTab.histories.length!=0" class="table tc">
                     <thead>
                     <tr>
                         <th>成员名</th>
@@ -51,33 +51,31 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="ipHist in ipHistories">
+                    <tr ng-repeat="ipHist in ipTab.histories">
                         <td>{{ipHist.mspid}}</td>
                         <td>{{ipHist.date}}</td>
                         <td>{{ipHist.type}}</td>
-                        <td><a ng-href="/blacklist/downloadBlacklist?type=ip">下载</a></td>
+                        <td><a ng-href="/blacklist/downloadBlacklist?type=ip&key={{ipHist.key}}">下载</a></td>
                     </tr>
                     </tbody>
                 </table>
                 <nav aria-label="Page navigation" class="tr">
                     <common-pagination
-                            list="ipHistories"
-                            url="/blacklist/uploadHistories"
-                            event="event-pagination-query-ip"
-                            method="POST">
-                    </common-pagination>
+                            total="ipTab.total"
+                            page-size="pageSize"
+                            current-page="ipTab.currentPage"></common-pagination>
                 </nav>
             </div>
 
             <!--device表-->
-            <div ng-show="showdevice">
-                <div class="empty-container" ng-show="deviceHistories.length==0">
+            <div ng-show="deviceTab.show">
+                <div class="empty-container" ng-show="deviceTab.histories.length==0">
                     <div class="empty-content">
                         <span class="iconfont  empty-icon">&#xe60b;</span><br>
                         <div class="empty-label">暂无数据</div>
                     </div>
                 </div>
-                <table ng-show="deviceHistories.length!=0" class="table tc">
+                <table ng-show="deviceTab.histories.length!=0" class="table tc">
                     <thead>
                     <tr>
                         <th>成员名</th>
@@ -87,33 +85,31 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="deviceHist in deviceHistories">
+                    <tr ng-repeat="deviceHist in deviceTab.histories">
                         <td>{{deviceHist.mspid}}</td>
                         <td>{{deviceHist.date}}</td>
                         <td>{{deviceHist.type}}</td>
-                        <td><a ng-href="/blacklist/downloadBlacklist?type=device">下载</a></td>
+                        <td><a ng-href="/blacklist/downloadBlacklist?type=device&key={{deviceHist.key}}">下载</a></td>
                     </tr>
                     </tbody>
                 </table>
                 <nav aria-label="Page navigation" class="tr">
                     <common-pagination
-                            list="deviceHistories"
-                            url="/blacklist/uploadHistories"
-                            event="event-pagination-query-device"
-                            method="POST">
-                    </common-pagination>
+                            total="deviceTab.total"
+                            page-size="pageSize"
+                            current-page="deviceTab.currentPage"></common-pagination>
                 </nav>
             </div>
 
             <!--default表-->
-            <div ng-show="showdefault">
-                <div class="empty-container" ng-show="defaultHistories.length==0">
+            <div ng-show="defaultTab.show">
+                <div class="empty-container" ng-show="defaultTab.histories.length==0">
                     <div class="empty-content">
                         <span class="iconfont  empty-icon">&#xe60b;</span><br>
                         <div class="empty-label">暂无数据</div>
                     </div>
                 </div>
-                <table ng-show="defaultHistories.length!=0" class="table tc">
+                <table ng-show="defaultTab.histories.length!=0" class="table tc">
                     <thead>
                     <tr>
                         <th>成员名</th>
@@ -123,21 +119,19 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="defaultHist in defaultHistories">
+                    <tr ng-repeat="defaultHist in defaultTab.histories">
                         <td>{{defaultHist.mspid}}</td>
                         <td>{{defaultHist.date}}</td>
                         <td>{{defaultHist.type}}</td>
-                        <td><a ng-href="/blacklist/downloadBlacklist?type=default">下载</a></td>
+                        <td><a ng-href="/blacklist/downloadBlacklist?type=default&key={{defaultHist.key}}">下载</a></td>
                     </tr>
                     </tbody>
                 </table>
                 <nav aria-label="Page navigation" class="tr">
                     <common-pagination
-                            list="defaultHistories"
-                            url="/blacklist/uploadHistories"
-                            event="event-pagination-query-default"
-                            method="POST">
-                    </common-pagination>
+                            total="defaultTab.total"
+                            page-size="pageSize"
+                            current-page="defaultTab.currentPage"></common-pagination>
                 </nav>
             </div>
         </section>

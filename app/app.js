@@ -56,8 +56,13 @@ var router = require('./router');
         uploadHelper.single("file"),
         asyncWrapper(blacklistController.uploadBlacklist));
 
+    // 移除黑名单
+    app.post(blacklistController.url + "/removeBlacklist",
+        uploadHelper.single("file"),
+        asyncWrapper(blacklistController.removeBlacklist));
+
     // 下载黑名单
-    app.get(blacklistController.url+"/downloadBlacklist",blacklistController.downloadBlacklist);
+    app.get(blacklistController.url+"/download",blacklistController.download);
 
     //全局异常处理
     app.use(exceptionFilter);

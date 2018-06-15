@@ -27,7 +27,8 @@ var query = async function(fcn, args) {
         let response_payloads = await channel.queryByChaincode(request);
 
         if (response_payloads) {
-            return response_payloads.toString('utf8');
+            // return response_payloads.toString('utf8');
+            return response_payloads.toString();
         } else {
             logger.error('response_payloads is null');
             return 'response_payloads is null';
