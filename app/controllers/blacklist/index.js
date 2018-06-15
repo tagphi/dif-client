@@ -99,6 +99,8 @@ exports.download = async function (req, res, next) {
         result = await queryChaincode("getRemoveList", [key]);
     }
 
+    console.log(result)
+
     result = JSON.parse(result.toString());
 
     //筛选
