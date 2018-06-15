@@ -1,0 +1,18 @@
+<!--分页器指令-->
+<ul class="pagination pull-right pagination-nav" ng-show="totalPage>1">
+    <li ng-class="{true:'active'}[currentPage==1]">
+        <a ng-click="loadPage(1)">«</a>
+    </li>
+    <li ng-class="{true:'disabled'}[currentPage==1]">
+        <a ng-click="prev()"> ‹ </a>
+    </li>
+    <li ng-class="{true:'active'}[currentPage==page]" ng-repeat="page in pages">
+        <a ng-click="selectPage(page)" ng-bind="page"></a>
+    </li>
+    <li ng-class="{true:'disabled'}[currentPage==totalPage]">
+        <a ng-click="next()"> › </a>
+    </li>
+    <li ng-class="{true:'active'}[currentPage==totalPage]">
+        <a ng-click="loadPage(totalPage)"> » </a>
+    </li>
+</ul>

@@ -1,0 +1,101 @@
+.reset(){
+  html, body, ul, li, ol, dl, dd, dt, p, h1, h2, h3, h4, h5, h6, form, fieldset, legend, img { margin:0; padding:0; }
+  fieldset, img { border:none; }
+  address, caption, cite, code, dfn, th, var { font-style:normal; font-weight:normal; }
+  ul, ol { list-style:none; }
+  input { padding-top:0; padding-bottom:0; font-family: "PingFangSC-Regular","Microsoft YaHei","Arial";}
+  input::-moz-focus-inner { border:none; padding:0; }
+  select, input { vertical-align:middle; }
+  select, input, textarea { font-size:12px; margin:0; }
+  input[type="text"], input[type="password"], textarea { outline-style:none; -webkit-appearance:none; }
+  textarea { resize:none; }
+  input,textarea{background: none; border: none;}
+  table { border-collapse:collapse; }
+  body { color:#333; font:12px/20px "PingFangSC-Regular","Microsoft YaHei","Arial",HELVETICA; background:#fff; }
+  a { color:#666; text-decoration:none; }
+  a:visited { color:#666; }
+  a:hover, a:active, a:focus {text-decoration:underline; }
+}
+//去除a和label的虚线
+.remove_dotted(){
+  a,label {blr:~'expression(this.onFocus=this.blur())'}
+  a,label {outline:none;}
+}
+//浮动
+.fl(@f:left;){
+    float: @f;
+}
+.fr(@f:right){
+  float: @f;
+}
+//定位
+.rel(@rel:relative){
+  position: @rel;
+}
+.abs(@abs:absolute){
+  position: @abs;
+}
+.fix(@fix:fixed){
+  position: @fix;
+}
+//全局定位
+.pos (r){
+  position: relative;
+}
+.pos (a){
+  position: absolute;
+}
+.pos (f){
+  position: fixed;
+}
+
+.wh(@w){
+  width: @w;
+  height: @w;
+}
+.w-h(@w,@h){
+  width: @w;
+  height: @h;
+}
+//display
+.d-b(){
+  display: block;
+}
+.d-i(){
+  display: inline;
+}
+.d-ib(){
+  display: inline-block;
+}
+.d-f(){
+  display: flex;
+}
+.d-n(){
+  display: none;
+}
+.auto(){margin-left: auto; margin-right: auto;}
+.radius(@r){
+  border-radius: @r;
+}
+.radius-l(@r){
+  border-bottom-left-radius: @r;
+  border-top-left-radius: @r;
+}
+.radius-r(@r){
+   border-bottom-right-radius: @r;
+  border-top-right-radius: @r;
+}
+.clearfix() {
+  *zoom: 1;
+  &:before,
+  &:after {
+    display: table;
+    content: "";
+  }
+  &:after {
+    clear: both;
+  }
+}
+.border(@color){border: 1px solid @color;}
+
+

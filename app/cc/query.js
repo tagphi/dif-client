@@ -7,7 +7,9 @@ var helper = require('../../common/helper.js');
 var CONFIG = require('../../config');
 var chaincodeUtil = require('../../common/chaincode-util');
 
+
 var query = async function(fcn, args) {
+
     try {
         let client = await helper.getClient(CONFIG.msp.id, true);
         let channel = await helper.getChannel(client);
@@ -25,7 +27,8 @@ var query = async function(fcn, args) {
         let response_payloads = await channel.queryByChaincode(request);
 
         if (response_payloads) {
-            return response_payloads.toString('utf8');
+            // return response_payloads.toString('utf8');
+            return response_payloads.toString();
         } else {
             logger.error('response_payloads is null');
             return 'response_payloads is null';

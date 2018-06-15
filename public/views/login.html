@@ -1,0 +1,25 @@
+<div class="login-page">
+    <h1 class="logo"></h1>
+    <section class="login-box">
+        <form name="loginForm">
+            <div class="form-group">
+                <input name="username" ng-model="username" type="text" placeholder="用户名"
+                       required ng-minlength="3" ng-maxlength="30">
+                <p class="form-tip warning" ng-show="loginForm.username.$error.required">请输入用户名</p>
+                <p class="form-tip warning" ng-show="loginForm.username.$error.minlength">用户名长度必须在3-30之间</p>
+                <p class="form-tip warning" ng-show="loginForm.username.$error.maxlength">用户名长度必须在3-30之间</p>
+            </div>
+            <div class="form-group">
+                <input name="passwd" ng-model="password" type="password" placeholder="密码"
+                       required minlength="6" ng-maxlength="30">
+                <p class="form-tip errow" ng-show="loginForm.passwd.$error.required">请输入密码</p>
+                <p class="form-tip errow" ng-show="loginForm.passwd.$error.minlength">密码长度必须在3-30之间</p>
+                <p class="form-tip errow" ng-show="loginForm.passwd.$error.maxlength">密码长度必须在3-30之间</p>
+            </div>
+            <div class="form-group">
+                <button ng-click="login()" class="login-btn">登录</button>
+            </div>
+        </form>
+    </section>
+</div>
+

@@ -1,28 +1,74 @@
-'use strict';
+/**
+ *  【客户端入口】
+ **/
+var appConfig = require("../config").site;
 
 var express = require('express');
-var path = require('path');
+
+/**
+ * 工具组
+ **/
+let asyncWrapper = require("express-async-wrapper");
+
+/**
+ * 过滤器
+ **/
+var commonFilters = require("./filters/common-filters");
+var exceptionFilter = require("./filters/exception-filter");
+var tokenManager = require("./interceptors/token-manager");
+
+/**
+ * 模块控制器
+ **/
+var authController = require("./controllers/auth/index");
+var blacklistController = require("./controllers/blacklist/index");
+
+// 上传文件表单的处理
 var multer = require('multer');
 
-var bodyParser = require('body-parser');
+var app;
+var router = require('./router');
 
-var log4js = require('log4js');
-var logger = log4js.getLogger('app');
+/**
+ *  入口函数
+ **/
+(function init() {
 
-var CONFIG = require('../config.json');
+    app = express();
 
-var app = express();
-var upload = multer();
+    //配置通用前置过滤器
+    commonFilters.configPreFilters(app);
 
-app.use(bodyParser.json());
+    //配置token管理器
+    // TODO:
+    // tokenManager.checkToken(app);
 
-app.use(bodyParser.urlencoded({
-    extended: false
-}));
+    //映射路由
+    router(app);
 
-app.listen(CONFIG.site.port, () => console.log('listen ' + CONFIG.site.port + ' , server started!'));
+    //上传
+    let uploadHelper = multer({
+        limits: {fileSize: 1 * 1024}
+    });
 
-var chaincodeService = require('./services/chaincode-service');
+    // 上传黑名单
+    app.post(blacklistController.url + "/uploadBlacklist",
+        uploadHelper.single("file"),
+        asyncWrapper(blacklistController.uploadBlacklist));
 
-app.post('/chaincode/delta-upload', upload.single('file'), chaincodeService.deltaUpload);
-app.get('/chaincode/list-delta-upload-history', chaincodeService.listDeltaUploadHistory);
+    // 移除黑名单
+    app.post(blacklistController.url + "/removeBlacklist",
+        uploadHelper.single("file"),
+        asyncWrapper(blacklistController.removeBlacklist));
+
+    // 下载黑名单
+    app.get(blacklistController.url+"/download",blacklistController.download);
+
+    //全局异常处理
+    app.use(exceptionFilter);
+
+    //启动服务器
+    let port = appConfig.port;
+    app.listen(port, () => console.log('listen ' + port + ' , server started!'));
+})();
+

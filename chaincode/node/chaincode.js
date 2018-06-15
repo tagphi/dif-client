@@ -114,7 +114,7 @@ var Chaincode = class {
 
         let timestamp = new Date().getTime().toString();
         let removeRecordsKey = stub.createCompositeKey(ORG_REMOVE_IDX_NAME, [timestamp, type, mspid]);
-        
+
         await stub.putState(removeRecordsKey, Buffer.from(removeList));
     }
 
@@ -205,21 +205,21 @@ var Chaincode = class {
             let history = await ite.next();
 
             if (!history || !history.value || !history.value.key) {
-              return results;
+                return results;
             }
 
             let objectType;
             let attributes;
 
             ({
-              objectType,
-              attributes
+                objectType,
+                attributes
             } = stub.splitCompositeKey(history.value.key));
 
             results.push({timestamp: attributes[0],
-              mspid: attributes[1],
-              type: attributes[2],
-              key: history.value.key
+                mspid: attributes[1],
+                type: attributes[2],
+                key: history.value.key
             });
         }
     }
@@ -236,21 +236,21 @@ var Chaincode = class {
             let history = await ite.next();
 
             if (!history || !history.value || !history.value.key) {
-              return results;
+                return results;
             }
 
             let objectType;
             let attributes;
 
             ({
-              objectType,
-              attributes
+                objectType,
+                attributes
             } = stub.splitCompositeKey(history.value.key));
 
             results.push({timestamp: attributes[0],
-              mspid: attributes[2],
-              type: attributes[1],
-              key: history.value.key
+                mspid: attributes[2],
+                type: attributes[1],
+                key: history.value.key
             });
         }
     }
@@ -299,7 +299,7 @@ var Chaincode = class {
         let allRemoveRecords = await stub.getStateByPartialCompositeKey(ORG_REMOVE_IDX_NAME, []);
 
         let recordsMsp = {};
-        
+
         while (true) {
             let oneUpload = await allRemoveRecords.next();
 
@@ -311,8 +311,8 @@ var Chaincode = class {
             let attributes;
 
             ({
-              objectType,
-              attributes
+                objectType,
+                attributes
             } = stub.splitCompositeKey(oneUpload.value.key));
 
             let utype = attributes[1];
@@ -406,7 +406,7 @@ var Chaincode = class {
 
         let mergedListKey = stub.createCompositeKey(MERGED_IDX_NAME, [type]);
 
-        await stub.putState(mergedListKey, 
+        await stub.putState(mergedListKey,
             Buffer.from(JSON.stringify(finnalList)));
     }
 
