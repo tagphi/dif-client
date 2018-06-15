@@ -425,7 +425,7 @@ var Chaincode = class {
 
         let result = await stub.getState(key);
 
-        return Buffer.from(results);
+        return Buffer.from(result);
     }
 
     async getRemoveList(stub, args) {

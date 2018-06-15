@@ -110,13 +110,18 @@ var getEndorsers = function(client) {
             let peerConfig = orgPeersJson.peers[key];
 
             if (peerConfig.endorser) {
+                let connOptions = {
+                    pem: Buffer.from(data).toString(), // TODO: tls证书是必须的，但是我们不一定开启了tls验证
+                    'request-timeout' : 120 // TODO: 从配置中读取
+                }
+
+                if ("ssl-target-name-override" in peerConfig) {
+                    connOptions["ssl-target-name-override"] = peerConfig["ssl-target-name-override"]
+                }
+
                 let peer = client.newPeer(
                     orgPeersJson.peers[key].url,
-                    {
-                        pem: Buffer.from(data).toString(), // TODO: tls证书是必须的，但是我们不一定开启了tls验证
-                        'ssl-target-name-override': peerConfig["ssl-target-name-override"],
-                        'request-timeout' : 120
-                    }
+                    connOptions
                 );
 
                 endorsers.push(peer);
@@ -138,15 +143,22 @@ var getOwnPeers = function(client) {
         // 这是本组织Peer
         if (orgPeersJson.MSPID == CONFIG.msp.id) {
             let data = fs.readFileSync(path.join(__dirname, CONFIG.peer.tls_cert_path));
-            
+
             for (let key in orgPeersJson.peers) {
+                let peerConfig = orgPeersJson.peers[key];
+                
+                let connOptions = {
+                    pem: Buffer.from(data).toString(), // TODO: tls证书是必须的，但是我们不一定开启了tls验证
+                    'request-timeout' : 120 // TODO: 从配置中读取
+                }
+
+                if ("ssl-target-name-override" in peerConfig) {
+                    connOptions["ssl-target-name-override"] = peerConfig["ssl-target-name-override"]
+                }
+
                 let peer = client.newPeer(
                     orgPeersJson.peers[key].url,
-                    {
-                        pem: Buffer.from(data).toString(),
-                        'ssl-target-name-override': orgPeersJson.peers[key]["ssl-target-name-override"],
-                        'request-timeout' : 120
-                    }
+                    connOptions
                 );
 
                 peers.push(peer);
