@@ -1,52 +1,52 @@
-'use strict';
-var helper = require("./common/helper");
-var CONFIG = require("./config.json");
-var path = require('path');
-var fs = require('fs-extra');
+'use strict'
+var helper = require('./common/helper')
+var CONFIG = require('./config.json')
+var path = require('path')
+var fs = require('fs-extra')
 
-var log4js = require('log4js');
-var logger = log4js.getLogger('join-channel');
+var log4js = require('log4js')
+var logger = log4js.getLogger('join-channel')
 
-var getGenesisBlock = async function(client, channel) {
-    let tx_id = client.newTransactionID();
+var getGenesisBlock = async function (client, channel) {
+  let tx_id = client.newTransactionID()
 
-    let request = {
-        txId :  tx_id
-    };
+  let request = {
+    txId: tx_id
+  }
 
-    let genesisBlock = await channel.getGenesisBlock(request);
+  let genesisBlock = await channel.getGenesisBlock(request)
 
-    return genesisBlock;
+  return genesisBlock
 }
 
-var joinPeer = async function() {
-    let client = await helper.getClient(true);
-    let channel = await helper.getChannel(client);
+var joinPeer = async function () {
+  let client = await helper.getClient(true)
+  let channel = await helper.getChannel(client)
 
-    let genesisBlock = await getGenesisBlock(client, channel);
+  let genesisBlock = await getGenesisBlock(client, channel)
 
-    let tx_id = client.newTransactionID();
+  let tx_id = client.newTransactionID()
 
-    let request = {
-        block : genesisBlock,
-        txId :  tx_id
-    };
+  let request = {
+    block: genesisBlock,
+    txId: tx_id
+  }
 
-    let peers = helper.getOwnPeers(client);
+  let peers = helper.getOwnPeers(client)
 
-    if (peers.length == 0) {
-        console.log("can't find current org peers, please contact RTBAsia");
-    }
+  if (peers.length == 0) {
+    console.log("can't find current org peers, please contact RTBAsia")
+  }
 
-    peers.forEach(function(peer) {
-        channel.addPeer(peer);
-    })
+  peers.forEach(function (peer) {
+    channel.addPeer(peer)
+  })
 
-    return channel.joinChannel(request, 30000);
+  return channel.joinChannel(request, 30000)
 }
 
-var main = async function() {
-    await joinPeer();
+var main = async function () {
+  await joinPeer()
 }
 
-main();
+main()

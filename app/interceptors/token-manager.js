@@ -7,7 +7,7 @@ var secretOrPrivateKey = jwtConfig.jwt_secret
 var globalTokens = {}
 
 // 这些url不需要登录即可访问
-const bypassList = ['/auth/login', '/static']
+const bypassList = ['/auth/login', '/static', '/blacklist/download']
 
 var __shouldBypass = function (url) {
   if (!url) return false

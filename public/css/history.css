@@ -30,6 +30,11 @@
     color: #3e96ec;
 }
 
+.input-file-container{
+    position: relative;
+    left: -9px;
+}
+
 .input-file{
     position: relative;
     top: 2px;
@@ -117,7 +122,7 @@ button:hover,.link-default:hover,.link-normal:hover{
 
 .opt-common{
     padding: 4px 24px;
-    margin: 0px 4px;
+    margin: 0px -8px;
     border: 1px solid lightslategray;
     color: lightslategray;
 }
@@ -125,4 +130,24 @@ button:hover,.link-default:hover,.link-normal:hover{
 .opt-active{
     border: 1px solid lightblue;
     color: #439cb9;
+}
+
+
+.alert-success {
+    position: fixed;
+    left: 43%;
+    width: 220px;
+    margin: 0 auto;
+    padding: 6px 0px;
+    border-radius: 0;
+    background-color: #bdedbc;
+    text-align: center;
+    line-height: 32px;
+    font-size: 14px;
+    color: #045702;
+}
+
+.alert-err {
+    background-color: #ed896e;
+    color: white;
 }

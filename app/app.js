@@ -1,74 +1,42 @@
-/**
- *  【客户端入口】
- **/
-var appConfig = require("../config").site;
+var appConfig = require('../config').site
 
-var express = require('express');
+var express = require('express')
 
-/**
- * 工具组
- **/
-let asyncWrapper = require("express-async-wrapper");
+var commonFilters = require('./filters/common-filters')
+var exceptionFilter = require('./filters/exception-filter')
+var tokenManager = require('./interceptors/token-manager')
 
-/**
- * 过滤器
- **/
-var commonFilters = require("./filters/common-filters");
-var exceptionFilter = require("./filters/exception-filter");
-var tokenManager = require("./interceptors/token-manager");
-
-/**
- * 模块控制器
- **/
-var authController = require("./controllers/auth/index");
-var blacklistController = require("./controllers/blacklist/index");
+var blacklistController = require('./controllers/blacklist/index')
 
 // 上传文件表单的处理
-var multer = require('multer');
+var multer = require('multer')
 
-var app;
+var app
 var router = require('./router');
 
-/**
- *  入口函数
- **/
-(function init() {
+(function init () {
+  app = express()
 
-    app = express();
+  commonFilters.configPreFilters(app)
 
-    //配置通用前置过滤器
-    commonFilters.configPreFilters(app);
+  tokenManager.checkToken(app)
 
-    //配置token管理器
-    // TODO:
-    // tokenManager.checkToken(app);
+  // 映射路由
+  router.mapRoutes(app)
 
-    //映射路由
-    router(app);
+  // 上传
+  let uploadHelper = multer({
+    limits: {fileSize: 1 * 1024}
+  })
+  app.post(blacklistController.url + '/upload',
+    uploadHelper.single('file'),
+    router.asyncWrapper(blacklistController.upload))
 
-    //上传
-    let uploadHelper = multer({
-        limits: {fileSize: 1 * 1024}
-    });
+  app.get(blacklistController.url + '/download', router.asyncWrapper(blacklistController.download))
 
-    // 上传黑名单
-    app.post(blacklistController.url + "/uploadBlacklist",
-        uploadHelper.single("file"),
-        asyncWrapper(blacklistController.uploadBlacklist));
+  // 全局异常处理
+  app.use(exceptionFilter)
 
-    // 移除黑名单
-    app.post(blacklistController.url + "/removeBlacklist",
-        uploadHelper.single("file"),
-        asyncWrapper(blacklistController.removeBlacklist));
-
-    // 下载黑名单
-    app.get(blacklistController.url+"/download",blacklistController.download);
-
-    //全局异常处理
-    app.use(exceptionFilter);
-
-    //启动服务器
-    let port = appConfig.port;
-    app.listen(port, () => console.log('listen ' + port + ' , server started!'));
-})();
-
+  let port = appConfig.port
+  app.listen(port, () => console.log('listen ' + port + ' , server started!'))
+})()

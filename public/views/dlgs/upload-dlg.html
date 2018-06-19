@@ -14,10 +14,10 @@
                                value="blacklist"
                                ng-checked="true" type="radio" class="hide-lowlever">
                         <label for="blacklist" ng-class="{'opt-common':true,'opt-active':upFlag=='blacklist'}">黑名单</label>
-                        <input id="removeList" ng-click="selectUploadFlag('deleteList')" ng-model="upFlag"
-                               value="deleteList"
+                        <input id="removeList" ng-click="selectUploadFlag('removelist')" ng-model="upFlag"
+                               value="removelist"
                                type="radio" class="hide-lowlever">
-                        <label for="removeList"  ng-class="{'opt-common':true,'opt-active':upFlag=='deleteList'}">移除列表</label>
+                        <label for="removeList"  ng-class="{'opt-common':true,'opt-active':upFlag=='removelist'}">移除列表</label>
                     </div>
                 </li>
                 <li>
@@ -29,15 +29,15 @@
                         <label for="type_ip" ng-class="{'d-inline':true,'color-lightslategray':selectType!='ip','color-blue-raido':selectType=='ip'}">ip</label>
 
                         <input id="type_device" ng-model="selectType" value="device" type="radio" class="magic-radio">
-                        <label for="type_device" ng-class="{'d-inline':true,'color-lightslategray':selectType!='device','color-blue-raido':selectType=='device'}">device</label>
+                        <label for="type_device" ng-class="{'d-inline':true,'color-lightslategray':selectType!='device','color-blue-raido':selectType=='device'}">设备</label>
 
                         <input id="type_default" ng-model="selectType" value="default" type="radio" class="magic-radio">
-                        <label for="type_default" ng-class="{'d-inline':true,'color-lightslategray':selectType!='default','color-blue-raido':selectType=='default'}">default</label>
+                        <label for="type_default" ng-class="{'d-inline':true,'color-lightslategray':selectType!='default','color-blue-raido':selectType=='default'}">默认设备</label>
                     </div>
                 </li>
                 <li>
                     <span class="pname">文件</span>
-                    <span class="pcon">
+                    <span class="pcon input-file-container">
                         <label id="labelSelectFile" class="input-filename" for="file">{{selectFileName}}</label>
                         <label for="file" class="input-file">选择文件</label>
                     <input id="file" name="file" ng-model="uploadFile"
