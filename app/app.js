@@ -14,7 +14,7 @@ var multer = require('multer')
 var app
 var router = require('./router');
 
-(function init () {
+(function () {
   app = express()
 
   commonFilters.configPreFilters(app)
@@ -28,6 +28,7 @@ var router = require('./router');
   let uploadHelper = multer({
     limits: {fileSize: 1 * 1024}
   })
+
   app.post(blacklistController.url + '/upload',
     uploadHelper.single('file'),
     router.asyncWrapper(blacklistController.upload))
