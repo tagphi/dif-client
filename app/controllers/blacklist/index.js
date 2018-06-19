@@ -1,6 +1,5 @@
 var respUtils = require('../../utils/resp-utils')
 
-let stringUtils = require('../../utils/string-utils')
 let base64 = require('base-64')
 
 var {check} = require('express-validator/check')
@@ -15,37 +14,42 @@ exports.excludeHandlers = ['upload', 'download']
  * 上传黑名单/移除列表
  **/
 exports.validateUpload = [
-    check('isBlacklist').not().isEmpty().withMessage('isBlacklist不能为空'),
-    check('type').not().isEmpty().withMessage('类型type不能为空')
+  check('dataType').not().isEmpty().withMessage('dataType不能为空'),
+  check('type').not().isEmpty().withMessage('类型type不能为空')
 ]
 
 exports.upload = async function (req, res, next) {
-    let type = req.body.type
-    let isBlacklist = req.body.isBlacklist
-    // 格式化数据
-    let dataStr = req.file.buffer.toString();
+  let type = req.body.type
+  let dataType = req.body.dataType
+  let dataStr = req.file.buffer.toString()
 
-    // 调用链码上传名单
-    let result
-    if (stringUtils.isTrue(isBlacklist)) {
-        result = await invokeChaincode('deltaUpload', [dataStr, type])
-    } else {
-        result = await invokeChaincode('uploadRemoveList', [dataStr, type])
-    }
-    respUtils.succResponse(res, '上传成功')
+  // 调用链码上传名单
+  let result
+
+  if (dataType === 'delta') {
+    result = await invokeChaincode('deltaUpload', [dataStr, type])
+  } else if (dataType === 'remove') {
+    result = await invokeChaincode('uploadRemoveList', [dataStr, type])
+  } else {
+    throw new Error('未知的数据类型:' + dataType)
+  }
+
+  console.log(result) // TODO: 检测错误
+
+  respUtils.succResponse(res, '上传成功')
 }
 
 /**
  * 合并黑名单
  **/
 exports.validateMergeBlacklist = [
-    check('type').not().isEmpty().withMessage('类型不能为空')
+  check('type').not().isEmpty().withMessage('类型不能为空')
 ]
 
 exports.mergeBlacklist = async function (req, res, next) {
-    let type = req.body.type
-    let result = await invokeChaincode('merge', [type])
-    respUtils.succResponse(res, '合并成功', result)
+  let type = req.body.type
+  let result = await invokeChaincode('merge', [type])
+  respUtils.succResponse(res, '合并成功', result)
 }
 
 /**
@@ -56,30 +60,30 @@ exports.mergeBlacklist = async function (req, res, next) {
  device2    IMEI    MD5    1
  **/
 exports.validateDownload = [
-    check('isBlacklist').not().isEmpty().withMessage('isBlacklist不能为空'),
-    check('key').not().isEmpty().withMessage('key不能为空')
+  check('dataType').not().isEmpty().withMessage('dataType不能为空'),
+  check('key').not().isEmpty().withMessage('key不能为空')
 ]
 
 exports.download = async function (req, res, next) {
-    let isBlacklist = req.query.isBlacklist
-    let key = req.query.key
-    key = base64.decode(key)
+  let dataType = req.query.dataType
+  let key = base64.decode(req.query.key)
 
-    let result = []
+  let result = []
 
-    if (stringUtils.isTrue(isBlacklist)) { // 黑名单列表
-        result = await queryChaincode('getDeltaList', [key])
-    } else { // 删除列表
-        result = await queryChaincode('getRemoveList', [key])
-    }
+  if (dataType === 'delta') {
+    result = await queryChaincode('getDeltaList', [key])
+  } else if (dataType === 'remove') {
+    result = await queryChaincode('getRemoveList', [key])
+  } else {
+    throw new Error('未知的数据类型:' + dataType)
+  }
 
-    let filename = isBlacklist ? 'blacklist' : 'removeList'
-    res.set({
-        'Content-Type': 'application/octet-stream',
-        'Content-Disposition': 'attachment; filename=' + filename + '--' + new Date().getTime() + '.txt'
-    })
+  res.set({
+    'Content-Type': 'application/octet-stream',
+    'Content-Disposition': 'attachment; filename=' + dataType + '--' + new Date().getTime() + '.txt'
+  })
 
-    res.send(result)
+  res.send(result)
 }
 
 /**
@@ -89,45 +93,49 @@ exports.download = async function (req, res, next) {
  *      "[{"timestamp":"1528929803302","mspid":"RTBAsia","type":"device","key":"\u0000ORGDELTA\u00001528929803302\u0000RTBAsia\u0000device\u0000"}]"
  **/
 exports.validateHistories = [
-    check('isBlacklist').not().isEmpty().withMessage('isBlacklist不能为空'),
-    check('startDate').not().isEmpty().withMessage('开始日期不能为空'),
-    check('endDate').not().isEmpty().withMessage('结束日期不能为空')
+  check('dataType').not().isEmpty().withMessage('dataType不能为空'),
+  check('startDate').not().isEmpty().withMessage('开始日期不能为空'),
+  check('endDate').not().isEmpty().withMessage('结束日期不能为空')
 ]
 
 exports.histories = async function (req, res, next) {
-    let isBlacklist = req.body.isBlacklist
-    let startTimestamp = Date.parse(req.body.startDate) + ''
-    let endTimestamp = Date.parse(req.body.endDate) + ''
+  let dataType = req.body.dataType
+  let startTimestamp = Date.parse(req.body.startDate) + ''
+  let endTimestamp = Date.parse(req.body.endDate) + ''
 
-    let pageNO = req.body.pageNO || 1
-    let pageSize = req.body.pageSize || 10
+  let pageNO = req.body.pageNO || 1
+  let pageSize = req.body.pageSize || 10
 
-    // 计算偏移
-    let startOffset = (pageNO - 1) * pageSize
-    let endOffset = startOffset + pageSize - 1
+  // 计算分页的开始结束位置
+  let startOffset = (pageNO - 1) * pageSize
+  let endOffset = startOffset + pageSize - 1
 
-    let result
+  let result
 
-    if (stringUtils.isTrue(isBlacklist)) {
-        result = await queryChaincode('listDeltaUploadHistory', [startTimestamp, endTimestamp])
-    } else {
-        result = await queryChaincode('listRemoveListUploadHistory', [startTimestamp, endTimestamp])
+  if (dataType === 'delta') {
+    result = await queryChaincode('listDeltaUploadHistory', [startTimestamp, endTimestamp])
+  } else if (dataType === 'remove') {
+    result = await queryChaincode('listRemoveListUploadHistory', [startTimestamp, endTimestamp])
+  } else {
+    throw new Error('未知的数据类型:' + dataType)
+  }
+
+  result = JSON.parse(result)
+
+  // 取得分页范围内的数据
+  let pageResult = []
+
+  result.forEach(function (row, id) {
+    if (id >= startOffset && id <= endOffset) {
+      row.key = base64.encode(row.key)
+      pageResult.push(row)
     }
+  })
 
-    result = JSON.parse(result)
-    // 获取页面数据
-    let pageResult = []
-    result.forEach(function (row, id) {
-        if (id >= startOffset && id <= endOffset) {
-            row.key = base64.encode(row.key)
-            pageResult.push(row)
-        }
-    })
-
-    res.json({
-        success: true,
-        message: '获取成功',
-        total: result.length,
-        data: pageResult
-    })
+  res.json({
+    success: true,
+    message: '查询成功',
+    total: result.length,
+    data: pageResult
+  })
 }

@@ -30,7 +30,7 @@ exports.mapRoutes = function (app) {
       let validator
 
       // 判断是否是要排除的处理器
-      if (excludeHandlers && excludeHandlers.indexOf(method) != -1) continue
+      if (excludeHandlers && excludeHandlers.indexOf(method) !== -1) continue
 
       if (!method.startsWith('validate')) {
         let validatorName = 'validate' + method[0].toUpperCase() + method.substring(1)
