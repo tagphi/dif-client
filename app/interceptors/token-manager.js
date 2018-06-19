@@ -7,7 +7,7 @@ var secretOrPrivateKey = jwtConfig.jwt_secret
 var globalTokens = {}
 
 // 这些url不需要登录即可访问
-const bypassList = ['/auth/login', '/static', '/blacklist/download', '/blacklist/upload']
+const bypassList = ['/auth/login', '/static', '/blacklist/download','/blacklist/downloadMergedlist', '/blacklist/upload']
 
 var __shouldBypass = function (url) {
   if (!url) return false
@@ -37,13 +37,13 @@ var checkToken = function (app) {
       if (err || globalTokens[decoded.username] == null) {
         res.send({
           success: false,
-          message: '请重新登录'
+          message: 'Failed to authenticate token.'
         })
       } else {
         if (globalTokens[decoded.username] != null && globalTokens[decoded.username] !== token) {
           res.send({
             success: false,
-            message: '会话已过期'
+            message: 'token has expired'
           })
           return
         }
