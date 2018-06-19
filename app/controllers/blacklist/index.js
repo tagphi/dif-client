@@ -97,7 +97,7 @@ exports.download = async function (req, res, next) {
  {"device1\tIMEI\tMD5":["RTBAsia"],"device2\tIMEI\tMD5":["RTBAsia"]}
  **/
 exports.validateDownloadMergedlist = [
-    check('type').not().isEmpty().withMessage('dataType不能为空'),
+    check('type').not().isEmpty().withMessage('type不能为空'),
 ]
 
 exports.downloadMergedlist = async function (req, res, next) {
