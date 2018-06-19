@@ -41,5 +41,26 @@
     "sinon": "latest",
     "superagent": "latest",
     "superagent-promise": "latest"
+  },
+  "standard": {
+    "ignore": [
+      "**/out/",
+      "/public/laydate/",
+      "/app/test/",
+      "/public/css/",
+      "tmp.js"
+    ],
+    "globals": [
+      "lay",
+      "laydate",
+      "FormData",
+      "describe",
+      "beforeEach",
+      "it",
+      "app",
+      "angular",
+      "sessionStorage",
+      "alert"
+    ]
   }
 }

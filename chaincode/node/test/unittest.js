@@ -18,13 +18,13 @@ var listEquals = function (a, b) {
   let equals = true
 
   a.forEach((i) => {
-    if (b.indexOf(i) == -1) {
+    if (b.indexOf(i) === -1) {
       equals = false
     }
   })
 
   b.forEach((i) => {
-    if (a.indexOf(i) == -1) {
+    if (a.indexOf(i) === -1) {
       equals = false
     }
   })
@@ -72,7 +72,7 @@ describe('Chaincode', function () {
 
       let rt = await chaincode.Invoke(mockStub)
 
-      assert.ok(rt.status == 500 && (rt.message.toString().indexOf('invalid format') > -1))
+      assert.ok(rt.status === 500 && (rt.message.toString().indexOf('invalid format') > -1))
     })
 
     it('should merge new devicies to this org empty list', async function () {
@@ -100,7 +100,7 @@ describe('Chaincode', function () {
 
       makeCall('deltaUpload', [deltaList, 'device'])
 
-      let rt = await chaincode.Invoke(mockStub)
+      await chaincode.Invoke(mockStub)
 
       // 添加两个新id
       let ids2Add2 = ['device3\tIMEI\tMD5', 'device4\tIMEI\tMD5']
@@ -108,7 +108,7 @@ describe('Chaincode', function () {
 
       makeCall('deltaUpload', [deltaList, 'device'])
 
-      rt = await chaincode.Invoke(mockStub)
+      await chaincode.Invoke(mockStub)
 
       let expectedMergedList = ids2Add1.concat(ids2Add2)
 
@@ -126,7 +126,7 @@ describe('Chaincode', function () {
 
       makeCall('deltaUpload', [deltaList, 'device'])
 
-      let rt = await chaincode.Invoke(mockStub)
+      await chaincode.Invoke(mockStub)
 
       // 删除一个设备号
       let ids2Add2 = ['device1\tIMEI\tMD5']
@@ -134,7 +134,7 @@ describe('Chaincode', function () {
 
       makeCall('deltaUpload', [deltaList, 'device'])
 
-      rt = await chaincode.Invoke(mockStub)
+      await chaincode.Invoke(mockStub)
 
       let expectedMergedList = ['device2\tIMEI\tMD5']
 
@@ -152,7 +152,7 @@ describe('Chaincode', function () {
 
       makeCall('deltaUpload', [deltaList, 'device'])
 
-      let rt = await chaincode.Invoke(mockStub)
+      await chaincode.Invoke(mockStub)
 
       let partialKey = mockStub.createCompositeKey('ORGDELTA', [])
       let deltaListsIterator = await mockStub.getStateByPartialCompositeKey(partialKey)
@@ -225,7 +225,7 @@ describe('Chaincode', function () {
         let deltaList = idArray2String(ids2Add1, '1')
 
         makeCall('deltaUpload', [deltaList, 'device'])
-        let rt = await chaincode.Invoke(mockStub)
+        await chaincode.Invoke(mockStub)
 
         setOrg('HTT') // 切换到另一个组织上传
 
@@ -233,10 +233,10 @@ describe('Chaincode', function () {
         deltaList = idArray2String(ids2Add2, '1')
 
         makeCall('deltaUpload', [deltaList, 'device'])
-        rt = await chaincode.Invoke(mockStub)
+        await chaincode.Invoke(mockStub)
 
         makeCall('merge', ['device']) // 合并device id
-        rt = await chaincode.Invoke(mockStub)
+        await chaincode.Invoke(mockStub)
 
         let mergedListKey = mockStub.createCompositeKey('MERGED', ['device'])
         let mergedListKeyBuffer = await mockStub.getState(mergedListKey)
@@ -244,18 +244,18 @@ describe('Chaincode', function () {
 
         assert.ok('device1\tIMEI\tMD5' in mergedList)
         let device1Orgs = mergedList['device1\tIMEI\tMD5']
-        assert.ok(device1Orgs.length == 1)
-        assert.ok(device1Orgs.indexOf('RTBAsia') != -1)
+        assert.ok(device1Orgs.length === 1)
+        assert.ok(device1Orgs.indexOf('RTBAsia') !== -1)
 
         assert.ok('device3\tIMEI\tMD5' in mergedList)
         let device3Orgs = mergedList['device3\tIMEI\tMD5']
-        assert.ok(device3Orgs.length == 1)
-        assert.ok(device3Orgs.indexOf('HTT') != -1)
+        assert.ok(device3Orgs.length === 1)
+        assert.ok(device3Orgs.indexOf('HTT') !== -1)
 
         assert.ok('device2\tIMEI\tMD5' in mergedList)
         let device2Orgs = mergedList['device2\tIMEI\tMD5']
-        assert.ok(device2Orgs.length == 2)
-        assert.ok(device2Orgs.indexOf('RTBAsia') != -1 && device2Orgs.indexOf('HTT') != -1)
+        assert.ok(device2Orgs.length === 2)
+        assert.ok(device2Orgs.indexOf('RTBAsia') !== -1 && device2Orgs.indexOf('HTT') !== -1)
       })
 
       it('should merge ip list committed by two orgs', async function () {
@@ -263,7 +263,7 @@ describe('Chaincode', function () {
         let deltaList = idArray2String(ip2Add1, '1')
 
         makeCall('deltaUpload', [deltaList, 'ip'])
-        let rt = await chaincode.Invoke(mockStub)
+        await chaincode.Invoke(mockStub)
 
         setOrg('HTT') // 切换到另一个组织上传
 
@@ -272,10 +272,10 @@ describe('Chaincode', function () {
 
         makeCall('deltaUpload', [deltaList, 'ip'])
 
-        rt = await chaincode.Invoke(mockStub)
+        await chaincode.Invoke(mockStub)
 
         makeCall('merge', ['ip']) // 合并device id
-        rt = await chaincode.Invoke(mockStub)
+        await chaincode.Invoke(mockStub)
 
         let mergedListKey = mockStub.createCompositeKey('MERGED', ['ip'])
         let mergedListKeyBuffer = await mockStub.getState(mergedListKey)
@@ -287,7 +287,7 @@ describe('Chaincode', function () {
         assert.ok('192.168.0.2' in mergedList)
 
         let ip2Orgs = mergedList['192.168.0.2']
-        assert.ok(ip2Orgs.indexOf('RTBAsia') != -1 && ip2Orgs.indexOf('HTT') != -1)
+        assert.ok(ip2Orgs.indexOf('RTBAsia') !== -1 && ip2Orgs.indexOf('HTT') !== -1)
       })
     })
 
@@ -297,7 +297,7 @@ describe('Chaincode', function () {
 
         let rt = await chaincode.Invoke(mockStub)
 
-        assert.ok(rt.status == 500 && (rt.message.toString().indexOf('invalid format') > -1))
+        assert.ok(rt.status === 500 && (rt.message.toString().indexOf('invalid format') > -1))
       })
 
       it('should save deviceid remove list', async function () {
@@ -332,7 +332,7 @@ describe('Chaincode', function () {
         let deltaList = idArray2String(ids2Add1, '1')
 
         makeCall('deltaUpload', [deltaList, 'device'])
-        let rt = await chaincode.Invoke(mockStub)
+        await chaincode.Invoke(mockStub)
 
         setOrg('HTT') // 切换到另一个组织上传
 
@@ -340,18 +340,18 @@ describe('Chaincode', function () {
         deltaList = idArray2String(ids2Add2, '1')
 
         makeCall('deltaUpload', [deltaList, 'device'])
-        rt = await chaincode.Invoke(mockStub)
+        await chaincode.Invoke(mockStub)
 
         // 上传一个移除列表
         let removeList = 'device1\tIMEI\tMD5\ndevice2\tIMEI\tMD5'
 
         makeCall('uploadRemoveList', [removeList, 'device'])
 
-        rt = await chaincode.Invoke(mockStub)
+        await chaincode.Invoke(mockStub)
 
         // 合并device id
         makeCall('merge', ['device'])
-        rt = await chaincode.Invoke(mockStub)
+        await chaincode.Invoke(mockStub)
 
         let mergedListKey = mockStub.createCompositeKey('MERGED', ['device'])
         let mergedListKeyBuffer = await mockStub.getState(mergedListKey)
@@ -362,8 +362,8 @@ describe('Chaincode', function () {
 
         assert.ok('device3\tIMEI\tMD5' in mergedList)
         let device3Orgs = mergedList['device3\tIMEI\tMD5']
-        assert.ok(device3Orgs.length == 1)
-        assert.ok(device3Orgs.indexOf('HTT') != -1)
+        assert.ok(device3Orgs.length === 1)
+        assert.ok(device3Orgs.indexOf('HTT') !== -1)
       })
 
       it('should return remove list when query history', async function () {

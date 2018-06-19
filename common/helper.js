@@ -28,16 +28,17 @@ var __newOrderer = function (client) {
 var __readAllFiles = function (dir) {
   var files = fs.readdirSync(dir)
   var certs = []
-  files.forEach((file_name) => {
-    let file_path = path.join(dir, file_name)
-    let data = fs.readFileSync(file_path)
+
+  files.forEach((fileName) => {
+    let filePath = path.join(dir, fileName)
+    let data = fs.readFileSync(filePath)
     certs.push(data)
   })
+
   return certs
 }
 
 var __getCryptoDataPEM = function (keyPath) {
-  let data = CONFIG.msp.admin_key_path
   let pem = Buffer.from(__readAllFiles(keyPath)[0]).toString()
 
   return pem
@@ -141,7 +142,7 @@ var getOwnPeers = function (client) {
     let orgPeersJson = allPeersJson[key]
 
     // 这是本组织Peer
-    if (orgPeersJson.MSPID == CONFIG.msp.id) {
+    if (orgPeersJson.MSPID === CONFIG.msp.id) {
       let data = fs.readFileSync(path.join(__dirname, CONFIG.peer.tls_cert_path))
 
       for (let key in orgPeersJson.peers) {

@@ -1,5 +1,3 @@
-const util = require('util')
-const crypto = require('crypto')
 const shim = require('fabric-shim')
 
 const ORG_IDX_NAME = 'ORG'
@@ -12,7 +10,7 @@ var Chaincode = class {
   async Init (stub) {
     console.info('========= DIF Init =========')
 
-    let ret = stub.getFunctionAndParameters()
+    stub.getFunctionAndParameters()
 
     return shim.success()
   }
@@ -44,11 +42,11 @@ var Chaincode = class {
       let encryptType = data[2]
 
       if (validEncryptTypes.indexOf(encryptType) === -1) {
-        throw new Error('unknown device type ' + row)
+        throw new Error('unknown encryptType type ' + encryptType)
       }
 
       if (validDeviceTypes.indexOf(deviceType) === -1) {
-        throw new Error('unknown device type ' + row)
+        throw new Error('unknown device type ' + deviceType)
       }
     }
 
@@ -56,7 +54,7 @@ var Chaincode = class {
       let deviceType = data[1]
 
       if (validDeviceTypes.indexOf(deviceType) === -1) {
-        throw new Error('unknown device type ' + row)
+        throw new Error('unknown device type ' + deviceType)
       }
     }
   }
@@ -64,8 +62,8 @@ var Chaincode = class {
   static __validateDeltaListFormat (row, type) {
     let cols = row.split('\t')
 
-    if (type === 'device' && cols.length !== 4 || type === 'ip' && cols.length !== 2 ||
-            type === 'default' && cols.length !== 3) {
+    if ((type === 'device' && cols.length !== 4) || (type === 'ip' && cols.length !== 2) ||
+            (type === 'default' && cols.length !== 3)) {
       throw new Error('invalid format ' + row)
     }
 
@@ -92,7 +90,7 @@ var Chaincode = class {
   }
 
   async uploadRemoveList (stub, args) {
-    if (!args || args.length != 2) {
+    if (!args || args.length !== 2) {
       throw new Error('2 arguments are expected')
     }
 
@@ -118,7 +116,7 @@ var Chaincode = class {
   }
 
   async deltaUpload (stub, args) {
-    if (!args || args.length != 2) {
+    if (!args || args.length !== 2) {
       throw new Error('2 arguments are expected')
     }
 
@@ -154,8 +152,6 @@ var Chaincode = class {
       }
 
       Chaincode.__validateDeltaListFormat(row, type)
-
-      let cols = row.split('\t')
 
       let flagPos = row.lastIndexOf('\t')
 
@@ -255,8 +251,8 @@ var Chaincode = class {
   }
 
   async listDeltaUploadHistory (stub, args) {
-    if (!args || args.length != 2) {
-      throw new Error('should provide 2 timestamp as args')
+    if (!args || args.length !== 2) {
+      throw new Error('startime and endtime should be provided')
     }
 
     let startTs = args[0]
@@ -268,8 +264,8 @@ var Chaincode = class {
   }
 
   async listRemoveListUploadHistory (stub, args) {
-    if (!args || args.length != 2) {
-      throw new Error('should provide 2 timestamp as args')
+    if (!args || args.length !== 2) {
+      throw new Error('startime and endtime should be provided')
     }
 
     let startTs = args[0]
