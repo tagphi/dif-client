@@ -8,7 +8,6 @@ var invokeChaincode = require('../../cc/invoke')
 var queryChaincode = require('../../cc/query')
 
 exports.url = '/blacklist'
-// exports.excludeHandlers = ['upload', 'download', "downloadMergedlist"]
 exports.excludeHandlers = ['upload']
 
 /**
@@ -103,20 +102,26 @@ exports.validateDownloadMergedlist = [
 exports.downloadMergedlist = async function (req, res, next) {
     let type = req.query.type
 
-    let result= await queryChaincode('getMergedList', [type]);
-    result=JSON.parse(result);
-
-    let resultStr="";
-    for(prop in result){
-        resultStr+=prop+":";
-        let orgs=result[prop].join(",");
-        resultStr+=orgs+"\n"
-    }
+    let result = await queryChaincode('getMergedList', [type]);
 
     res.set({
         'Content-Type': 'application/octet-stream',
         'Content-Disposition': 'attachment; filename=' + type + "-" + new Date().getTime() + '.txt'
     })
+
+    if (!result || result.indexOf("Err") != -1) {
+        res.send("");
+        return
+    } else {
+        result = JSON.parse(result);
+    }
+
+    let resultStr = "";
+    for (prop in result) {
+        resultStr += prop + ":";
+        let orgs = result[prop].join(",");
+        resultStr += orgs + "\n"
+    }
 
     res.send(resultStr)
 }
@@ -155,10 +160,10 @@ exports.histories = async function (req, res, next) {
         throw new Error('未知的数据类型:' + dataType)
     }
 
-    if (result.indexOf("Err")!=-1){
+    if (result.indexOf("Err") != -1) {
         next(result);
         return;
-    }else {
+    } else {
         result = JSON.parse(result);
     }
 
