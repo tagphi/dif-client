@@ -88,7 +88,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
                     }
 
                     var formData = new FormData()
-                    formData.set('isBlacklist', ($scope.upFlag == 'blacklist')) // 类型
+                    formData.set('dataType', ($scope.upFlag == 'blacklist' ? "delta" : "remove")) // 类型
                     formData.set('type', $scope.selectType) // 类型
                     formData.append('file', $scope.uploadFile)
 
@@ -122,40 +122,12 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     /**
      * 下载对话框
      **/
-    $scope.openDownloadDlg = function (isBlacklist, selectKey) {
+    $scope.openDownloadDlg = function () {
         let dlgOpts = {
             template: 'views/dlgs/download-dlg.html',
             scope: $scope,
             controller: ['$scope', 'HttpService', function ($scope, HttpService) {
-                $scope.isBlacklist = isBlacklist
-                $scope.selectKey = selectKey
-            }]
-        }
-        ngDialog.open(dlgOpts)
-    }
-
-    /**
-     * 合并对话框
-     **/
-    $scope.openMergeDlg = function () {
-        let dlgOpts = {
-            template: 'views/dlgs/merge-dlg.html',
-            scope: $scope,
-            controller: ['$scope', 'HttpService', function ($scope, HttpService) {
-                $scope.merge = function () {
-                    $scope.closeThisDialog()
-                    HttpService.post('/blacklist/mergeBlacklist', {type: $scope.mergeType})
-                        .then(function (respData) {
-                            if (respData.success) {
-                                alertMsgService.alert('合并成功', true)
-                            } else {
-                                alertMsgService.alert('合并失败', false)
-                            }
-                        })
-                        .catch(function (err) {
-                            alertMsgService.alert('合并出错', false)
-                        })
-                }
+                $scope.mergeType = $scope.mergeType || "ip";
             }]
         }
         ngDialog.open(dlgOpts)
@@ -165,6 +137,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
      * 查询
      **/
     $scope.queryHistories = function (pageNO) {
+
         // 获取日期范围
         let dataRange = getDateRange()
 
@@ -176,34 +149,34 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             pageSize: $scope.pageSize
         }
 
-        payload.isBlacklist = (selectedTabID == 'blacklistTab')
-        payload.pageNO = pageNO | $scope[selectedTabID].currentPage,
+        payload.dataType = (selectedTabID == 'blacklistTab' ? "delta" : "remove")
+        payload.pageNO = pageNO | $scope[selectedTabID].currentPage;
 
-            HttpService.post('/blacklist/histories', payload)
-                .then(function (respData) {
-                    if (respData.success) {
-                        alertMsgService.alert('获取成功', true)
-                        respData.data.forEach(function (row) { // 转换时间戳
-                            let date = new Date()
-                            date.setTime(row.timestamp)
-                            row.date = date.format('yyyy-MM-dd')
-                        })
+        HttpService.post('/blacklist/histories', payload)
+            .then(function (respData) {
+                if (respData.success) {
+                    alertMsgService.alert('获取成功', true)
+                    respData.data.forEach(function (row) { // 转换时间戳
+                        let date = new Date()
+                        date.setTime(row.timestamp)
+                        row.date = date.format('yyyy-MM-dd')
+                    })
 
-                        $scope[selectedTabID].histories = respData.data
-                        $scope[selectedTabID].total = respData.total
-                    } else {
-                        alertMsgService.alert('获取失败', false)
-                        $scope[selectedTabID].histories = []
-                        $scope[selectedTabID].total = []
-                    }
+                    $scope[selectedTabID].histories = respData.data
+                    $scope[selectedTabID].total = respData.total
+                } else {
+                    alertMsgService.alert('获取失败', false)
+                    $scope[selectedTabID].histories = []
+                    $scope[selectedTabID].total = []
+                }
 
-                    if (!pageNO) {
-                        $scope[selectedTabID].currentPage = 1
-                    }
-                })
-                .catch(function (err) {
-                    alertMsgService.alert('网络错误', false)
-                })
+                if (!pageNO) {
+                    $scope[selectedTabID].currentPage = 1
+                }
+            })
+            .catch(function (err) {
+                alertMsgService.alert('网络错误', false)
+            })
     }
 
     /**
@@ -277,8 +250,11 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
 
         // 监听所有面板的选项中页面的变化
         TAB_IDS.forEach(function (tabID) {
-            $scope.$watch(tabID + '.currentPage', function (newCurPage) {
-                $scope.queryHistories(newCurPage)
+            $scope.$watch(tabID + '.currentPage', function (newCurPage, oldPage) {
+                if (newCurPage == 1 || oldPage == 1) {
+                    return
+                }
+                $scope.queryHistories(newCurPage);
             })
         })
     }

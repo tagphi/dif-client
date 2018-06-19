@@ -14,7 +14,7 @@
         <h2 class="history-head">
             <strong>历史提交记录</strong>
             <a ng-click="openUploadDlg()" class="link-normal"><i class="icon-upload"></i> 上传</a>
-            <a ng-click="openMergeDlg()" class="link-default"><i class="icon-git-merge"></i> 合并版本</a>
+            <a ng-click="openDownloadDlg()" class="link-default"><i class="icon-git-merge"></i> 合并版本</a>
         </h2>
         <section class="mainarea">
             <div class="htitle">
@@ -58,7 +58,7 @@
                         <td>{{blacklistHist.mspid}}</td>
                         <td>{{blacklistHist.date}}</td>
                         <td>{{blacklistHist.type}}</td>
-                        <td><a ng-click="openDownloadDlg(true,blacklistHist.key)">下载</a></td>
+                        <td><a href="/blacklist/download?dataType=delta&key={{blacklistHist.key}}">下载</a></td>
                     </tr>
                     </tbody>
                 </table>
@@ -92,7 +92,7 @@
                         <td>{{removelistHist.mspid}}</td>
                         <td>{{removelistHist.date}}</td>
                         <td>{{removelistHist.type}}</td>
-                        <td><a ng-click="openDownloadDlg(false,removelistHist.key)">下载</a></td>
+                        <td><a href="/blacklist/download?dataType=remove&key={{removelistHist.key}}">下载</a></td>
                     </tr>
                     </tbody>
                 </table>
