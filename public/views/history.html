@@ -32,19 +32,19 @@
             </div>
             <nav class="history-tab">
                 <ul>
-                    <li ng-click="selectTab('blacklistTab')" ng-class="{on:blacklistTab.show}">黑名单</li>
-                    <li ng-click="selectTab('removelistTab')" ng-class="{on:removelistTab.show}">移除列表</li>
+                    <li ng-click="selectTab('blacklist')" ng-class="{on:selectDataType=='blacklist'}">黑名单</li>
+                    <li ng-click="selectTab('removelist')" ng-class="{on:selectDataType=='removelist'}">移除列表</li>
                 </ul>
             </nav>
             <!--黑名单表-->
-            <div ng-show="blacklistTab.show" class="text-center">
-                <div class="empty-container" ng-show="blacklistTab.histories.length==0">
+            <div class="text-center">
+                <div class="empty-container" ng-show="showingTab.histories.length==0">
                     <div class="empty-content animated rotateIn">
                         <span class="iconfont  empty-icon">&#xe60b;</span><br>
                         <div class="empty-label">暂无数据</div>
                     </div>
                 </div>
-                <table ng-show="blacklistTab.histories.length!=0" class="table tc">
+                <table ng-show="showingTab.histories.length!=0" class="table tc">
                     <thead>
                     <tr>
                         <th>成员名</th>
@@ -54,53 +54,19 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="blacklistHist in blacklistTab.histories">
-                        <td>{{blacklistHist.mspid}}</td>
-                        <td>{{blacklistHist.date}}</td>
-                        <td>{{blacklistHist.type}}</td>
-                        <td><a href="/blacklist/download?dataType=delta&key={{blacklistHist.key}}">下载</a></td>
-                    </tr>
-                    </tbody>
-                </table>
-                <nav aria-label="Page navigation" class="tr">\
-                    <common-pagination
-                            total="blacklistTab.total"
-                            page-size="pageSize"
-                            current-page="blacklistTab.currentPage"></common-pagination>
-                </nav>
-            </div>
-
-            <!--移除列表表-->
-            <div ng-show="removelistTab.show">
-                <div class="empty-container" ng-show="removelistTab.histories.length==0">
-                    <div class="empty-content animated rotateIn">
-                        <span class="iconfont  empty-icon">&#xe60b;</span><br>
-                        <div class="empty-label">暂无数据</div>
-                    </div>
-                </div>
-                <table ng-show="removelistTab.histories.length!=0" class="table tc">
-                    <thead>
-                    <tr>
-                        <th>成员名</th>
-                        <th>日期</th>
-                        <th>类型</th>
-                        <th>操作</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr ng-repeat="removelistHist in removelistTab.histories">
-                        <td>{{removelistHist.mspid}}</td>
-                        <td>{{removelistHist.date}}</td>
-                        <td>{{removelistHist.type}}</td>
-                        <td><a href="/blacklist/download?dataType=remove&key={{removelistHist.key}}">下载</a></td>
+                    <tr ng-repeat="hist in showingTab.histories">
+                        <td>{{hist.mspid}}</td>
+                        <td>{{hist.date}}</td>
+                        <td>{{hist.type}}</td>
+                        <td><a href="/blacklist/download?dataType={{selectDataType}}}&key={{hist.key}}">下载</a></td>
                     </tr>
                     </tbody>
                 </table>
                 <nav aria-label="Page navigation" class="tr">
                     <common-pagination
-                            total="removelistTab.total"
+                            total="showingTab.total"
                             page-size="pageSize"
-                            current-page="removelistTab.currentPage"></common-pagination>
+                            current-page="showingTab.currentPage"></common-pagination>
                 </nav>
             </div>
         </section>

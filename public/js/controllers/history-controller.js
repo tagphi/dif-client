@@ -14,29 +14,16 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             })
     }
 
-    const TAB_IDS = ['blacklistTab', 'removelistTab']
-    $scope.selectTabID = 'blacklistTab' // 默认选中的标签为blacklist
+    $scope.selectDataType = 'blacklist' // 默认选中的标签为blacklist
     $scope.showblacklist = true
 
     $scope.pageSize = 3
 
     /**
-     * blacklist面板状态
-     */
-    $scope.blacklistTab = {
-        type: 'blacklist',
-        show: true, // 显示
-        histories: [], // 历史数据
-        total: 0, // 总历史记录数
-        currentPage: 1 // 页面指针
-    }
-
-    /**
      * removelist面板状态
      */
-    $scope.removelistTab = {
-        type: 'removelist',
-        show: false, // 默认不显示
+    $scope.showingTab = {
+        type: 'blacklist',//默认黑名单
         histories: [], // 历史数据
         total: 0, // 总历史记录数
         currentPage: 1 // 页面指针
@@ -129,16 +116,14 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
         // 获取日期范围
         let dataRange = getDateRange()
 
-        let selectedTabID = $scope.selectTabID
-
         let payload = {
             startDate: dataRange[0],
             endDate: dataRange[1],
             pageSize: $scope.pageSize
         }
 
-        payload.dataType = selectedTabID === 'blacklistTab' ? 'delta' : 'remove'
-        payload.pageNO = pageNO || $scope[selectedTabID].currentPage
+        payload.dataType = $scope.selectDataType === 'blacklist' ? 'delta' : 'remove'
+        payload.pageNO = pageNO || $scope.showingTab.currentPage
 
         HttpService.post('/blacklist/histories', payload)
             .then(function (respData) {
@@ -149,17 +134,17 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
                         row.date = $filter('date')(date, 'yyyy-MM-dd')
                     })
 
-                    $scope[selectedTabID].histories = respData.data
-                    $scope[selectedTabID].total = respData.total
+                    $scope.showingTab.histories = respData.data
+                    $scope.showingTab.total = respData.total
                     alertMsgService.alert('获取成功', true);
                 } else {
                     alertMsgService.alert('获取失败', false)
-                    $scope[selectedTabID].histories = []
-                    $scope[selectedTabID].total = []
+                    $scope.showingTab.histories = []
+                    $scope.showingTab.total = []
                 }
 
                 if (!pageNO) {
-                    $scope[selectedTabID].currentPage = 1
+                    $scope.showingTab.currentPage = 1
                 }
             })
             .catch(function (err) {
@@ -177,21 +162,11 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     /**
      * 标签选择
      */
-    $scope.selectTab = function (tabID) {
-        $scope.selectTabID = tabID
+    $scope.selectTab = function (dataType) {
+        $scope.selectDataType = dataType
 
-        // 隐藏所有面板
-        TAB_IDS.forEach(function (tab) {
-            $scope[tab].show = false
-        })
-
-        // 显示指定面板
-        $scope[tabID].show = true
-
-        if ($scope[tabID].histories.length === 0) { // 无数据才查询
-            // 查询
-            $scope.queryHistories()
-        }
+        // 查询
+        $scope.queryHistories();
     }
 
     /**
@@ -240,11 +215,10 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
         }, 0.5 * 1000)
 
         // 监听所有面板的选项中页面的变化
-        TAB_IDS.forEach(function (tabID) {
-            $scope.$watch(tabID + '.currentPage', function (newCurPage, old) {
-                if (newCurPage == 1 && old == 1) return;
-                $scope.queryHistories(newCurPage)
-            })
+
+        $scope.$watch('showingTab.currentPage', function (newCurPage, old) {
+            if (newCurPage == 1 && old == 1) return;
+            $scope.queryHistories(newCurPage)
         })
     }
 
