@@ -1,0 +1,360 @@
+{
+	"info": {
+		"_postman_id": "c03e4ec3-bb16-488c-b8f4-646a82e73495",
+		"name": "dif-client",
+		"description": "dif-client的测试",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "【auth】/login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "text",
+							"description": ""
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"type": "text",
+							"description": ""
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8081/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "【auth】/logout",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1Mjg3MzA1NjUsInVzZXJuYW1lIjoiYWRtaW4iLCJwYXNzd29yZCI6InBhc3N3b3JkIiwiaWF0IjoxNTI4Njk0NTY1fQ.hwpD8HDqD9LF8M4mMQUJr4ZLtRciQpU7NYRphzl4Ds8",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8040/auth/logout",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8040",
+					"path": [
+						"auth",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "【blacklist】/uploadBlacklist",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					},
+					{
+						"key": "token",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1Mjg3NDEzMzMsInVzZXJuYW1lIjoiYWRtaW4iLCJwYXNzd29yZCI6InBhc3N3b3JkIiwiaWF0IjoxNTI4NzA1MzMzfQ.7O56qANi-bapluAxEaHQ-4tuTgdawNYlZTTgzg6wicc",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1Mjg3NDEzOTEsInVzZXJuYW1lIjoiYWRtaW4iLCJwYXNzd29yZCI6InBhc3N3b3JkIiwiaWF0IjoxNTI4NzA1MzkxfQ.8V0gpCJLEX594tmVOIuj1CHpz6zQl6PpWSu-rI8N8-8",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "file",
+							"description": "",
+							"type": "file"
+						},
+						{
+							"key": "type",
+							"value": "device",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8081/blacklist/uploadBlacklist",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"blacklist",
+						"uploadBlacklist"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "【blacklist】/removeBlacklist",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					},
+					{
+						"key": "token",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1Mjg3NDEzMzMsInVzZXJuYW1lIjoiYWRtaW4iLCJwYXNzd29yZCI6InBhc3N3b3JkIiwiaWF0IjoxNTI4NzA1MzMzfQ.7O56qANi-bapluAxEaHQ-4tuTgdawNYlZTTgzg6wicc",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1Mjg3NDEzOTEsInVzZXJuYW1lIjoiYWRtaW4iLCJwYXNzd29yZCI6InBhc3N3b3JkIiwiaWF0IjoxNTI4NzA1MzkxfQ.8V0gpCJLEX594tmVOIuj1CHpz6zQl6PpWSu-rI8N8-8",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "file",
+							"description": "",
+							"type": "file"
+						},
+						{
+							"key": "type",
+							"value": "device",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8081/blacklist/uploadBlacklist",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"blacklist",
+						"uploadBlacklist"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "【blacklist】/mergeBlacklist",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					},
+					{
+						"key": "token",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1Mjg3NDEzMzMsInVzZXJuYW1lIjoiYWRtaW4iLCJwYXNzd29yZCI6InBhc3N3b3JkIiwiaWF0IjoxNTI4NzA1MzMzfQ.7O56qANi-bapluAxEaHQ-4tuTgdawNYlZTTgzg6wicc",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1Mjg3NDEzOTEsInVzZXJuYW1lIjoiYWRtaW4iLCJwYXNzd29yZCI6InBhc3N3b3JkIiwiaWF0IjoxNTI4NzA1MzkxfQ.8V0gpCJLEX594tmVOIuj1CHpz6zQl6PpWSu-rI8N8-8",
+							"type": "text",
+							"description": ""
+						},
+						{
+							"key": "type",
+							"value": "device",
+							"type": "text",
+							"description": ""
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8081/blacklist/mergeBlacklist",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"blacklist",
+						"mergeBlacklist"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "【blacklist】/histories",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					},
+					{
+						"key": "token",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1Mjg3NDEzMzMsInVzZXJuYW1lIjoiYWRtaW4iLCJwYXNzd29yZCI6InBhc3N3b3JkIiwiaWF0IjoxNTI4NzA1MzMzfQ.7O56qANi-bapluAxEaHQ-4tuTgdawNYlZTTgzg6wicc",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1Mjg3NDEzOTEsInVzZXJuYW1lIjoiYWRtaW4iLCJwYXNzd29yZCI6InBhc3N3b3JkIiwiaWF0IjoxNTI4NzA1MzkxfQ.8V0gpCJLEX594tmVOIuj1CHpz6zQl6PpWSu-rI8N8-8",
+							"type": "text",
+							"description": ""
+						},
+						{
+							"key": "startDate",
+							"value": "2018-06-11",
+							"type": "text",
+							"description": ""
+						},
+						{
+							"key": "endDate",
+							"value": "2018-06-14",
+							"type": "text",
+							"description": ""
+						},
+						{
+							"key": "type",
+							"value": "device",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8081/blacklist/uploadHistories",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"blacklist",
+						"uploadHistories"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "【blacklist】/download",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					},
+					{
+						"key": "token",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1Mjg3NDEzMzMsInVzZXJuYW1lIjoiYWRtaW4iLCJwYXNzd29yZCI6InBhc3N3b3JkIiwiaWF0IjoxNTI4NzA1MzMzfQ.7O56qANi-bapluAxEaHQ-4tuTgdawNYlZTTgzg6wicc",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1Mjg3NDEzOTEsInVzZXJuYW1lIjoiYWRtaW4iLCJwYXNzd29yZCI6InBhc3N3b3JkIiwiaWF0IjoxNTI4NzA1MzkxfQ.8V0gpCJLEX594tmVOIuj1CHpz6zQl6PpWSu-rI8N8-8",
+							"type": "text",
+							"description": ""
+						},
+						{
+							"key": "type",
+							"value": "device",
+							"type": "text",
+							"description": ""
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8081/blacklist/downloadBlacklist",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"blacklist",
+						"downloadBlacklist"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

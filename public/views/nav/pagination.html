@@ -7,7 +7,7 @@
         <a ng-click="prev()"> ‹ </a>
     </li>
     <li ng-class="{true:'active'}[currentPage==page]" ng-repeat="page in pages">
-        <a ng-click="selectPage(page)" ng-bind="page"></a>
+        <a class="animated rotateIn" ng-click="selectPage(page)" ng-bind="page"></a>
     </li>
     <li ng-class="{true:'disabled'}[currentPage==totalPage]">
         <a ng-click="next()"> › </a>

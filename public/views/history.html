@@ -14,7 +14,7 @@
         <h2 class="history-head">
             <strong>历史提交记录</strong>
             <a ng-click="openUploadDlg()" class="link-normal"><i class="icon-upload"></i> 上传</a>
-            <a ng-click="mergeBlacklist()" class="link-default"><i class="icon-git-merge"></i> 合并版本</a>
+            <a ng-click="openMergeDlg()" class="link-default"><i class="icon-git-merge"></i> 合并版本</a>
         </h2>
         <section class="mainarea">
             <div class="htitle">
@@ -32,20 +32,19 @@
             </div>
             <nav class="history-tab">
                 <ul>
-                    <li ng-click="selectTab('ipTab')" ng-class="{on:ipTab.show}">IP</li>
-                    <li ng-click="selectTab('deviceTab')" ng-class="{on:deviceTab.show}">设备</li>
-                    <li ng-click="selectTab('defaultTab')" ng-class="{on:defaultTab.show}">默认设备</li>
+                    <li ng-click="selectTab('blacklistTab')" ng-class="{on:blacklistTab.show}">黑名单</li>
+                    <li ng-click="selectTab('removelistTab')" ng-class="{on:removelistTab.show}">移除列表</li>
                 </ul>
             </nav>
-            <!--ip表-->
-            <div ng-show="ipTab.show" class="text-center">
-                <div class="empty-container" ng-show="ipTab.histories.length==0">
-                    <div class="empty-content">
+            <!--黑名单表-->
+            <div ng-show="blacklistTab.show" class="text-center">
+                <div class="empty-container" ng-show="blacklistTab.histories.length==0">
+                    <div class="empty-content animated rotateIn">
                         <span class="iconfont  empty-icon">&#xe60b;</span><br>
                         <div class="empty-label">暂无数据</div>
                     </div>
                 </div>
-                <table ng-show="ipTab.histories.length!=0" class="table tc">
+                <table ng-show="blacklistTab.histories.length!=0" class="table tc">
                     <thead>
                     <tr>
                         <th>成员名</th>
@@ -55,31 +54,31 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="ipHist in ipTab.histories">
-                        <td>{{ipHist.mspid}}</td>
-                        <td>{{ipHist.date}}</td>
-                        <td>{{ipHist.type}}</td>
-                        <td><a ng-href="/blacklist/downloadBlacklist?type=ip&key={{ipHist.key}}">下载</a></td>
+                    <tr ng-repeat="blacklistHist in blacklistTab.histories">
+                        <td>{{blacklistHist.mspid}}</td>
+                        <td>{{blacklistHist.date}}</td>
+                        <td>{{blacklistHist.type}}</td>
+                        <td><a ng-click="openDownloadDlg(true,blacklistHist.key)">下载</a></td>
                     </tr>
                     </tbody>
                 </table>
                 <nav aria-label="Page navigation" class="tr">
                     <common-pagination
-                            total="ipTab.total"
+                            total="blacklistTab.total"
                             page-size="pageSize"
-                            current-page="ipTab.currentPage"></common-pagination>
+                            current-page="blacklistTab.currentPage"></common-pagination>
                 </nav>
             </div>
 
-            <!--device表-->
-            <div ng-show="deviceTab.show">
-                <div class="empty-container" ng-show="deviceTab.histories.length==0">
-                    <div class="empty-content">
+            <!--移除列表表-->
+            <div ng-show="removelistTab.show">
+                <div class="empty-container" ng-show="removelistTab.histories.length==0">
+                    <div class="empty-content animated rotateIn">
                         <span class="iconfont  empty-icon">&#xe60b;</span><br>
                         <div class="empty-label">暂无数据</div>
                     </div>
                 </div>
-                <table ng-show="deviceTab.histories.length!=0" class="table tc">
+                <table ng-show="removelistTab.histories.length!=0" class="table tc">
                     <thead>
                     <tr>
                         <th>成员名</th>
@@ -89,53 +88,19 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="deviceHist in deviceTab.histories">
-                        <td>{{deviceHist.mspid}}</td>
-                        <td>{{deviceHist.date}}</td>
-                        <td>{{deviceHist.type}}</td>
-                        <td><a ng-href="/blacklist/downloadBlacklist?type=device&key={{deviceHist.key}}">下载</a></td>
+                    <tr ng-repeat="removelistHist in removelistTab.histories">
+                        <td>{{removelistHist.mspid}}</td>
+                        <td>{{removelistHist.date}}</td>
+                        <td>{{removelistHist.type}}</td>
+                        <td><a ng-click="openDownloadDlg(false,removelistHist.key)">下载</a></td>
                     </tr>
                     </tbody>
                 </table>
                 <nav aria-label="Page navigation" class="tr">
                     <common-pagination
-                            total="deviceTab.total"
+                            total="removelistTab.total"
                             page-size="pageSize"
-                            current-page="deviceTab.currentPage"></common-pagination>
-                </nav>
-            </div>
-
-            <!--default表-->
-            <div ng-show="defaultTab.show">
-                <div class="empty-container" ng-show="defaultTab.histories.length==0">
-                    <div class="empty-content">
-                        <span class="iconfont  empty-icon">&#xe60b;</span><br>
-                        <div class="empty-label">暂无数据</div>
-                    </div>
-                </div>
-                <table ng-show="defaultTab.histories.length!=0" class="table tc">
-                    <thead>
-                    <tr>
-                        <th>成员名</th>
-                        <th>日期</th>
-                        <th>类型</th>
-                        <th>操作</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr ng-repeat="defaultHist in defaultTab.histories">
-                        <td>{{defaultHist.mspid}}</td>
-                        <td>{{defaultHist.date}}</td>
-                        <td>{{defaultHist.type}}</td>
-                        <td><a ng-href="/blacklist/downloadBlacklist?type=default&key={{defaultHist.key}}">下载</a></td>
-                    </tr>
-                    </tbody>
-                </table>
-                <nav aria-label="Page navigation" class="tr">
-                    <common-pagination
-                            total="defaultTab.total"
-                            page-size="pageSize"
-                            current-page="defaultTab.currentPage"></common-pagination>
+                            current-page="removelistTab.currentPage"></common-pagination>
                 </nav>
             </div>
         </section>
