@@ -11,22 +11,22 @@
                     <span class="pname">类型</span>
                     <!--选择类型-->
                     <div class="pname upload-dlg-types">
-                        <input id="type_ip" ng-model="downloadType" value="ip" type="radio" class="magic-radio"
+                        <input id="type_ip" ng-model="mergeType" value="ip" type="radio" class="magic-radio"
                                ng-checked="true">
-                        <label for="type_ip" ng-class="{'d-inline':true,'color-lightslategray':downloadType!='ip','color-blue-raido':downloadType=='ip'}">ip</label>
+                        <label for="type_ip" ng-class="{'d-inline':true,'color-lightslategray':mergeType!='ip','color-blue-raido':mergeType=='ip'}">ip</label>
 
-                        <input id="type_device" ng-model="downloadType" value="device" type="radio" class="magic-radio">
-                        <label for="type_device" ng-class="{'d-inline':true,'color-lightslategray':downloadType!='device','color-blue-raido':downloadType=='device'}">设备</label>
+                        <input id="type_device" ng-model="mergeType" value="device" type="radio" class="magic-radio">
+                        <label for="type_device" ng-class="{'d-inline':true,'color-lightslategray':mergeType!='device','color-blue-raido':mergeType=='device'}">设备</label>
 
-                        <input id="type_default" ng-model="downloadType" value="default" type="radio" class="magic-radio">
-                        <label for="type_default" ng-class="{'d-inline':true,'color-lightslategray':downloadType!='default','color-blue-raido':downloadType=='default'}">默认设备</label>
+                        <input id="type_default" ng-model="mergeType" value="default" type="radio" class="magic-radio">
+                        <label for="type_default" ng-class="{'d-inline':true,'color-lightslategray':mergeType!='default','color-blue-raido':mergeType=='default'}">默认设备</label>
                     </div>
                 </li>
             </ul>
         </form>
         <div class="modal-footer">
             <button ng-click="closeThisDialog()" type="button" class="btn-cancel">取消</button>
-            <a ng-click="closeThisDialog()" href="/blacklist/download?isBlacklist={{isBlacklist}}&key={{selectKey}}" class="btn-remove">下载</a>
+            <a ng-click="closeThisDialog()" href="/blacklist/downloadMergedlist?type={{mergeType}}" class="btn-remove">下载</a>
         </div>
     </div>
 </div>

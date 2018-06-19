@@ -24,7 +24,10 @@
         "username": "admin",
         "password": "password",
         "jwt_expiretime": "36000",
-        "jwt_secret": "thisismysecret"
+        "jwt_secret": "thisismysecret",
+        "upload":{
+            "maxFilesize":1024
+        }
     },
     "channel_name": "difchannel"
 }
