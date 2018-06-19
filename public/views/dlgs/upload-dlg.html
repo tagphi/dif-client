@@ -10,14 +10,12 @@
                     <span class="pname">操作</span>
                     <!--选择操作-->
                     <div class="pinfo">
-                        <input id="blacklist" ng-click="selectUploadFlag('blacklist')" ng-model="upFlag"
-                               value="blacklist"
-                               ng-checked="true" type="radio" class="hide-lowlever">
-                        <label for="blacklist" ng-class="{'opt-common':true,'opt-active':upFlag=='blacklist'}">黑名单</label>
-                        <input id="removeList" ng-click="selectUploadFlag('removelist')" ng-model="upFlag"
-                               value="removelist"
-                               type="radio" class="hide-lowlever">
-                        <label for="removeList"  ng-class="{'opt-common':true,'opt-active':upFlag=='removelist'}">移除列表</label>
+                        <input id="delta" ng-model="dataType" value="delta" type="radio" class="magic-radio"
+                               ng-checked="true">
+                        <label for="delta" ng-class="{'d-inline':true,'color-lightslategray':dataTyple!='delta','color-blue-raido':dataTyple=='delta'}">黑名单</label>
+                        <input id="remove" ng-model="dataType" value="remove" type="radio" class="magic-radio"
+                               ng-checked="false">
+                        <label for="remove"  ng-class="{'d-inline':true,'color-lightslategray':dataTyple!='remove','color-blue-raido':dataTyple=='remove'}">移除列表</label>
                     </div>
                 </li>
                 <li>

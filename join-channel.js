@@ -1,17 +1,11 @@
 'use strict'
 var helper = require('./common/helper')
-var CONFIG = require('./config.json')
-var path = require('path')
-var fs = require('fs-extra')
-
-var log4js = require('log4js')
-var logger = log4js.getLogger('join-channel')
 
 var getGenesisBlock = async function (client, channel) {
-  let tx_id = client.newTransactionID()
+  let txId = client.newTransactionID()
 
   let request = {
-    txId: tx_id
+    txId: txId
   }
 
   let genesisBlock = await channel.getGenesisBlock(request)
@@ -25,16 +19,16 @@ var joinPeer = async function () {
 
   let genesisBlock = await getGenesisBlock(client, channel)
 
-  let tx_id = client.newTransactionID()
+  let txId = client.newTransactionID()
 
   let request = {
     block: genesisBlock,
-    txId: tx_id
+    txId: txId
   }
 
   let peers = helper.getOwnPeers(client)
 
-  if (peers.length == 0) {
+  if (peers.length === 0) {
     console.log("can't find current org peers, please contact RTBAsia")
   }
 

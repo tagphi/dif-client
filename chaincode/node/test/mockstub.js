@@ -87,7 +87,7 @@ class MockStub {
     let matchedState = []
 
     for (let key in this.stateStore) {
-      if (key.indexOf(partialKey) != -1) {
+      if (key.indexOf(partialKey) !== -1) {
         matchedState.push({
           value: {
             key: key,

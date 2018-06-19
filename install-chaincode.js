@@ -1,8 +1,6 @@
 'use strict'
 var helper = require('./common/helper')
-var CONFIG = require('./config.json')
 
-var path = require('path')
 var fs = require('fs-extra')
 let util = require('util')
 
@@ -32,25 +30,24 @@ var installChaincode = async function () {
   let results = await client.installChaincode(request, 180000)
 
   let proposalResponses = results[0]
-  let proposal = results[1]
 
-  var all_good = true
+  var allGood = true
 
   for (var i in proposalResponses) {
-    let one_good = false
+    let oneGood = false
 
     if (proposalResponses && proposalResponses[i].response &&
             proposalResponses[i].response.status === 200) {
-      one_good = true
+      oneGood = true
       logger.info('install proposal was good')
     } else {
       logger.error('install proposal was bad')
     }
 
-    all_good = all_good & one_good
+    allGood = allGood & oneGood
   }
 
-  if (all_good) {
+  if (allGood) {
     logger.info(util.format(
       'Successfully sent install Proposal and received ProposalResponse: Status - %s',
       proposalResponses[0].response.status))

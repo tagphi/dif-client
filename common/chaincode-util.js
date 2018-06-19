@@ -1,4 +1,3 @@
-var Client = require('fabric-client')
 var fs = require('fs-extra')
 
 var util = require('util')
@@ -63,7 +62,7 @@ var sendNConfirm = async function (txId, channel, sendFn, validateProposalFn) {
   let txPromise = new Promise((resolve, reject) => {
     let handle = setTimeout(() => {
       eh.disconnect()
-      reject()
+      reject(new Error('Timeout to wait tx sync to peer'))
     }, CONFIG.peer.event_timeout)
 
     eh.registerTxEvent(deployId, (tx, code) => {
@@ -76,7 +75,7 @@ var sendNConfirm = async function (txId, channel, sendFn, validateProposalFn) {
 
       if (code !== 'VALID') {
         logger.error('Transaction was invalid, code = ' + code)
-        reject()
+        reject(new Error('Transaction was invalid, code = ' + code))
       } else {
         logger.info('Transaction was valid.')
         resolve()
