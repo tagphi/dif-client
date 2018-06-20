@@ -16,7 +16,6 @@ var getGenesisBlock = async function (client, channel) {
 var joinPeer = async function () {
   let client = await helper.getClient(true)
   let channel = await helper.getChannel(client)
-
   let genesisBlock = await getGenesisBlock(client, channel)
 
   let txId = client.newTransactionID()
