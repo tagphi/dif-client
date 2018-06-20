@@ -8,13 +8,13 @@
     },
     "orderer": {
         "tls_cert_path": "../crypto-config/order-tls/tlsca.rtbasia.com-cert.pem",
-        "url": "grpcs://orderer.dif.rtbasia.com:7050",
+        "url": "grpc://orderer.dif.rtbasia.com:7050",
         "ssl_target_name_override": "orderer.dif.rtbasia.com",
-        "timeout": 120
+        "timeout": 30000
     },
     "peer": {
         "tls_cert_path": "../crypto-config/peerOrganizations/rtbasia.com/msp/tlscacerts/tlsca.rtbasia.com-cert.pem",
-        "event_url": "grpcs://peer0.rtbasia.com:7053",
+        "event_url": "grpc://peer0.rtbasia.com:7053",
         "ssl_target_name_override": "peer0.rtbasia.com",
         "event_timeout": 30000
     },
