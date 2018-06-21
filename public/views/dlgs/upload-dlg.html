@@ -12,7 +12,7 @@
                     <div class="pinfo">
                         <input id="delta" ng-model="dataType" value="delta" type="radio" class="magic-radio"
                                ng-checked="true">
-                        <label for="delta" ng-class="{'d-inline':true,'color-lightslategray':dataTyple!='delta','color-blue-raido':dataTyple=='delta'}">黑名单</label>
+                        <label  for="delta" ng-class="{'d-inline':true,'color-lightslategray':dataTyple!='delta','color-blue-raido':dataTyple=='delta'}">黑名单</label>
                         <input id="remove" ng-model="dataType" value="remove" type="radio" class="magic-radio"
                                ng-checked="false">
                         <label for="remove"  ng-class="{'d-inline':true,'color-lightslategray':dataTyple!='remove','color-blue-raido':dataTyple=='remove'}">移除列表</label>
@@ -45,9 +45,9 @@
                 </li>
             </ul>
         </form>
-        <div class="modal-footer">
+        <div class="modal-footer ">
             <button ng-click="closeThisDialog()" type="button" class="btn-cancel">取消</button>
-            <button ng-click="postBlacklist()" type="button" class="btn-remove">{{confirmActionText}}</button>
+            <button ng-click="postBlacklist()" type="button" ng-class="{'btn-remove':true,'bg-blue':true}">上传</button>
         </div>
     </div>
 </div>

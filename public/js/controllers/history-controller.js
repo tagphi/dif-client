@@ -14,7 +14,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             })
     }
 
-    $scope.selectDataType = 'blacklist' // 默认选中的标签为blacklist
+    $scope.selectDataType = 'delta' // 默认选中的标签为
     $scope.showblacklist = true
 
     $scope.pageSize = 3
@@ -63,6 +63,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
 
                     var formData = new FormData()
                     formData.set('dataType', $scope.dataType) // 类型
+                    $scope.selectType=$scope.selectType || 'ip';
                     formData.set('type', $scope.selectType) // 类型
                     formData.append('file', $scope.uploadFile)
 
@@ -122,7 +123,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             pageSize: $scope.pageSize
         }
 
-        payload.dataType = $scope.selectDataType === 'blacklist' ? 'delta' : 'remove'
+        payload.dataType = $scope.selectDataType;
         payload.pageNO = pageNO || $scope.showingTab.currentPage
 
         HttpService.post('/blacklist/histories', payload)

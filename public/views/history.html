@@ -14,7 +14,7 @@
         <h2 class="history-head">
             <strong>历史提交记录</strong>
             <a ng-click="openUploadDlg()" class="link-normal"><i class="icon-upload"></i> 上传</a>
-            <a ng-click="openDownloadDlg()" class="link-default"><i class="icon-git-merge"></i> 合并版本</a>
+            <a ng-click="openDownloadDlg()" class="link-default"><i class="icon-download"></i> 合并版本</a>
         </h2>
         <section class="mainarea">
             <div class="htitle">
@@ -32,8 +32,8 @@
             </div>
             <nav class="history-tab">
                 <ul>
-                    <li ng-click="selectTab('blacklist')" ng-class="{on:selectDataType=='blacklist'}">黑名单</li>
-                    <li ng-click="selectTab('removelist')" ng-class="{on:selectDataType=='removelist'}">移除列表</li>
+                    <li ng-click="selectTab('delta')" ng-class="{on:selectDataType=='delta'}">黑名单</li>
+                    <li ng-click="selectTab('remove')" ng-class="{on:selectDataType=='remove'}">移除列表</li>
                 </ul>
             </nav>
             <!--黑名单表-->
@@ -58,7 +58,7 @@
                         <td>{{hist.mspid}}</td>
                         <td>{{hist.date}}</td>
                         <td>{{hist.type}}</td>
-                        <td><a href="/blacklist/download?dataType={{selectDataType}}}&key={{hist.key}}">下载</a></td>
+                        <td><a href="/blacklist/download?dataType={{selectDataType}}&key={{hist.key}}">下载</a></td>
                     </tr>
                     </tbody>
                 </table>

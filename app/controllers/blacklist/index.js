@@ -101,13 +101,18 @@ exports.validateDownloadMergedlist = [
 
 exports.downloadMergedlist = async function (req, res, next) {
     let type = req.query.type
-
-    let result = await queryChaincode('getMergedList', [type]);
-
     res.set({
         'Content-Type': 'application/octet-stream',
         'Content-Disposition': 'attachment; filename=' + type + "-" + new Date().getTime() + '.txt'
     })
+
+    let result = await invokeChaincode('merge', [type]);
+
+    result = await queryChaincode('getMergedList', [type]);
+    if (!result || result.indexOf("Err") != -1) {
+        res.send("");
+        return
+    }
 
     if (!result || result.indexOf("Err") != -1) {
         res.send("");
