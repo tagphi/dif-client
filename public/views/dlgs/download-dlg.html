@@ -2,7 +2,7 @@
 <div class="modal-dialog" role="document">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>合并</h3>
+            <h3>下载合并版本</h3>
         </div>
         <form name="downloadForm" class="modal-body form">
             <ul class="plist">
@@ -25,7 +25,7 @@
         </form>
         <div class="modal-footer">
             <button ng-click="closeThisDialog()" type="button" class="btn-cancel">取消</button>
-            <a ng-click="closeThisDialog()" href="/blacklist/downloadMergedlist?type={{dataType}}" class="btn-remove">合并</a>
+            <a ng-click="closeThisDialog()" href="/blacklist/downloadMergedlist?type={{dataType}}" class="btn-remove bg-blue">下载</a>
         </div>
     </div>
 </div>
