@@ -170,23 +170,10 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     }
 
     /**
-     * 初始化日期选择器
-     */
-    function initDatePicker() {
-        lay('#version').html('-v' + laydate.v)
-        // 执行一个laydate实例
-        laydate.render({
-            elem: '#date', // 指定元素
-            type: 'date',
-            range: true
-        })
-    }
-
-    /**
      * 获取日期范围
      */
     function getDateRange() {
-        let dataRange = document.getElementById('date').value
+        let dataRange = $scope.dateRange
 
         if (!dataRange) { // 默认查询最近一周的记录
             let nowDate = new Date()
@@ -206,9 +193,6 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
      * 初始化入口函数
      */
     function init() {
-        // 初始化日期选择器
-        initDatePicker()
-
         // 加载blacklist历史
         $timeout(function () {
             $scope.queryHistories()
