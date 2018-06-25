@@ -21,10 +21,11 @@
                 <div class="htime">
                     <p>日期范围</p>
                     <div class="calendar-box">
-                        <input ng-model="dateRange" type="text" placeholder="日期范围" id="date">
+                        <input ng-date-picker type="text" ng-model="dateRange" id="dateRange" dateType="date" format="yyyy-MM-dd" range="true" placeholder="时间范围"/>
                         <i class="icon-calendar"></i>
                     </div>
                 </div>
+
                 <span class="hlink">
 					<a ng-click="queryHistories()" class="link-default"> 查询</a>
 					<a ng-click="clearDate()" class="link-normal"><i class="icon-trash"></i> 清空</a>

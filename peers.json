@@ -8,5 +8,15 @@
                 "ssl-target-name-override": "peer0.rtbasia.com"
             }
         ]
+    },
+    {
+        "MSPID": "HTT",
+        "peers": [
+            {
+                "endorser": false,
+                "url": "grpc://peer0.htt.com:7051",
+                "ssl-target-name-override": "peer0.htt.com"
+            }
+        ]
     }
 ]
