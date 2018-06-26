@@ -18,13 +18,11 @@ app.directive('ngDatePicker', function() {
             // 日期配置参数
             _config = {
                 elem: '#' + element.attr('id'),
-                // format: attr.hasOwnProperty('format') && attr.format ? attr.format : 'YYYY-MM-DD',
-                format:'yyyy/MM/dd',
+                format: attr.hasOwnProperty('format') && attr.format ? attr.format : 'YYYY-MM-DD',
                 done: function(value, date, endDate) {
                     scope.$apply(setDateVal);
                 }
             }
-
 
             if (attr.hasOwnProperty('minDate') && attr.minDate != null) {
                 _config.min = attr.minDate
@@ -41,6 +39,8 @@ app.directive('ngDatePicker', function() {
             if (attr.hasOwnProperty('range') && attr.range != null) {
                 _config.range = attr.range === 'true' ? true : false
             }
+
+            console.log(_config)
 
             // 初始化日期
             _date = laydate.render(_config);

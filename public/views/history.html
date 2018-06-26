@@ -16,12 +16,12 @@
             <a ng-click="openUploadDlg()" class="link-normal"><i class="icon-upload"></i> 上传</a>
             <a ng-click="openDownloadDlg()" class="link-default"><i class="icon-download"></i> 合并版本</a>
         </h2>
-        <section class="mainarea tab-ctn-minh">
+        <section class="mainarea">
             <div class="htitle">
                 <div class="htime">
                     <p>日期范围</p>
                     <div class="calendar-box">
-                        <input ng-date-picker type="text" ng-model="dateRange" id="dateRange" dateType="date" format="yyyy/MM/dd" range="true" placeholder="时间范围"/>
+                        <input ng-date-picker type="text" ng-model="dateRange" id="dateRange" dateType="date" format="yyyy-MM-dd" range="true" placeholder="时间范围"/>
                         <i class="icon-calendar"></i>
                     </div>
                 </div>
@@ -39,7 +39,7 @@
             </nav>
             <!--黑名单表-->
             <div class="text-center">
-                <div class="empty-container" ng-show="showingTab.total==0">
+                <div class="empty-container" ng-show="showingTab.histories.length==0">
                     <div class="empty-content animated rotateIn">
                         <span class="iconfont  empty-icon">&#xe60b;</span><br>
                         <div class="empty-label">暂无数据</div>
@@ -63,7 +63,7 @@
                     </tr>
                     </tbody>
                 </table>
-                <nav ng-if="showingTab.total!=0" aria-label="Page navigation" class="tr">
+                <nav aria-label="Page navigation" class="tr">
                     <common-pagination
                             total="showingTab.total"
                             page-size="pageSize"

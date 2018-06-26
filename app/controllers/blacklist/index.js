@@ -3,12 +3,9 @@ var respUtils = require('../../utils/resp-utils')
 let base64 = require('base-64')
 
 var {check} = require('express-validator/check')
-var DataChecker=require('../../utils/data-checker');
 
 var invokeChaincode = require('../../cc/invoke')
 var queryChaincode = require('../../cc/query')
-
-let siteConfig=require('../../../config').site;
 
 exports.url = '/blacklist'
 exports.excludeHandlers = ['upload']
@@ -25,20 +22,13 @@ exports.upload = async function (req, res, next) {
     let type = req.body.type
     let dataType = req.body.dataType
     let dataStr = req.file.buffer.toString();
-    let dataRows=dataStr.split('\n');
 
     // 调用链码上传名单
-    let result;
-    if (dataType === 'delta') {
-        dataRows.forEach(function (row) {
-            DataChecker.__validateDeltaListFormat(row, type);
-        });
+    let result
 
+    if (dataType === 'delta') {
         result = await invokeChaincode('deltaUpload', [dataStr, type])
     } else if (dataType === 'remove') {
-        dataRows.forEach(function (row) {
-            DataChecker.__validateRemoveListFormat(row, type);
-        })
         result = await invokeChaincode('uploadRemoveList', [dataStr, type])
     } else {
         throw new Error('未知的数据类型:' + dataType)
@@ -159,7 +149,7 @@ exports.histories = async function (req, res, next) {
     let endTimestamp = Date.parse(req.body.endDate) + ''
 
     let pageNO = req.body.pageNO || 1
-    let pageSize = siteConfig.api.pageSize || 10;
+    let pageSize = req.body.pageSize || 10
 
     // 计算分页的开始结束位置
     let startOffset = (pageNO - 1) * pageSize
