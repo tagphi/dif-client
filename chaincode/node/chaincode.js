@@ -89,6 +89,12 @@ var Chaincode = class {
     Chaincode.__validateDataCols(cols, type)
   }
 
+  static __validateType(type) {
+    if (['device', 'ip', 'default'].indexOf(type) === -1) {
+      throw new Error('invalid type ' + type)
+    }
+  }
+
   async uploadRemoveList (stub, args) {
     if (!args || args.length !== 2) {
       throw new Error('2 arguments are expected')
@@ -98,6 +104,8 @@ var Chaincode = class {
     let mspid = creator.mspid
     let removeList = args[0]
     let type = args[1]
+
+    Chaincode.__validateType(type)
 
     let lines = removeList.split('\n')
 
@@ -124,6 +132,8 @@ var Chaincode = class {
     let mspid = creator.mspid
     let deltaList = args[0]
     let type = args[1]
+
+    Chaincode.__validateType(type)
 
     let orgIdxKey = stub.createCompositeKey(ORG_IDX_NAME, [type, mspid])
     let oldListStrBuff = await stub.getState(orgIdxKey)

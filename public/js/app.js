@@ -6,7 +6,6 @@ var app = angular.module('dif', [
   'ui.bootstrap',
   'ngRoute',
   'ngFileUpload',
-  'nl2br',
   'ngStorage',
   'ngDialog'
 ]).config(function ($routeProvider) {
