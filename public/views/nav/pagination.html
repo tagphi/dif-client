@@ -1,7 +1,7 @@
 <!--分页器指令-->
 <ul class="pagination pull-right pagination-nav" ng-show="totalPage>1">
     <li ng-class="{true:'active'}[currentPage==1]">
-        <a ng-click="loadPage(1)">«</a>
+        <a ng-click="selectPage(1)">«</a>
     </li>
     <li ng-class="{true:'disabled'}[currentPage==1]">
         <a ng-click="prev()"> ‹ </a>
@@ -13,6 +13,6 @@
         <a ng-click="next()"> › </a>
     </li>
     <li ng-class="{true:'active'}[currentPage==totalPage]">
-        <a ng-click="loadPage(totalPage)"> » </a>
+        <a ng-click="selectPage(totalPage)"> » </a>
     </li>
 </ul>
