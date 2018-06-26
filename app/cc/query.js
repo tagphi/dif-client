@@ -19,7 +19,7 @@ var query = async function (fcn, args) {
       chainId: CONFIG.channel_name
     }
 
-    request.targets = helper.getEndorsers(client)
+    request.targets = await helper.getEndorsers(client)
 
     let responsePayloads = await channel.queryByChaincode(request)
 

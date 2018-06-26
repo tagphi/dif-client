@@ -1,5 +1,5 @@
-app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $filter,
-                                              HttpService, ngDialog, alertMsgService) {
+app.controller('HistoryController',function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $filter,
+                                              HttpService, ngDialog, alertMsgService,Upload) {
     /**
      * 退出
      */
@@ -16,18 +16,43 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
 
     $scope.selectDataType = 'delta' // 默认选中的标签为
     $scope.showblacklist = true
-
-    $scope.pageSize = 3
+    let initDateRange='';
 
     /**
-     * removelist面板状态
+     *面板状态
      */
     $scope.showingTab = {
         type: 'blacklist',//默认黑名单
         histories: [], // 历史数据
         total: 0, // 总历史记录数
-        currentPage: 1 // 页面指针
+        currentPage: 1, // 页面指针
     }
+
+    /**
+     * 初始化入口函数
+     */
+    function init() {
+        // 加载blacklist历史
+        $timeout(function () {
+            $scope.queryHistories()
+        }, 0.5 * 1000)
+
+        // 监听所有面板的选项中页面的变化
+        $scope.$watch('showingTab.currentPage', function (newCurPage, old) {
+            if (newCurPage == 1 && old == 1) return;
+            $scope.queryHistories(newCurPage)
+        })
+
+        // 监听日期改变
+        $scope.$watch('dateRange',function () {
+            if ($scope.dateRange == initDateRange) return
+
+            $scope.queryHistories(1);
+            initDateRange=='';
+        })
+    }
+
+    init()
 
     /**
      * 上传黑名单对话框
@@ -38,18 +63,9 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             scope: $scope,
             controller: ['$scope', 'HttpService', function ($scope, HttpService) {
                 $scope.selectFileName = '...'
-
+                $scope.prog = 0;
                 $scope.confirmActionText = '上传'
                 $scope.dataType = 'delta'
-
-                /**
-                 * 文件改变
-                 */
-                $scope.fileNameChanged = function (files) {
-                    $scope.uploadFile = files[0]
-                    $scope.selectFileName = $scope.uploadFile.name
-                    document.getElementById('labelSelectFile').innerText = $scope.selectFileName
-                }
 
                 /**
                  * 上传黑名单
@@ -61,35 +77,39 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
                         return
                     }
 
-                    var formData = new FormData()
-                    formData.set('dataType', $scope.dataType) // 类型
                     $scope.selectType=$scope.selectType || 'ip';
-                    formData.set('type', $scope.selectType) // 类型
-                    formData.append('file', $scope.uploadFile)
 
-                    let payload = {
+
+                    let request={
                         url: '/blacklist/upload',
-                        method: 'POST',
-                        data: formData,
-                        headers: {'Content-Type': undefined},
-                        transformRequest: angular.identity
+                        file:$scope.uploadFile,
+                        fields:{
+                            'dataType':$scope.dataType,
+                            'type':$scope.selectType
+                        }
                     }
 
-                    $scope.closeThisDialog()
-                    $http(payload)
-                        .then(function (resp) {
-                            var data = resp.data
-
+                    Upload.upload(request)
+                        .progress(function (evt) {
+                            var prog = parseInt(evt.loaded / evt.total*120);
+                            $scope.prog=prog;
+                        })
+                        .success(function (data, status, headers, config) {
+                            $scope.prog=0;
+                            $scope.closeThisDialog()
                             if (data.success) {
                                 alertMsgService.alert('提交成功', true)
                                 $scope.queryHistories()
                             } else {
+
                                 alertMsgService.alert(data.message, false)
                             }
-                        }).catch(function (err) {
-                        alertMsgService.alert(err, false)
-                    })
-                }
+                        })
+                        .error(function () {
+                            $scope.closeThisDialog()
+                            alertMsgService.alert('上传出错', false)
+                        })
+                };
             }]
         }
         ngDialog.open(dlgOpts)
@@ -115,12 +135,11 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
      */
     $scope.queryHistories = function (pageNO) {
         // 获取日期范围
-        let dataRange = getDateRange()
+        let dataRange = getDateRange();
 
         let payload = {
             startDate: dataRange[0],
-            endDate: dataRange[1],
-            pageSize: $scope.pageSize
+            endDate: dataRange[1]
         }
 
         payload.dataType = $scope.selectDataType;
@@ -137,7 +156,6 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
 
                     $scope.showingTab.histories = respData.data
                     $scope.showingTab.total = respData.total
-                    alertMsgService.alert('获取成功', true);
                 } else {
                     alertMsgService.alert('获取失败', false)
                     $scope.showingTab.histories = []
@@ -176,36 +194,20 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     function getDateRange() {
         let dataRange = $scope.dateRange
 
-        if (!dataRange) { // 默认查询最近一周的记录
+        if (!dataRange) { // 默认查询最近半年的记录
             let nowDate = new Date()
 
-            let endDateStr = $filter('date')(new Date(nowDate.setDate(nowDate.getDate() + 1)), 'yyyy-MM-dd')
-            let startDateStr = $filter('date')(new Date(nowDate.setDate(nowDate.getDate() - 7)), 'yyyy-MM-dd')
+            let endDateStr = $filter('date')(new Date(nowDate.setDate(nowDate.getDate() + 1)), 'yyyy/MM/dd')
+            let startDateStr = $filter('date')(new Date(nowDate.setDate(nowDate.getDate() - 180)), 'yyyy/MM/dd')
 
             dataRange = [startDateStr, endDateStr]
-        } else {
-            dataRange = dataRange.split(' - ')
+            $scope.dateRange=startDateStr+' - '+endDateStr;
+            initDateRange=$scope.dateRange;
+            return dataRange;
+        }else {
+            dataRange=dataRange.split(' - ');
         }
 
         return dataRange
     }
-
-    /**
-     * 初始化入口函数
-     */
-    function init() {
-        // 加载blacklist历史
-        $timeout(function () {
-            $scope.queryHistories()
-        }, 0.5 * 1000)
-
-        // 监听所有面板的选项中页面的变化
-
-        $scope.$watch('showingTab.currentPage', function (newCurPage, old) {
-            if (newCurPage == 1 && old == 1) return;
-            $scope.queryHistories(newCurPage)
-        })
-    }
-
-    init()
 })

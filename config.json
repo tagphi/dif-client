@@ -16,7 +16,11 @@
         "tls_cert_path": "../crypto-config/peerOrganizations/rtbasia.com/msp/tlscacerts/tlsca.rtbasia.com-cert.pem",
         "event_url": "grpc://peer0.rtbasia.com:7053",
         "ssl_target_name_override": "peer0.rtbasia.com",
-        "event_timeout": 30000
+        "event_timeout": 30000,
+        "proposal_timeout":180000,
+        "request_timeout":120,
+        "install_cc_timeout":180000,
+        "join_channel_timeout":30000
     },
     "site": {
         "key_value_store": "/tmp/dif-kvs/",
@@ -26,7 +30,10 @@
         "jwt_expiretime": "36000",
         "jwt_secret": "thisismysecret",
         "upload":{
-            "maxFilesize":1024
+            "maxFilesize":5242880
+        },
+        "api":{
+            "pageSize":3
         }
     },
     "channel_name": "difchannel"
