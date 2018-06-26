@@ -37,6 +37,10 @@
     color: #3e96ec;
 }
 
+.input-file-container{
+    position: relative;
+    left: -9px;
+}
 
 .input-file{
     position: relative;
@@ -118,7 +122,7 @@ button:hover,.link-default:hover,.link-normal:hover{
     【上传对话框】
 */
 .upload-dlg-types{
-    width: 220px !important;
+    width: 200px !important;
 }
 
 .opt-common{
@@ -151,28 +155,4 @@ button:hover,.link-default:hover,.link-normal:hover{
 .alert-err {
     background-color: #ed896e;
     color: white;
-}
-
-.tab-ctn-minh {
-    min-height: 445px;
-}
-
-.prog-ctn{
-    position: relative;
-    line-height: 0px;
-}
-.prog-bg{
-    display: inline-block;
-    background: whitesmoke;
-    width: 120px;
-    height: 10px;
-}
-
-.prog-front{
-    position: absolute;
-    left: 0;
-    display: inline-block;
-    width: 0;
-    height: 10px;
-    background: #1792e5;
 }
