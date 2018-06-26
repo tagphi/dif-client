@@ -9,6 +9,8 @@ chaincode/build/
 upload/
 lint.txt
 public/js/test
+docker-compose-peer.yaml
+config.json
 test/data
 ops/
 test/tmp-test.js
