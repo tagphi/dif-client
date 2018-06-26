@@ -1,0 +1,33 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+volumes:
+  peer0.rtbasia.com:
+
+networks:
+  dif:
+
+services:
+  peer0.rtbasia.com:
+    container_name: peer0.rtbasia.com
+    extends:
+      file: base/peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.rtbasia.com
+      - CORE_PEER_ADDRESS=peer0.rtbasia.com:7051
+      - CORE_PEER_LOCALMSPID=RTBAsia
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/rtbasia.com/peers/peer0.rtbasia.com/msp:/etc/hyperledger/fabric/msp
+        - ./crypto-config/peerOrganizations/rtbasia.com/peers/peer0.rtbasia.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.rtbasia.com:/var/hyperledger/production
+    ports:
+      - 7051:7051
+      - 7053:7053
+    networks:
+      - dif

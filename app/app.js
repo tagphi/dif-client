@@ -15,27 +15,27 @@ var app
 var router = require('./router');
 
 (function () {
-    app = express()
+  app = express()
 
-    commonFilters.configPreFilters(app)
+  commonFilters.configPreFilters(app)
 
-    tokenManager.checkToken(app)
+  tokenManager.checkToken(app)
 
-    // 映射路由
-    router.mapRoutes(app)
+  // 映射路由
+  router.mapRoutes(app)
 
-    // 上传
-    let uploadHelper = multer({
-        limits: {fileSize: appConfig.upload.maxFilesize}
-    })
+  // 上传
+  let uploadHelper = multer({
+    limits: {fileSize: appConfig.upload.maxFilesize}
+  })
 
-    app.post(blacklistController.url + '/upload',
-        uploadHelper.single('file'),
-        router.asyncWrapper(blacklistController.upload))
+  app.post(blacklistController.url + '/upload',
+    uploadHelper.single('file'),
+    router.asyncWrapper(blacklistController.upload))
 
-    // 全局异常处理
-    app.use(exceptionFilter)
+  // 全局异常处理
+  app.use(exceptionFilter)
 
-    let port = appConfig.port
-    app.listen(port, () => console.log('listen ' + port + ' , server started!'))
+  let port = appConfig.port
+  app.listen(port, () => console.log('listen ' + port + ' , server started!'))
 })()
