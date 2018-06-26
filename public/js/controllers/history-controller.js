@@ -1,211 +1,210 @@
-app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $filter,
-                                              HttpService, ngDialog, alertMsgService) {
-    /**
-     * 退出
-     */
-    $scope.logout = function () {
-        HttpService.post('/auth/logout')
-            .then(function (respData) {
-                $location.path('/')
+app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $filter, HttpService, ngDialog, alertMsgService, Upload) {
+  /**
+   * 退出
+   */
+  $scope.logout = function () {
+    HttpService.post('/auth/logout')
+      .then(function (respData) {
+        $location.path('/')
+      })
+      .catch(function (err) {
+        console.log(err)
+        $location.path('/')
+      })
+  }
+
+  $scope.selectDataType = 'delta' // 默认选中的标签为
+  $scope.showblacklist = true
+  let initDateRange = ''
+
+  /**
+   *面板状态
+   */
+  $scope.showingTab = {
+    type: 'blacklist', // 默认黑名单
+    histories: [], // 历史数据
+    total: 0, // 总历史记录数
+    currentPage: 1 // 页面指针
+  }
+
+  /**
+   * 初始化入口函数
+   */
+  function init () {
+    // 加载blacklist历史
+    $timeout(function () {
+      $scope.queryHistories()
+    }, 0.5 * 1000)
+
+    // 监听所有面板的选项中页面的变化
+    $scope.$watch('showingTab.currentPage', function (newCurPage, old) {
+      if (newCurPage === 1 && old === 1) return
+      $scope.queryHistories(newCurPage)
+    })
+
+    // 监听日期改变
+    $scope.$watch('dateRange', function () {
+      if ($scope.dateRange === initDateRange) return
+
+      $scope.queryHistories(1)
+      initDateRange = ''
+    })
+  }
+
+  init()
+
+  /**
+   * 上传黑名单对话框
+   */
+  $scope.openUploadDlg = function () {
+    let dlgOpts = {
+      template: 'views/dlgs/upload-dlg.html',
+      scope: $scope,
+      controller: ['$scope', 'HttpService', function ($scope, HttpService) {
+        $scope.selectFileName = '...'
+        $scope.prog = 0
+        $scope.confirmActionText = '上传'
+        $scope.dataType = 'delta'
+
+        /**
+         * 上传黑名单
+         */
+        $scope.postBlacklist = function () {
+          if (!$scope.uploadFile) {
+            $scope.closeThisDialog()
+            alertMsgService.alert('请先选择文件', false)
+            return
+          }
+
+          $scope.selectType = $scope.selectType || 'ip'
+
+          let request = {
+            url: '/blacklist/upload',
+            file: $scope.uploadFile,
+            fields: {
+              'dataType': $scope.dataType,
+              'type': $scope.selectType
+            }
+          }
+
+          Upload.upload(request)
+            .progress(function (evt) {
+              var prog = parseInt(evt.loaded / evt.total * 120)
+              $scope.prog = prog
             })
-            .catch(function (err) {
-                console.log(err)
-                $location.path('/')
+            .success(function (data, status, headers, config) {
+              $scope.prog = 0
+              $scope.closeThisDialog()
+              if (data.success) {
+                alertMsgService.alert('提交成功', true)
+                $scope.queryHistories()
+              } else {
+                alertMsgService.alert(data.message, false)
+              }
             })
-    }
-
-    $scope.selectDataType = 'delta' // 默认选中的标签为
-    $scope.showblacklist = true
-
-    $scope.pageSize = 3
-
-    /**
-     * removelist面板状态
-     */
-    $scope.showingTab = {
-        type: 'blacklist',//默认黑名单
-        histories: [], // 历史数据
-        total: 0, // 总历史记录数
-        currentPage: 1 // 页面指针
-    }
-
-    /**
-     * 上传黑名单对话框
-     */
-    $scope.openUploadDlg = function () {
-        let dlgOpts = {
-            template: 'views/dlgs/upload-dlg.html',
-            scope: $scope,
-            controller: ['$scope', 'HttpService', function ($scope, HttpService) {
-                $scope.selectFileName = '...'
-
-                $scope.confirmActionText = '上传'
-                $scope.dataType = 'delta'
-
-                /**
-                 * 文件改变
-                 */
-                $scope.fileNameChanged = function (files) {
-                    $scope.uploadFile = files[0]
-                    $scope.selectFileName = $scope.uploadFile.name
-                    document.getElementById('labelSelectFile').innerText = $scope.selectFileName
-                }
-
-                /**
-                 * 上传黑名单
-                 */
-                $scope.postBlacklist = function () {
-                    if (!$scope.uploadFile) {
-                        $scope.closeThisDialog()
-                        alertMsgService.alert('请先选择文件', false)
-                        return
-                    }
-
-                    var formData = new FormData()
-                    formData.set('dataType', $scope.dataType) // 类型
-                    $scope.selectType=$scope.selectType || 'ip';
-                    formData.set('type', $scope.selectType) // 类型
-                    formData.append('file', $scope.uploadFile)
-
-                    let payload = {
-                        url: '/blacklist/upload',
-                        method: 'POST',
-                        data: formData,
-                        headers: {'Content-Type': undefined},
-                        transformRequest: angular.identity
-                    }
-
-                    $scope.closeThisDialog()
-                    $http(payload)
-                        .then(function (resp) {
-                            var data = resp.data
-
-                            if (data.success) {
-                                alertMsgService.alert('提交成功', true)
-                                $scope.queryHistories()
-                            } else {
-                                alertMsgService.alert(data.message, false)
-                            }
-                        }).catch(function (err) {
-                        alertMsgService.alert(err, false)
-                    })
-                }
-            }]
+            .error(function () {
+              $scope.closeThisDialog()
+              alertMsgService.alert('上传出错', false)
+            })
         }
-        ngDialog.open(dlgOpts)
+      }]
+    }
+    ngDialog.open(dlgOpts)
+  }
+
+  /**
+   * 下载对话框
+   */
+  $scope.openDownloadDlg = function () {
+    let dlgOpts = {
+      template: 'views/dlgs/download-dlg.html',
+      scope: $scope,
+      controller: ['$scope', 'HttpService', function ($scope, HttpService) {
+        $scope.dataType = $scope.dataType || 'ip'
+      }]
     }
 
-    /**
-     * 下载对话框
-     */
-    $scope.openDownloadDlg = function () {
-        let dlgOpts = {
-            template: 'views/dlgs/download-dlg.html',
-            scope: $scope,
-            controller: ['$scope', 'HttpService', function ($scope, HttpService) {
-                $scope.dataType = $scope.dataType || "ip";
-            }]
-        }
+    ngDialog.open(dlgOpts)
+  }
 
-        ngDialog.open(dlgOpts)
+  /**
+   * 查询
+   */
+  $scope.queryHistories = function (pageNO) {
+    // 获取日期范围
+    let dataRange = getDateRange()
+
+    let payload = {
+      startDate: dataRange[0],
+      endDate: dataRange[1]
     }
 
-    /**
-     * 查询
-     */
-    $scope.queryHistories = function (pageNO) {
-        // 获取日期范围
-        let dataRange = getDateRange()
+    payload.dataType = $scope.selectDataType
+    payload.pageNO = pageNO || $scope.showingTab.currentPage
 
-        let payload = {
-            startDate: dataRange[0],
-            endDate: dataRange[1],
-            pageSize: $scope.pageSize
-        }
+    HttpService.post('/blacklist/histories', payload)
+      .then(function (respData) {
+        if (respData.success) {
+          respData.data.forEach(function (row) { // 转换时间戳
+            let date = new Date()
+            date.setTime(row.timestamp)
+            row.date = $filter('date')(date, 'yyyy-MM-dd')
+          })
 
-        payload.dataType = $scope.selectDataType;
-        payload.pageNO = pageNO || $scope.showingTab.currentPage
-
-        HttpService.post('/blacklist/histories', payload)
-            .then(function (respData) {
-                if (respData.success) {
-                    respData.data.forEach(function (row) { // 转换时间戳
-                        let date = new Date()
-                        date.setTime(row.timestamp)
-                        row.date = $filter('date')(date, 'yyyy-MM-dd')
-                    })
-
-                    $scope.showingTab.histories = respData.data
-                    $scope.showingTab.total = respData.total
-                    alertMsgService.alert('获取成功', true);
-                } else {
-                    alertMsgService.alert('获取失败', false)
-                    $scope.showingTab.histories = []
-                    $scope.showingTab.total = []
-                }
-
-                if (!pageNO) {
-                    $scope.showingTab.currentPage = 1
-                }
-            })
-            .catch(function (err) {
-                alertMsgService.alert(err, false)
-            })
-    }
-
-    /**
-     * 清空日期
-     */
-    $scope.clearDate = function () {
-        $scope.dateRange = ''
-    }
-
-    /**
-     * 标签选择
-     */
-    $scope.selectTab = function (dataType) {
-        $scope.selectDataType = dataType
-
-        // 查询
-        $scope.queryHistories();
-    }
-
-    /**
-     * 获取日期范围
-     */
-    function getDateRange() {
-        let dataRange = $scope.dateRange
-
-        if (!dataRange) { // 默认查询最近一周的记录
-            let nowDate = new Date()
-
-            let endDateStr = $filter('date')(new Date(nowDate.setDate(nowDate.getDate() + 1)), 'yyyy-MM-dd')
-            let startDateStr = $filter('date')(new Date(nowDate.setDate(nowDate.getDate() - 7)), 'yyyy-MM-dd')
-
-            dataRange = [startDateStr, endDateStr]
+          $scope.showingTab.histories = respData.data
+          $scope.showingTab.total = respData.total
         } else {
-            dataRange = dataRange.split(' - ')
+          alertMsgService.alert('获取失败', false)
+          $scope.showingTab.histories = []
+          $scope.showingTab.total = []
         }
 
-        return dataRange
+        if (!pageNO) {
+          $scope.showingTab.currentPage = 1
+        }
+      })
+      .catch(function (err) {
+        alertMsgService.alert(err, false)
+      })
+  }
+
+  /**
+   * 清空日期
+   */
+  $scope.clearDate = function () {
+    $scope.dateRange = ''
+  }
+
+  /**
+   * 标签选择
+   */
+  $scope.selectTab = function (dataType) {
+    $scope.selectDataType = dataType
+
+    // 查询
+    $scope.queryHistories()
+  }
+
+  /**
+   * 获取日期范围
+   */
+  function getDateRange () {
+    let dataRange = $scope.dateRange
+
+    if (!dataRange) { // 默认查询最近半年的记录
+      let nowDate = new Date()
+
+      let endDateStr = $filter('date')(new Date(nowDate.setDate(nowDate.getDate() + 1)), 'yyyy/MM/dd')
+      let startDateStr = $filter('date')(new Date(nowDate.setDate(nowDate.getDate() - 180)), 'yyyy/MM/dd')
+
+      dataRange = [startDateStr, endDateStr]
+      $scope.dateRange = startDateStr + ' - ' + endDateStr
+      initDateRange = $scope.dateRange
+      return dataRange
+    } else {
+      dataRange = dataRange.split(' - ')
     }
 
-    /**
-     * 初始化入口函数
-     */
-    function init() {
-        // 加载blacklist历史
-        $timeout(function () {
-            $scope.queryHistories()
-        }, 0.5 * 1000)
-
-        // 监听所有面板的选项中页面的变化
-
-        $scope.$watch('showingTab.currentPage', function (newCurPage, old) {
-            if (newCurPage == 1 && old == 1) return;
-            $scope.queryHistories(newCurPage)
-        })
-    }
-
-    init()
+    return dataRange
+  }
 })

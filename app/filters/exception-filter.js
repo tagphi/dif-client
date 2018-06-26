@@ -1,7 +1,7 @@
 /**
  * 全局的异常处理
  **/
-var logger = require('log4js').getLogger('exception-filter')
+var logger = require('../utils/logger-utils').logger
 var respUtils = require('../utils/resp-utils')
 
 function exceptionFilter (err, req, res, next) {

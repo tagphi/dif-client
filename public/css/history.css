@@ -1,48 +1,43 @@
-
 /***/
-.bg-blue{
+.bg-blue {
     background-color: #1792e5;
 }
 
-.bg-danger{
+.bg-danger {
     background-color: rgba(255, 99, 38, 0.71);
 }
-.container-match-parent{
+
+.container-match-parent {
     width: 100%;
     height: 100%;
 }
 
-.match-height{
+.match-height {
     height: 100%;
 }
 
-.match-width{
+.match-width {
     width: 100%;
 }
 
-.fixed-bottom{
+.fixed-bottom {
     position: fixed;
     bottom: 0;
 }
 
-.d-inline{
+.d-inline {
     display: inline !important;
 }
 
-.color-lightslategray{
+.color-lightslategray {
     color: lightslategray;
 }
 
-.color-blue-raido{
+.color-blue-raido {
     color: #3e96ec;
 }
 
-.input-file-container{
-    position: relative;
-    left: -9px;
-}
-
-.input-file{
+.input-file {
     position: relative;
     top: 2px;
     left: -7px;
@@ -58,7 +53,7 @@
     line-height: 20px;
 }
 
-.input-filename{
+.input-filename {
     display: inline-block;
     width: 146px;
     padding: 0;
@@ -66,41 +61,40 @@
     padding: 4px 12px;
     border: 1px solid #ccc;
     border-radius: 3px;
-    padding-left:5px;
-    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
-    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
-    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
-    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
-    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    padding-left: 5px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 
 }
 
-
 /*按钮悬停样式*/
-button:hover,.link-default:hover,.link-normal:hover{
+button:hover, .link-default:hover, .link-normal:hover {
     cursor: pointer;
     border: 1px solid #b3d7ff;
     font-weight: bold;
 }
 
 /*空数据提示面板容器*/
-.empty-container{
+.empty-container {
     position: relative;
-    display:  inline-block;
+    display: inline-block;
     width: 99%;
     height: 355px;
-    line-height:  355px;
-    text-align:  center;
+    line-height: 355px;
+    text-align: center;
     /* margin:  auto; */
     /*border: 1px solid lightgray;*/
 }
 
-.empty-icon{
+.empty-icon {
     font-size: 9rem;
     color: #d8b3b3;
 }
 
-.empty-content{
+.empty-content {
     position: absolute;
     left: 46%;
     top: 25%;
@@ -108,35 +102,33 @@ button:hover,.link-default:hover,.link-normal:hover{
     display: inline-block;
 }
 
-.empty-label{
+.empty-label {
     color: #735353d4;
     font-size: 1.1rem;
 }
 
-.hide-lowlever{
+.hide-lowlever {
     display: none
 }
-
 
 /*
     【上传对话框】
 */
-.upload-dlg-types{
-    width: 200px !important;
+.upload-dlg-types {
+    width: 220px !important;
 }
 
-.opt-common{
+.opt-common {
     padding: 4px 24px;
     margin: 0px -8px;
     border: 1px solid lightslategray;
     color: lightslategray;
 }
 
-.opt-active{
+.opt-active {
     border: 1px solid lightblue;
     color: #439cb9;
 }
-
 
 .alert-success {
     position: fixed;
@@ -155,4 +147,29 @@ button:hover,.link-default:hover,.link-normal:hover{
 .alert-err {
     background-color: #ed896e;
     color: white;
+}
+
+.tab-ctn-minh {
+    min-height: 445px;
+}
+
+.prog-ctn {
+    position: relative;
+    line-height: 0px;
+}
+
+.prog-bg {
+    display: inline-block;
+    background: whitesmoke;
+    width: 120px;
+    height: 10px;
+}
+
+.prog-front {
+    position: absolute;
+    left: 0;
+    display: inline-block;
+    width: 0;
+    height: 10px;
+    background: #1792e5;
 }

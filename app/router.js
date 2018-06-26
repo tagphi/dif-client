@@ -8,75 +8,75 @@ const {validationResult} = require('express-validator/check')
 var utils = require('./utils/resp-utils')
 
 exports.mapRoutes = function (app) {
-    let dir = path.join(__dirname, 'controllers')
+  let dir = path.join(__dirname, 'controllers')
 
-    fs.readdirSync(dir).forEach(function (name) {
-        let file = path.join(dir, name)
-        if (!fs.statSync(file).isDirectory()) return
+  fs.readdirSync(dir).forEach(function (name) {
+    let file = path.join(dir, name)
+    if (!fs.statSync(file).isDirectory()) return
 
-        let obj = require(file) // controller object
-        let excludeHandlers = obj.excludeHandlers // 要排除的处理器名单
+    let obj = require(file) // controller object
+    let excludeHandlers = obj.excludeHandlers // 要排除的处理器名单
 
-        name = obj.name || name
+    name = obj.name || name
 
-        let url = obj['url']
+    let url = obj['url']
 
-        for (var key in obj) {
-            if (~['url'].indexOf(key)) continue
-            if (~['excludeHandlers'].indexOf(key)) continue
+    for (var key in obj) {
+      if (~['url'].indexOf(key)) continue
+      if (~['excludeHandlers'].indexOf(key)) continue
 
-            let handler = obj[key]
-            let method = key
-            let validator
+      let handler = obj[key]
+      let method = key
+      let validator
 
-            // 判断是否是要排除的处理器
-            if (excludeHandlers && excludeHandlers.indexOf(method) !== -1) continue
+      // 判断是否是要排除的处理器
+      if (excludeHandlers && excludeHandlers.indexOf(method) !== -1) continue
 
-            if (!method.startsWith('validate')) {
-                let validatorName = 'validate' + method[0].toUpperCase() + method.substring(1)
+      if (!method.startsWith('validate')) {
+        let validatorName = 'validate' + method[0].toUpperCase() + method.substring(1)
 
-                if (validatorName in obj) {
-                    validator = obj[validatorName]
-                }
-
-                // 目前所有请求都需要通过post提交
-                let subUrl = url + '/' + method
-
-                if (validator) {
-                    if (method.indexOf("download") != -1) {
-                        app.get(subUrl, validator, asyncWrapper(handler))
-                    } else {
-                        app.post(subUrl, validator, asyncWrapper(handler))
-                    }
-                } else {
-                    if (method.indexOf("download")!=-1){
-                        app.get(subUrl, asyncWrapper(handler))
-                    } else {
-                        app.post(subUrl, asyncWrapper(handler))
-                    }
-                }
-            }
+        if (validatorName in obj) {
+          validator = obj[validatorName]
         }
-    })
+
+        // 目前所有请求都需要通过post提交
+        let subUrl = url + '/' + method
+
+        if (validator) {
+          if (method.indexOf('download') !== -1) {
+            app.get(subUrl, validator, asyncWrapper(handler))
+          } else {
+            app.post(subUrl, validator, asyncWrapper(handler))
+          }
+        } else {
+          if (method.indexOf('download') !== -1) {
+            app.get(subUrl, asyncWrapper(handler))
+          } else {
+            app.post(subUrl, asyncWrapper(handler))
+          }
+        }
+      }
+    }
+  })
 }
 
 /**
  * 异步处理器的包装器
  **/
-function asyncWrapper(handler) {
-    return async function (req, res, next) {
-        let errors = validationResult(req)
-        if (!errors.isEmpty()) {
-            utils.errResonse(res, errors.array()[0].msg) // 这个地方应该支持字段和多个错误消息
-            res.end()
-        } else {
-            try {
-                await handler(req, res, next)
-            } catch (e) {
-                next(e)
-            }
-        }
+function asyncWrapper (handler) {
+  return async function (req, res, next) {
+    let errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      utils.errResonse(res, errors.array()[0].msg) // 这个地方应该支持字段和多个错误消息
+      res.end()
+    } else {
+      try {
+        await handler(req, res, next)
+      } catch (e) {
+        next(e)
+      }
     }
+  }
 }
 
 exports.asyncWrapper = asyncWrapper

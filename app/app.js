@@ -8,34 +8,46 @@ var tokenManager = require('./interceptors/token-manager')
 
 var blacklistController = require('./controllers/blacklist/index')
 
+let logger = require('./utils/logger-utils').logger
+
 // 上传文件表单的处理
 var multer = require('multer')
 
 var app
-var router = require('./router');
+var router = require('./router')
 
-(function () {
-    app = express()
+;(function () {
+  // 捕获全局的为捕获的异常
+  process.on('uncaughtException', function (err) {
+    logger.error(err)
+  })
 
-    commonFilters.configPreFilters(app)
+  // 捕获全局的未捕获的异步异常
+  process.on('unhandledRejection', function (err) {
+    logger.error(err)
+  })
 
-    tokenManager.checkToken(app)
+  app = express()
 
-    // 映射路由
-    router.mapRoutes(app)
+  commonFilters.configPreFilters(app)
 
-    // 上传
-    let uploadHelper = multer({
-        limits: {fileSize: appConfig.upload.maxFilesize}
-    })
+  tokenManager.checkToken(app)
 
-    app.post(blacklistController.url + '/upload',
-        uploadHelper.single('file'),
-        router.asyncWrapper(blacklistController.upload))
+  // 映射路由
+  router.mapRoutes(app)
 
-    // 全局异常处理
-    app.use(exceptionFilter)
+  // 上传
+  let uploadHelper = multer({
+    limits: {fileSize: appConfig.upload.maxFilesize}
+  })
 
-    let port = appConfig.port
-    app.listen(port, () => console.log('listen ' + port + ' , server started!'))
+  app.post(blacklistController.url + '/upload',
+    uploadHelper.single('file'),
+    router.asyncWrapper(blacklistController.upload))
+
+  // 全局异常处理
+  app.use(exceptionFilter)
+
+  let port = appConfig.port
+  app.listen(port, () => console.log('listen ' + port + ' , server started!'))
 })()

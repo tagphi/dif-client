@@ -89,7 +89,7 @@ var Chaincode = class {
     Chaincode.__validateDataCols(cols, type)
   }
 
-  static __validateType(type) {
+  static __validateType (type) {
     if (['device', 'ip', 'default'].indexOf(type) === -1) {
       throw new Error('invalid type ' + type)
     }

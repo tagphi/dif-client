@@ -83,13 +83,21 @@ var __setUserContext = async function (client, useAdmin) {
       signedCertPEM = __getCryptoDataPEM(path.join(__dirname, CONFIG.msp.sgn_cert_path))
     }
 
-    user = await client.createUser({username: username,
+    user = await client.createUser({
+      username: username,
       mspid: CONFIG.msp.id,
-      cryptoContent: {privateKeyPEM: privateKeyPEM, signedCertPEM: signedCertPEM}})
+      cryptoContent: {privateKeyPEM: privateKeyPEM, signedCertPEM: signedCertPEM}
+    })
   }
 
   return user
 }
+
+// var __getPeersConfig = async function () {
+//   let resp = await agent.post('http://localhost:8080/peer/peers2').buffer()
+//   let peers = JSON.parse(resp.text);
+//   return peers
+// }
 
 var __getPeersConfig = function () {
   let allPeersJsonStr = fs.readFileSync(path.join(__dirname, '../peers.json'))

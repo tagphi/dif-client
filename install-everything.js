@@ -8,7 +8,7 @@ var util = require('util')
 // node, npm, bower
 let stdout = execFileSync('npm', ['-v']).toString()
 
-let pos = stdout.indexOf("\n")
+let pos = stdout.indexOf('\n')
 
 let npmVersion = pos == -1 ? parstFloat(stdout) : parseFloat(stdout.substring(0, pos))
 
@@ -63,16 +63,16 @@ if (!stdout.startsWith('docker-compose version')) {
   process.exit(1)
 }
 
-let subFoldersContains = function(parentDir, subfolders) {
+let subFoldersContains = function (parentDir, subfolders) {
   let files = fs.readdirSync(parentDir)
 
   for (let i in subfolders) {
     let subfolder = subfolders[i]
 
     if (files.indexOf(subfolder) === -1) {
-        console.log(parentDir + '/' + subfolder + ' not exits')
+      console.log(parentDir + '/' + subfolder + ' not exits')
 
-        return false
+      return false
     }
   }
 
@@ -85,7 +85,7 @@ const PEER_CRYPTO_DIR = './crypto-config/peerOrganizations'
 let files = fs.readdirSync(PEER_CRYPTO_DIR)
 
 if (files == null || files.length === 0) {
-    console.log('未发现peer的证书文件')
+  console.log('未发现peer的证书文件')
 }
 
 let orgDomain = files[0]
@@ -118,32 +118,31 @@ let mspDir = util.format('crypto-config/peerOrganizations/%s/peers/%s/msp', orgD
 let tlsDir = util.format('crypto-config/peerOrganizations/%s/peers/%s/tls', orgDomain, peerHost)
 
 if (process.argv.length !== 3) {
-    console.log("use node install-everything.js [MSPID]")
-    process.exit(1)
+  console.log('use node install-everything.js [MSPID]')
+  process.exit(1)
 }
 
 let mspId = process.argv[2]
 
-let tokens = {"prvKeyPath": prvKeyPath,
-              "sgnCertPath": sgnCertPath,
-              "adminKeyPath": adminKeyPath,
-              "adminCertPath": adminCertPath,
-              "tlsCertPath": tlsCertPath,
-              "eventUrl": eventUrl,
-              "sslTargetNameOverride": sslTargetNameOverride,
-              "mspDir": mspDir,
-              "tlsDir": tlsDir,
-              "peerHost": peerHost,
-              "mspId": mspId}
+let tokens = {'prvKeyPath': prvKeyPath,
+  'sgnCertPath': sgnCertPath,
+  'adminKeyPath': adminKeyPath,
+  'adminCertPath': adminCertPath,
+  'tlsCertPath': tlsCertPath,
+  'eventUrl': eventUrl,
+  'sslTargetNameOverride': sslTargetNameOverride,
+  'mspDir': mspDir,
+  'tlsDir': tlsDir,
+  'peerHost': peerHost,
+  'mspId': mspId}
 
-let searchNReplace = function(text) {
+let searchNReplace = function (text) {
+  Object.keys(tokens).forEach((token) => {
+    let tokenp = '%' + token + '%'
+    text = text.replace(new RegExp(tokenp, 'gm'), tokens[token])
+  })
 
-    Object.keys(tokens).forEach((token) => {
-        let tokenp = "%" + token + "%"
-        text = text.replace( new RegExp(tokenp,"gm"), tokens[token])
-    })
-
-    return text
+  return text
 }
 
 let config = fs.readFileSync(path.join(__dirname, 'config.json.tpl')).toString()
