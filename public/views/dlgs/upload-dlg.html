@@ -12,35 +12,47 @@
                     <div class="pinfo">
                         <input id="delta" ng-model="dataType" value="delta" type="radio" class="magic-radio"
                                ng-checked="true">
-                        <label  for="delta" ng-class="{'d-inline':true,'color-lightslategray':dataTyple!='delta','color-blue-raido':dataTyple=='delta'}">黑名单</label>
+                        <label for="delta"
+                               ng-class="{'d-inline':true,'color-lightslategray':dataTyple!='delta','color-blue-raido':dataTyple=='delta'}">黑名单</label>
                         <input id="remove" ng-model="dataType" value="remove" type="radio" class="magic-radio"
                                ng-checked="false">
-                        <label for="remove"  ng-class="{'d-inline':true,'color-lightslategray':dataTyple!='remove','color-blue-raido':dataTyple=='remove'}">移除列表</label>
+                        <label for="remove"
+                               ng-class="{'d-inline':true,'color-lightslategray':dataTyple!='remove','color-blue-raido':dataTyple=='remove'}">移除列表</label>
                     </div>
                 </li>
                 <li>
                     <span class="pname">类型</span>
                     <!--选择类型-->
-                    <div class="pname upload-dlg-types">
+                    <div class="upload-dlg-types">
                         <input id="type_ip" ng-model="selectType" value="ip" type="radio" class="magic-radio"
                                ng-checked="true">
-                        <label for="type_ip" ng-class="{'d-inline':true,'color-lightslategray':selectType!='ip','color-blue-raido':selectType=='ip'}">ip</label>
+                        <label for="type_ip"
+                               ng-class="{'d-inline':true,'color-lightslategray':selectType!='ip','color-blue-raido':selectType=='ip'}">ip</label>
 
                         <input id="type_device" ng-model="selectType" value="device" type="radio" class="magic-radio">
-                        <label for="type_device" ng-class="{'d-inline':true,'color-lightslategray':selectType!='device','color-blue-raido':selectType=='device'}">设备</label>
+                        <label for="type_device"
+                               ng-class="{'d-inline':true,'color-lightslategray':selectType!='device','color-blue-raido':selectType=='device'}">设备</label>
 
                         <input id="type_default" ng-model="selectType" value="default" type="radio" class="magic-radio">
-                        <label for="type_default" ng-class="{'d-inline':true,'color-lightslategray':selectType!='default','color-blue-raido':selectType=='default'}">默认设备</label>
+                        <label for="type_default"
+                               ng-class="{'d-inline':true,'color-lightslategray':selectType!='default','color-blue-raido':selectType=='default'}">默认设备</label>
                     </div>
                 </li>
                 <li>
                     <span class="pname">文件</span>
-                    <span class="pcon input-file-container">
-                        <label id="labelSelectFile" class="input-filename" for="file">{{selectFileName}}</label>
-                        <label for="file" class="input-file">选择文件</label>
-                    <input id="file" name="file" ng-model="uploadFile"
-                           onchange="angular.element(this).scope().fileNameChanged(this.files)" class=""
-                           type="file" required style="display: none"/>
+                    <span class="pcon">
+                    <div id="file" name="file" ng-model="uploadFile" type="file"
+                         ngf-select
+                         required>
+                        <a ng-show="prog==0" class="link-default" ng-if="uploadFile">{{uploadFile.name}}</a>
+                        <a ng-show="prog==0" class="link-default" ng-if="!uploadFile"><i
+                                class="icon-upload"></i> 请选择</a>
+                        <div ng-show="prog!=0" class="prog-ctn">
+                            <a class="prog-bg">
+                                <a class="prog-front" ng-style="{width:prog+'px'}"></a>
+                            </a>
+                        </div>
+                    </div>
                     </span>
                 </li>
             </ul>

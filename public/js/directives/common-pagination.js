@@ -104,7 +104,7 @@ angular.module('dif').directive('commonPagination', function ($http, $q, $timeou
         } else { // 8页以上，生成固定页数5
           let isFront = scope.currentPage <= FIXED_PAGES
           let isBackwords = ((scope.totalPage - scope.currentPage) <= FIXED_PAGES)
-          
+
           // 处于中间
           if (!isFront && !isBackwords) {
             genPages(scope.currentPage, 2, 2) // 前后各移动2步
