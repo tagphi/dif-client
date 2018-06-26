@@ -11,3 +11,5 @@ lint.txt
 public/js/test
 test/data
 ops/
+docker-compose-peer.yaml
+config.json
