@@ -1,6 +1,8 @@
 'use strict'
 var helper = require('./common/helper')
 
+var CONFIG=require('./config');
+
 var getGenesisBlock = async function (client, channel) {
   let txId = client.newTransactionID()
 
@@ -25,7 +27,7 @@ var joinPeer = async function () {
     txId: txId
   }
 
-  let peers = helper.getOwnPeers(client)
+  let peers =await helper.getOwnPeers(client)
 
   if (peers.length === 0) {
     console.log("can't find current org peers, please contact RTBAsia")
@@ -35,7 +37,7 @@ var joinPeer = async function () {
     channel.addPeer(peer)
   })
 
-  return channel.joinChannel(request, 30000)
+  return channel.joinChannel(request, CONFIG.peer.join_channel_timeout)
 }
 
 var main = async function () {

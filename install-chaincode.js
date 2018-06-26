@@ -1,11 +1,15 @@
 'use strict'
 var helper = require('./common/helper')
 
+var CONFIG=require('./config');
+
 var fs = require('fs-extra')
 let util = require('util')
 
 var log4js = require('log4js')
 var logger = log4js.getLogger('install-chaincode')
+
+
 
 var installChaincode = async function () {
   // 准备安装的链码
@@ -17,7 +21,7 @@ var installChaincode = async function () {
   fs.copySync('./chaincode/node/package.json', './chaincode/build/package.json')
 
   let client = await helper.getClient(true)
-  let peers = helper.getOwnPeers(client)
+  let peers =await helper.getOwnPeers(client)
 
   var request = {
     targets: peers,
@@ -27,7 +31,7 @@ var installChaincode = async function () {
     chaincodeVersion: 'v7' // TODO: 这些信息应该都要从服务器取得
   }
 
-  let results = await client.installChaincode(request, 180000)
+  let results = await client.installChaincode(request, CONFIG.peer.install_cc_timeout)
 
   let proposalResponses = results[0]
 

@@ -5,6 +5,8 @@ var CONFIG = require('../config.json')
 var path = require('path')
 var fs = require('fs-extra')
 
+var agent = require('superagent-promise')(require('superagent'), Promise)
+
 var getChannel = async function (client) {
   let channel = client.newChannel(CONFIG.channel_name)
 
@@ -92,14 +94,23 @@ var __setUserContext = async function (client, useAdmin) {
 }
 
 var __getPeersConfig = function () {
-  let allPeersJsonStr = fs.readFileSync(path.join(__dirname, '../peers.json'))
-  let allPeersJson = JSON.parse(Buffer.from(allPeersJsonStr).toString())
+    let allPeersJsonStr = fs.readFileSync(path.join(__dirname, '../peers.json'))
+    let allPeersJson = JSON.parse(Buffer.from(allPeersJsonStr).toString())
 
-  return allPeersJson
+    return allPeersJson
 }
 
-var getEndorsers = function (client) {
-  let allPeersJson = __getPeersConfig()
+//
+// var __getPeersConfig =async function () {
+//
+//   let resp=await agent.post("http://localhost:8080/peer/peers2").buffer();
+//   let peers=resp.text;
+//
+//   return peers;
+// }
+
+var getEndorsers =async function (client) {
+  let allPeersJson = await __getPeersConfig()
   let endorsers = []
 
   let data = fs.readFileSync(path.join(__dirname, CONFIG.peer.tls_cert_path))
@@ -113,7 +124,7 @@ var getEndorsers = function (client) {
       if (peerConfig.endorser) {
         let connOptions = {
           pem: Buffer.from(data).toString(), // TODO: tls证书是必须的，但是我们不一定开启了tls验证
-          'request-timeout': 120 // TODO: 从配置中读取
+          'request-timeout': CONFIG.peer.request_timeout
         }
 
         if ('ssl-target-name-override' in peerConfig) {
@@ -133,8 +144,8 @@ var getEndorsers = function (client) {
   return endorsers
 }
 
-var getOwnPeers = function (client) {
-  let allPeersJson = __getPeersConfig()
+var getOwnPeers =async function (client) {
+  let allPeersJson = await __getPeersConfig()
 
   let peers = []
 
@@ -150,7 +161,7 @@ var getOwnPeers = function (client) {
 
         let connOptions = {
           pem: Buffer.from(data).toString(), // TODO: tls证书是必须的，但是我们不一定开启了tls验证
-          'request-timeout': 120 // TODO: 从配置中读取
+          'request-timeout': CONFIG.peer.request_timeout
         }
 
         if ('ssl-target-name-override' in peerConfig) {
