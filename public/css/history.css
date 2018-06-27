@@ -132,10 +132,11 @@ button:hover, .link-default:hover, .link-normal:hover {
 
 .alert-success {
     position: fixed;
-    left: 43%;
-    width: 220px;
+    left: 36%;
+    width: 300px;
     margin: 0 auto;
-    padding: 6px 0px;
+    margin-top: 0px;
+    padding: 6px 4px;
     border-radius: 0;
     background-color: #bdedbc;
     text-align: center;
