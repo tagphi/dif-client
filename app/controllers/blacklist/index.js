@@ -35,7 +35,7 @@ exports.upload = async function (req, res, next) {
     throw new Error('未知的数据类型:' + dataType)
   }
 
-  if (result.indexOf('Err') !== -1) {
+  if (result && result.indexOf('Err') !== -1) {
     throw new Error('上传出错')
   }
 
@@ -154,7 +154,7 @@ exports.histories = async function (req, res, next) {
   let endTimestamp = Date.parse(req.body.endDate) + ''
 
   let pageNO = req.body.pageNO || 1
-  let pageSize = siteConfig.api.pageSize || 10
+  let pageSize = siteConfig.pageSize || 10
 
   // 计算分页的开始结束位置
   let startOffset = (pageNO - 1) * pageSize

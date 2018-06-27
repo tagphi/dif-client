@@ -12,20 +12,24 @@
                     <div class="pname upload-dlg-types">
                         <input id="type_ip" ng-model="dataType" value="ip" type="radio" class="magic-radio"
                                ng-checked="true">
-                        <label for="type_ip" ng-class="{'d-inline':true,'color-lightslategray':dataType!='ip','color-blue-raido':dataType=='ip'}">ip</label>
+                        <label for="type_ip"
+                               ng-class="{'d-inline':true,'color-lightslategray':dataType!='ip','color-blue-raido':dataType=='ip'}">ip</label>
 
                         <input id="type_device" ng-model="dataType" value="device" type="radio" class="magic-radio">
-                        <label for="type_device" ng-class="{'d-inline':true,'color-lightslategray':dataType!='device','color-blue-raido':dataType=='device'}">设备</label>
+                        <label for="type_device"
+                               ng-class="{'d-inline':true,'color-lightslategray':dataType!='device','color-blue-raido':dataType=='device'}">设备</label>
 
                         <input id="type_default" ng-model="dataType" value="default" type="radio" class="magic-radio">
-                        <label for="type_default" ng-class="{'d-inline':true,'color-lightslategray':dataType!='default','color-blue-raido':dataType=='default'}">默认设备</label>
+                        <label for="type_default"
+                               ng-class="{'d-inline':true,'color-lightslategray':dataType!='default','color-blue-raido':dataType=='default'}">默认设备</label>
                     </div>
                 </li>
             </ul>
         </form>
         <div class="modal-footer">
             <button ng-click="closeThisDialog()" type="button" class="btn-cancel">取消</button>
-            <a ng-click="closeThisDialog()" href="/blacklist/downloadMergedlist?type={{dataType}}" class="btn-remove bg-blue">下载</a>
+            <a ng-click="closeThisDialog()" href="/blacklist/downloadMergedlist?type={{dataType}}"
+               class="btn-remove bg-blue" style="color: white">下载</a>
         </div>
     </div>
 </div>
