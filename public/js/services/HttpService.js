@@ -1,6 +1,6 @@
 'use strict'
 
-angular.module('dif').factory('HttpService', ['$http', '$q', '$rootScope', '$location',
+angular.module('dif').factory('HttpService', ['$http', '$q', '$rootScope', '$location', 'alertMsgService',
   function ($http, $q, $rootScope, $location) {
     var httpClient = {
       post: function (url, data) {
@@ -12,7 +12,7 @@ angular.module('dif').factory('HttpService', ['$http', '$q', '$rootScope', '$loc
 
         // token不存在，跳转到首页
         if (!data.token) {
-          alert('token不存在，无法获取数据')
+          alertMsgService.alert('token不存在，无法获取数据', false)
           $location.path('/')
         }
 

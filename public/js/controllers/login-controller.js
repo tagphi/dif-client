@@ -1,4 +1,4 @@
-app.controller('LoginController', function ($q, $scope, $http, $rootScope, $location, $localStorage) {
+app.controller('LoginController', function ($q, $scope, $http, $rootScope, $location, $localStorage, alertMsgService) {
   $scope.errors = {
     username: false,
     password: false
@@ -27,7 +27,7 @@ app.controller('LoginController', function ($q, $scope, $http, $rootScope, $loca
           sessionStorage.setItem('token', response.data.token)
         } else {
           $scope.errmsg = data.message
-          alert(data.message)
+          alertMsgService.alert(data.message)
         }
       })
       .catch(function (response) {
