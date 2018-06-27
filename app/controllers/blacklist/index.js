@@ -26,17 +26,12 @@ exports.upload = async function (req, res, next) {
   let dataStr = req.file.buffer.toString()
 
   // 调用链码上传名单
-  let result
   if (dataType === 'delta') {
-    result = await invokeChaincode('deltaUpload', [dataStr, type])
+    await invokeChaincode('deltaUpload', [dataStr, type])
   } else if (dataType === 'remove') {
-    result = await invokeChaincode('uploadRemoveList', [dataStr, type])
+    await invokeChaincode('uploadRemoveList', [dataStr, type])
   } else {
     throw new Error('未知的数据类型:' + dataType)
-  }
-
-  if (result && result.indexOf('Err') !== -1) {
-    throw new Error('上传出错')
   }
 
   respUtils.succResponse(res, '上传成功')

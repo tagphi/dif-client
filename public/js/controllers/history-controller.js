@@ -99,7 +99,11 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
                 alertMsgService.alert('提交成功', true)
                 $scope.queryHistories()
               } else {
-                alertMsgService.alert(data.message, false)
+                if (data.message.indexOf('format') !== -1) {
+                  alertMsgService.alert('文件格式错误', false)
+                } else {
+                  alertMsgService.alert(data.message, false)
+                }
               }
             })
             .error(function () {

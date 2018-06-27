@@ -22,7 +22,7 @@ var sendNConfirm = async function (txId, channel, sendFn, validateProposalFn) {
 
   for (let i in proposalResponses) {
     if (proposalResponses && proposalResponses[i].response &&
-            proposalResponses[i].response.status === 200) {
+      proposalResponses[i].response.status === 200) {
       goodCnt++
     } else {
       badCnt++
@@ -36,7 +36,7 @@ var sendNConfirm = async function (txId, channel, sendFn, validateProposalFn) {
   if (!endorsementOK) {
     logger.error('Did not get enough endorsement, invocation failed')
 
-    throw new Error('Not enough endorsement')
+    throw new Error(proposalResponses[0].details)
   }
 
   let client = await helper.getClient(CONFIG.msp.id, true)
@@ -68,7 +68,7 @@ var sendNConfirm = async function (txId, channel, sendFn, validateProposalFn) {
     eh.registerTxEvent(deployId, (tx, code) => {
       logger.info(
         'The chaincode instantiate transaction has been committed on peer ' +
-                eh._ep._endpoint.addr)
+        eh._ep._endpoint.addr)
       clearTimeout(handle)
       eh.unregisterTxEvent(deployId)
       eh.disconnect()
