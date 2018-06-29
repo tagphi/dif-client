@@ -19,6 +19,7 @@
         "event_timeout": 30000
     },
     "site": {
+        "adminAddr":"http://localhost:8080",
         "key_value_store": "/tmp/dif-kvs/",
         "port": 8081,
         "username": "admin",
@@ -27,6 +28,9 @@
         "jwt_secret": "thisismysecret",
         "upload": {
             "maxFilesize":1024
+        },
+        "cron":{
+            "query_cc_install":120
         }
     },
     "channel_name": "difchannel"

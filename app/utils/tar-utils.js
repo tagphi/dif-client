@@ -1,22 +1,21 @@
 /* eslint-disable no-trailing-spaces */
 let tar = require('tar')
-let Q = require('q')
 let fs = require('fs-extra')
 
 function xz (zipedFilePath, destDir) {
   fs.removeSync(destDir)
   fs.ensureDirSync(destDir)
 
-  let defered = Q.defer()
-
-  tar.x({
-    file: zipedFilePath,
-    cwd: destDir
-  }).then(function () {
-    defered.resolve(true)
+  let xzPromise = new Promise(function (resolve, reject) {
+    tar.x({
+      file: zipedFilePath,
+      cwd: destDir
+    }).then(function () {
+      resolve(true)
+    })
   })
 
-  return defered.promise
+  return xzPromise
 }
 
 exports.xz = xz

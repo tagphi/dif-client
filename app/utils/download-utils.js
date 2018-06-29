@@ -1,24 +1,24 @@
-/* eslint-disable no-trailing-spaces */
+/* eslint-disable no-trailing-spaces,no-new */
+
 let request = require('request')
 let fs = require('fs-extra')
-let Q = require('q')
 
 function downloadFile (downloadUrl, saveDir, fileName) {
   // 清空链码目录
   fs.removeSync(saveDir)
   fs.ensureDirSync(saveDir)
 
-  let defered = Q.defer()
+  let downloadPromise = new Promise(function (resolve, reject) {
+    // 下载并写入链码目录
+    let ccPathOut = fs.createWriteStream(saveDir + '/' + fileName)
+    request(downloadUrl)
+      .pipe(ccPathOut)
+      .on('finish', function () {
+        resolve(true)
+      })
+  })
 
-  // 下载并写入链码目录
-  let ccPathOut = fs.createWriteStream(saveDir + '/' + fileName)
-  request(downloadUrl)
-    .pipe(ccPathOut)
-    .on('finish', function () {
-      defered.resolve(true)
-    })
-
-  return defered.promise
+  return downloadPromise
 }
 
 exports.downloadFile = downloadFile
