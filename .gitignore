@@ -14,3 +14,6 @@ ops/
 docker-compose-peer.yaml
 config.json
 lint.txt
+chaincode/build-bk
+chaincode/tmp
+logs
