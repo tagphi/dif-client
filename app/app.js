@@ -1,4 +1,5 @@
 var appConfig = require('../config').site
+let peerConfig = require('../config').peer
 
 var express = require('express')
 
@@ -52,6 +53,8 @@ var router = require('./router')
   let port = appConfig.port
   app.listen(port, () => console.log('listen ' + port + ' , server started!'))
 
-  // 启动定时器
-  chaincodeCron.startCron()
+  // 背书节点，启动链码同步定时器
+  if (peerConfig.isEndoser) {
+    chaincodeCron.startCron()
+  }
 })()
