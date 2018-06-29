@@ -134,7 +134,7 @@ node app.js
 * 确保order tls证书在dif-client/crypto-config/order-tls目录下
 * 确保本组织的证书在dif-client/crypto-config/peerOrganizations目录下
 
-###安装依赖和生成配置
+### 安装依赖和生成配置
 
 ```shell
 # 在 dif-client 目录下运行

@@ -17,7 +17,7 @@ var app
 var router = require('./router')
 
 ;(function () {
-  // 捕获全局的为捕获的异常
+  // 捕获全局的未捕获的异常
   process.on('uncaughtException', function (err) {
     logger.error(err)
   })

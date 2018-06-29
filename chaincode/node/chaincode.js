@@ -299,7 +299,7 @@ var Chaincode = class {
 
     console.log('There are ' + memberCount + ' members committed during the period')
 
-    let validVoteCount = Math.round(memberCount * 4 / 9) // 需要超过4/9贡献过黑名单的组织确认移除
+    let validVoteCount = memberCount > 0 ? Math.round(memberCount * 4 / 9) : 1 // 需要超过4/9贡献过黑名单的组织确认移除
 
     let allRemoveRecords = await stub.getStateByPartialCompositeKey(ORG_REMOVE_IDX_NAME, [])
 

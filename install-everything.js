@@ -86,6 +86,7 @@ let files = fs.readdirSync(PEER_CRYPTO_DIR)
 
 if (files == null || files.length === 0) {
   console.log('未发现peer的证书文件')
+  process.exit(1)
 }
 
 let orgDomain = files[0]
