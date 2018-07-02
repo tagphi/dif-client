@@ -16,7 +16,8 @@
         "tls_cert_path": "../%tlsCertPath%",
         "event_url": "%eventUrl%",
         "ssl_target_name_override": "%sslTargetNameOverride%",
-        "event_timeout": 30000
+        "event_timeout": 30000,
+        "request_timeout":60000
     },
     "site": {
         "adminAddr":"http://localhost:8080",
