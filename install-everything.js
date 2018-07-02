@@ -4,6 +4,8 @@ var path = require('path')
 var execFileSync = require('child_process').execFileSync
 var util = require('util')
 
+console.log('检查依赖的一些程序以及版本....')
+
 // 检查依赖的一些程序已经存在
 // node, npm, bower
 let stdout = execFileSync('npm', ['-v']).toString()
@@ -79,6 +81,8 @@ let subFoldersContains = function (parentDir, subfolders) {
   return true
 }
 
+console.log('检查peer的证书是不是已经放置在了crypto-config目录....')
+
 // 检查peer的证书是不是已经放置在了crypto-config目录
 const PEER_CRYPTO_DIR = './crypto-config/peerOrganizations'
 
@@ -86,6 +90,7 @@ let files = fs.readdirSync(PEER_CRYPTO_DIR)
 
 if (files == null || files.length === 0) {
   console.log('未发现peer的证书文件')
+  process.exit(1)
 }
 
 let orgDomain = files[0]
@@ -105,6 +110,8 @@ if (!subFoldersContains(path.join(orgDir, 'msp'), ['admincerts', 'cacerts', 'tls
 files = fs.readdirSync(path.join(orgDir, 'peers'))
 
 let peerHost = files[0]
+
+console.log('生成配置文件....')
 
 // 现在我们能构造所有需要的文件夹路径了
 let prvKeyPath = util.format('crypto-config/peerOrganizations/%s/peers/%s/msp/keystore', orgDomain, peerHost)
