@@ -25,10 +25,10 @@ var joinPeer = async function () {
     txId: txId
   }
 
-  let peers = helper.getOwnPeers(client)
+  let peers = await helper.getOwnPeers(client)
 
   if (peers.length === 0) {
-    console.log("can't find current org peers, please contact RTBAsia")
+    console.log('can\'t find current org peers, please contact RTBAsia')
   }
 
   peers.forEach(function (peer) {

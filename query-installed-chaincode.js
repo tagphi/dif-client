@@ -8,7 +8,7 @@ var helper = require('./common/helper')
  **/
 async function queryInstalledCC () {
   let client = await helper.getClient(true)
-  let peers = helper.getOwnPeers(client)
+  let peers = await helper.getOwnPeers(client)
 
   let response = await client.queryInstalledChaincodes(peers, true)
 
