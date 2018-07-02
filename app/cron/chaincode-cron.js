@@ -39,6 +39,9 @@ async function onTick () {
     // 有较新的版本，下载并安装
     await downloadAndInstallCC(remoteLatestCC)
 
+    let msg = 'Successfully install chaincode ——> name：' + remoteLatestCC.name + ' version：' + remoteLatestCC.version
+    console.log(msg)
+    logger.info(msg)
   } catch (e) {
     console.log('chaincode sync err：', e)
     logger.error(e)
@@ -46,6 +49,10 @@ async function onTick () {
 }
 
 async function downloadAndInstallCC (remoteLatestCC) {
+  let msg = '---- download new version of chaincode ----'
+  console.log(msg)
+  logger.info(msg)
+
   let ccPath = path.join(__dirname, '../../chaincode/build')
   let ccTmpPath = path.join(__dirname, '../../chaincode/tmp')
   let saveName = 'cc.tar.gz'
