@@ -147,12 +147,6 @@ node install-everything.js [MSPID]
 # 在 dif-client 目录下运行
 node join-channel.js
 ```
-### 安装链码（仅背书节点）
-
-```shell
-# 在 dif-client 目录下运行
-node install-chaincode.js
-```
 
 ### 启动Client Site Web
 
