@@ -108,8 +108,8 @@ var __getPeersConfig = async function () {
 //   return allPeersJson
 // }
 
-var getEndorsers = function (client) {
-  let allPeersJson = __getPeersConfig()
+var getEndorsers = async function (client) {
+  let allPeersJson = await __getPeersConfig()
   let endorsers = []
 
   let data = fs.readFileSync(path.join(__dirname, CONFIG.peer.tls_cert_path))
@@ -143,8 +143,8 @@ var getEndorsers = function (client) {
   return endorsers
 }
 
-var getOwnPeers = function (client) {
-  let allPeersJson = __getPeersConfig()
+var getOwnPeers = async function (client) {
+  let allPeersJson = await __getPeersConfig()
 
   let peers = []
 

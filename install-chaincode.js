@@ -20,7 +20,7 @@ var installChaincode = async function (ccName, ccVersion, isRemote) {
   }
 
   let client = await helper.getClient(true)
-  let peers = helper.getOwnPeers(client)
+  let peers = await helper.getOwnPeers(client)
 
   let ccPath = path.join(__dirname, './chaincode/build')
   var request = {
