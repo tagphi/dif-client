@@ -1,6 +1,6 @@
 {
     "msp": {
-        "id": "RTBAsia",
+        "id": "%mspId%",
         "prv_key_path": "../%prvKeyPath%",
         "sgn_cert_path": "../%sgnCertPath%",
         "admin_key_path": "../%adminKeyPath%",
