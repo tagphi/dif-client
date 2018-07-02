@@ -3,6 +3,7 @@
  **/
 var log4js = require('log4js')
 let path = require('path')
+let fs = require('fs-extra')
 
 let appDir = path.join(__dirname, '../')
 
@@ -23,5 +24,10 @@ log4js.configure({
   }],
   replaceConsole: true
 })
+
+;(function init () {
+  let logDir = path.join(__dirname, '../logs')
+  fs.ensureDirSync(logDir)
+})()
 
 module.exports.logger = log4js.getLogger('log_date')

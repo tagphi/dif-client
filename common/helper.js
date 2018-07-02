@@ -4,6 +4,8 @@ var Client = require('fabric-client')
 var CONFIG = require('../config.json')
 var path = require('path')
 var fs = require('fs-extra')
+var agent = require('superagent-promise')(require('superagent'), Promise)
+let ADMIN_ADDR = CONFIG.site.adminAddr
 
 var getChannel = async function (client) {
   let channel = client.newChannel(CONFIG.channel_name)
@@ -93,18 +95,18 @@ var __setUserContext = async function (client, useAdmin) {
   return user
 }
 
-// var __getPeersConfig = async function () {
-//   let resp = await agent.post('http://localhost:8080/peer/peers2').buffer()
-//   let peers = JSON.parse(resp.text);
-//   return peers
-// }
-
-var __getPeersConfig = function () {
-  let allPeersJsonStr = fs.readFileSync(path.join(__dirname, '../peers.json'))
-  let allPeersJson = JSON.parse(Buffer.from(allPeersJsonStr).toString())
-
-  return allPeersJson
+var __getPeersConfig = async function () {
+  let resp = await agent.post(ADMIN_ADDR + '/peer/peers2').buffer()
+  let peers = JSON.parse(resp.text)
+  return peers
 }
+//
+// var __getPeersConfig = function () {
+//   let allPeersJsonStr = fs.readFileSync(path.join(__dirname, '../peers.json'))
+//   let allPeersJson = JSON.parse(Buffer.from(allPeersJsonStr).toString())
+//
+//   return allPeersJson
+// }
 
 var getEndorsers = function (client) {
   let allPeersJson = __getPeersConfig()
@@ -121,7 +123,7 @@ var getEndorsers = function (client) {
       if (peerConfig.endorser) {
         let connOptions = {
           pem: Buffer.from(data).toString(), // TODO: tls证书是必须的，但是我们不一定开启了tls验证
-          'request-timeout': 120 // TODO: 从配置中读取
+          'request-timeout': CONFIG.peer['request_timeout'] // TODO: 从配置中读取
         }
 
         if ('ssl-target-name-override' in peerConfig) {
@@ -158,7 +160,7 @@ var getOwnPeers = function (client) {
 
         let connOptions = {
           pem: Buffer.from(data).toString(), // TODO: tls证书是必须的，但是我们不一定开启了tls验证
-          'request-timeout': 120 // TODO: 从配置中读取
+          'request-timeout': CONFIG.peer['request_timeout'] // TODO: 从配置中读取
         }
 
         if ('ssl-target-name-override' in peerConfig) {
