@@ -6,13 +6,13 @@
 version: '2'
 
 volumes:
-  peer0.rtbasia.com:
+  %peerHost%:
 
 networks:
   dif:
 
 services:
-  peer0.rtbasia.com:
+  %peerHost%:
     container_name: %peerHost%
     extends:
       file: base/peer-base.yaml
