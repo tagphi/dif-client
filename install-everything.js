@@ -4,6 +4,11 @@ var path = require('path')
 var execFileSync = require('child_process').execFileSync
 var util = require('util')
 
+if (process.argv.length !== 3) {
+  console.log('Usage: ./install-everything.sh [MSPID]')
+  process.exit(1)
+}
+
 console.log('检查依赖的一些程序以及版本....')
 
 // 检查依赖的一些程序已经存在
@@ -39,11 +44,6 @@ if (!isNaN(stdout)) {
   console.log('bower 未安装, 运行sudo npm install -g bower')
   process.exit(1)
 }
-
-// 安装node modules
-stdout = execFileSync('npm', ['install']).toString()
-
-console.log(stdout)
 
 // 安装前端web依赖的js
 stdout = execFileSync('bower', ['install'], {'cwd': path.join(__dirname, 'public')}).toString()
@@ -123,11 +123,6 @@ let eventUrl = util.format('grpc://%s:7053', peerHost)
 let sslTargetNameOverride = peerHost
 let mspDir = util.format('crypto-config/peerOrganizations/%s/peers/%s/msp', orgDomain, peerHost)
 let tlsDir = util.format('crypto-config/peerOrganizations/%s/peers/%s/tls', orgDomain, peerHost)
-
-if (process.argv.length !== 3) {
-  console.log('use node install-everything.js [MSPID]')
-  process.exit(1)
-}
 
 let mspId = process.argv[2]
 

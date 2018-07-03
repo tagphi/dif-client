@@ -138,8 +138,17 @@ node app.js
 
 ```shell
 # 在 dif-client 目录下运行
-node install-everything.js [MSPID]
+./install-everything.sh [MSPID]
 ```
+
+### 启动Peer Docker容器
+
+```
+# 在 dif-client 目录下运行
+docker-compose -f docker-compose-peer.yaml -d
+```
+
+
 
 ### 加入通道
 
