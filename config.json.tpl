@@ -31,7 +31,7 @@
             "maxFilesize":1024
         },
         "cron":{
-            "query_cc_install":120
+            "query_cc_install":5
         }
     },
     "channel_name": "difchannel"
