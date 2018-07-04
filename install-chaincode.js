@@ -1,33 +1,29 @@
+/* eslint-disable no-trailing-spaces */
 'use strict'
 var helper = require('./common/helper')
 
-var fs = require('fs-extra')
 let util = require('util')
 
 var log4js = require('log4js')
 var logger = log4js.getLogger('install-chaincode')
 let path = require('path')
 
-var installChaincode = async function (ccName, ccVersion, isRemote) {
-  // 准备安装的链码
-  if (!isRemote) {
-    fs.removeSync('./chaincode/build')
-    fs.ensureDirSync('./chaincode/build')
-    fs.copySync('./chaincode/node/.npmrc', './chaincode/build/.npmrc')
-    fs.copySync('./chaincode/node/chaincode.js', './chaincode/build/chaincode.js')
-    fs.copySync('./chaincode/node/dif.js', './chaincode/build/dif.js')
-    fs.copySync('./chaincode/node/package.json', './chaincode/build/package.json')
-  }
+var installChaincode = async function (ccName, ccVersion, chaincodeType) {
+  // 设置gopath
+  process.env.GOPATH = path.join(__dirname, './chaincode/go')
 
   let client = await helper.getClient(true)
   let peers = await helper.getOwnPeers(client)
 
   let ccPath = path.join(__dirname, './chaincode/build')
+  if (chaincodeType === 'golang') {
+    ccPath = 'dif'
+  }
   var request = {
     targets: peers,
     chaincodePath: ccPath,
     chaincodeId: ccName,
-    chaincodeType: 'node',
+    chaincodeType: chaincodeType,
     chaincodeVersion: ccVersion // TODO: 这些信息应该都要从服务器取得
   }
 

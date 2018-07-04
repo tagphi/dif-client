@@ -50,6 +50,9 @@ async function downloadAndInstallCC (remoteLatestCC) {
   logger.info(msg)
 
   let ccPath = path.join(__dirname, '../../chaincode/build')
+  if (remoteLatestCC.type === 'golang') {
+    ccPath = path.join(__dirname, '../../chaincode/go/src')
+  }
   let ccTmpPath = path.join(__dirname, '../../chaincode/tmp')
   let saveName = 'cc.tar.gz'
 
@@ -57,7 +60,7 @@ async function downloadAndInstallCC (remoteLatestCC) {
   await downloader.downloadFile(remoteLatestCC.downloadUrl, ccTmpPath, saveName)
   // 解压
   await tar.xz(ccTmpPath + '/' + saveName, ccPath)
-  await installCC.installChaincode(remoteLatestCC.name, remoteLatestCC.version, true)
+  await installCC.installChaincode(remoteLatestCC.name, remoteLatestCC.version,remoteLatestCC.type)
 
   await agent.post(ADMIN_ADDR + '/peer/reportPeerCC', {
     mspId: CONFIG.msp.id,
