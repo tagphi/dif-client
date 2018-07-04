@@ -20,7 +20,7 @@
         "request_timeout":60000
     },
     "site": {
-        "adminAddr":"http://localhost:8080",
+        "adminAddr":"http://orderer.dif.rtbasia.com:8080",
         "key_value_store": "/tmp/dif-kvs/",
         "port": 8081,
         "username": "admin",

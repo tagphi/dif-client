@@ -38,10 +38,6 @@ async function onTick () {
 
     // 有较新的版本，下载并安装
     await downloadAndInstallCC(remoteLatestCC)
-
-    let msg = 'Successfully install chaincode ——> name：' + remoteLatestCC.name + ' version：' + remoteLatestCC.version
-    console.log(msg)
-    logger.info(msg)
   } catch (e) {
     console.log('chaincode sync err：', e)
     logger.error(e)
@@ -67,6 +63,10 @@ async function downloadAndInstallCC (remoteLatestCC) {
     mspId: CONFIG.msp.id,
     cc: [{name: remoteLatestCC.name, version: remoteLatestCC.version}]
   }).buffer()
+
+  msg = 'Successfully install chaincode ——> name：' + remoteLatestCC.name + ' version：' + remoteLatestCC.version
+  console.log(msg)
+  logger.info(msg)
 }
 
 async function isEndorer () {
