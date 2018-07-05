@@ -3,6 +3,7 @@
 var helper = require('./common/helper')
 
 let util = require('util')
+var fs = require('fs-extra')
 
 var log4js = require('log4js')
 var logger = log4js.getLogger('install-chaincode')
@@ -16,15 +17,25 @@ var installChaincode = async function (ccName, ccVersion, chaincodeType) {
   let peers = await helper.getOwnPeers(client)
 
   let ccPath = path.join(__dirname, './chaincode/build')
+
   if (chaincodeType === 'golang') {
     ccPath = 'dif'
   }
+
   var request = {
     targets: peers,
     chaincodePath: ccPath,
     chaincodeId: ccName,
     chaincodeType: chaincodeType,
     chaincodeVersion: ccVersion // TODO: 这些信息应该都要从服务器取得
+  }
+
+  if (chaincodeType === 'golang') {
+    let chaincodePackagePath = path.join(__dirname, './chaincode/tmp/cc.tar.gz')
+
+    let data = fs.readFileSync(chaincodePackagePath)
+
+    request.chaincodePackage = data
   }
 
   let results = await client.installChaincode(request, 180000)
