@@ -19,7 +19,12 @@ var query = async function (fcn, args) {
       chainId: CONFIG.channel_name
     }
 
-    request.targets = await helper.getEndorsers(client)
+    let endorsers = await helper.getEndorsers(client)
+
+    // 随机使用一个背书节点，TODO: 当某个背书节点查询失败应该查询其他节点
+    let rdIdx = Math.floor(Math.random() * endorsers.length)
+
+    request.targets = [endorsers[rdIdx]]
 
     let responsePayloads = await channel.queryByChaincode(request)
 
