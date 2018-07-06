@@ -1,7 +1,7 @@
 'use strict'
 
 angular.module('dif').factory('HttpService', ['$http', '$q', '$rootScope', '$location', 'alertMsgService',
-  function ($http, $q, $rootScope, $location) {
+  function ($http, $q, $rootScope, $location, alertMsgService) {
     var httpClient = {
       post: function (url, data) {
         if (!data) {

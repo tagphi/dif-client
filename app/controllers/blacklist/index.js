@@ -169,7 +169,11 @@ exports.histories = async function (req, res, next) {
     next(result)
     return
   } else {
-    result = JSON.parse(result)
+    try {
+      result = JSON.parse(result)
+    } catch (e) {
+      return respUtils.errResonse(res, 'json格式错误')
+    }
   }
 
   // 取得分页范围内的数据
