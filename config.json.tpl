@@ -27,6 +27,10 @@
         "password": "password",
         "jwt_expiretime": "36000",
         "jwt_secret": "thisismysecret",
+        "whitelist":[
+            "127.0.0.1",
+            "::1"
+        ],
         "upload": {
             "maxFilesize":1024
         },
