@@ -27,11 +27,20 @@
         "password": "password",
         "jwt_expiretime": "36000",
         "jwt_secret": "thisismysecret",
+        "pageSize": 10,
+        "whitelist":[
+            "127.0.0.1",
+            "::1"
+        ],
         "upload": {
             "maxFilesize":1024
         },
         "cron":{
             "query_cc_install":5
+        },
+        "ipfs":{
+            "host":"117.161.21.126",
+            "port":5001
         }
     },
     "channel_name": "difchannel"

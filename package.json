@@ -32,6 +32,7 @@
     "fabric-shim": "^1.1.2",
     "fs-extra": "^2.0.0",
     "iconv-lite": "^0.4.23",
+    "ipfs-api": "22.2.2",
     "jsonwebtoken": "^7.3.0",
     "log4js": "^0.6.38",
     "mocha": "^4.1.0",

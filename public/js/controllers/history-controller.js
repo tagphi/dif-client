@@ -24,6 +24,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     type: 'blacklist', // 默认黑名单
     histories: [], // 历史数据
     total: 0, // 总历史记录数
+    pageSize: 10,
     currentPage: 1 // 页面指针
   }
 
@@ -153,10 +154,12 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
 
           $scope.showingTab.histories = respData.data
           $scope.showingTab.total = respData.total
+          $scope.showingTab.pageSize = respData.pageSize
         } else {
           alertMsgService.alert('获取失败', false)
           $scope.showingTab.histories = []
-          $scope.showingTab.total = []
+          $scope.showingTab.total = 0
+          $scope.showingTab.pageSize = 5
         }
 
         if (!pageNO) {

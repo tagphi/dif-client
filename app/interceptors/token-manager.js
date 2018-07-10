@@ -8,6 +8,7 @@ var globalTokens = {}
 
 // 这些url不需要登录即可访问
 const bypassList = ['/auth/login', '/static', '/blacklist/download', '/blacklist/downloadMergedlist', '/blacklist/upload']
+let whitelist = require('../../config').site.whitelist
 
 var __shouldBypass = function (url) {
   if (!url) return false
@@ -23,13 +24,27 @@ var __shouldBypass = function (url) {
   return false
 }
 
+var isInWhiteList = function (req) {
+  if (!whitelist || whitelist.length === 0) return false
+
+  let remoteIp = req.ip
+  let isWhiteIP = false
+  whitelist.forEach(function (whiteIP) {
+    if (whiteIP === remoteIp) {
+      isWhiteIP = true
+    }
+  })
+
+  return isWhiteIP
+}
+
 var checkToken = function (app) {
   app.use(bearerToken())
 
   // 验证指定用户的token
   app.use(function (req, res, next) {
     // 判断是否属于白名单
-    if (__shouldBypass(req.originalUrl)) return next()
+    if (__shouldBypass(req.originalUrl) || isInWhiteList(req)) return next()
 
     var token = req.token || req.body.token || req.query.token
 

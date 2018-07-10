@@ -100,7 +100,7 @@ var __getPeersConfig = async function () {
   let peers = JSON.parse(resp.text)
   return peers
 }
-//
+
 // var __getPeersConfig = function () {
 //   let allPeersJsonStr = fs.readFileSync(path.join(__dirname, '../peers.json'))
 //   let allPeersJson = JSON.parse(Buffer.from(allPeersJsonStr).toString())
