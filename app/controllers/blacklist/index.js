@@ -1,3 +1,4 @@
+/* eslint-disable no-trailing-spaces */
 var respUtils = require('../../utils/resp-utils')
 
 let base64 = require('base-64')
@@ -190,6 +191,7 @@ exports.histories = async function (req, res, next) {
     success: true,
     message: '查询成功',
     total: result.length,
+    pageSize: pageSize,
     data: pageResult
   })
 }
