@@ -10,8 +10,8 @@ var queryChaincode = require('../../cc/query')
 
 let siteConfig = require('../../../config').site
 let blacklistService = require('../../services/blacklist-service')
-let ipfsCli = require('../../utils/ipfs-cli')
 
+let blacklistValidator = require('../../validators/blacklist-validator')
 exports.url = '/blacklist'
 exports.excludeHandlers = ['upload']
 
@@ -26,9 +26,13 @@ exports.validateUpload = [
 exports.upload = async function (req, res, next) {
   let type = req.body.type
   let dataType = req.body.dataType
-  let newAddListStr = req.file.buffer.toString()
+  let dataListStr = req.file.buffer.toString()
 
-  let result = await blacklistService.upload(newAddListStr, type, dataType)
+  // 校验
+  blacklistValidator.validateUpload(dataType, type, dataListStr)
+
+  // 上传
+  await blacklistService.upload(dataListStr, type, dataType)
 
   respUtils.succResponse(res, '上传成功')
 }
