@@ -37,6 +37,10 @@
         },
         "cron":{
             "query_cc_install":5
+        },
+        "ipfs":{
+            "host":"localhost",
+            "port":5001
         }
     },
     "channel_name": "difchannel"

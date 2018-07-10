@@ -1,4 +1,4 @@
-/* eslint-disable no-trailing-spaces */
+/* eslint-disable no-trailing-spaces,node/no-deprecated-api */
 var respUtils = require('../../utils/resp-utils')
 
 let base64 = require('base-64')
@@ -9,6 +9,8 @@ var invokeChaincode = require('../../cc/invoke')
 var queryChaincode = require('../../cc/query')
 
 let siteConfig = require('../../../config').site
+let blacklistService = require('../../services/blacklist-service')
+let ipfsCli = require('../../utils/ipfs-cli')
 
 exports.url = '/blacklist'
 exports.excludeHandlers = ['upload']
@@ -24,16 +26,9 @@ exports.validateUpload = [
 exports.upload = async function (req, res, next) {
   let type = req.body.type
   let dataType = req.body.dataType
-  let dataStr = req.file.buffer.toString()
+  let newAddListStr = req.file.buffer.toString()
 
-  // 调用链码上传名单
-  if (dataType === 'delta') {
-    await invokeChaincode('deltaUpload', [dataStr, type])
-  } else if (dataType === 'remove') {
-    await invokeChaincode('uploadRemoveList', [dataStr, type])
-  } else {
-    throw new Error('未知的数据类型:' + dataType)
-  }
+  let result = await blacklistService.upload(newAddListStr, type, dataType)
 
   respUtils.succResponse(res, '上传成功')
 }
