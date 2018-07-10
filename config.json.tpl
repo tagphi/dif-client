@@ -39,7 +39,7 @@
             "query_cc_install":5
         },
         "ipfs":{
-            "host":"localhost",
+            "host":"117.161.21.126",
             "port":5001
         }
     },

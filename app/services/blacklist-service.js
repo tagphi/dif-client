@@ -5,34 +5,41 @@ let queryCC = require('../cc/query')
 let invokeCC = require('../cc/invoke')
 
 async function upload (newAddListStr, type, dataType) {
+  let filename = type + '-' + new Date().getTime()
   /* 移除列表 */
   if (dataType === 'remove') {
     // 将增量数据上传到ipfs
     let newListFileInfo = await ipfsCli.addByBuffer(new Buffer(newAddListStr))
+    newListFileInfo.name = filename
     // 保存到账本
-    invokeCC('uploadRemoveList', [JSON.stringify(newListFileInfo)], type)
-    return
+    await invokeCC('uploadRemoveList', [JSON.stringify(newListFileInfo), type])
   }
 
   /* 黑名单 */
   // 链码查询该组织该类型的列表的全量数据的路径
   let currentListInfo = await queryCC('getOrgList', [type])
-  // 获取到当前的列表
-  let currentListFile = await ipfsCli.get(currentListInfo.path)
-  let currentListStr = currentListFile.content.toString()
+  let currentListStr = JSON.stringify([])
 
+  if (currentListInfo) {
+    // 获取到当前的列表
+    currentListInfo = JSON.parse(currentListInfo)
+    let currentListFile = await ipfsCli.get(currentListInfo.path)
+    currentListStr = currentListFile.content.toString()
+  }
   // 合并列表
   let mergedListStr = _mergeDeltaList(currentListStr, newAddListStr)
 
   // 将增量数据和全量数据上传到ipfs
   let newListFileInfo = await ipfsCli.addByBuffer(new Buffer(newAddListStr))
+  newListFileInfo.name = filename
   let mergeListFileInfo = await ipfsCli.addByBuffer(new Buffer(mergedListStr))
+  mergeListFileInfo.name = filename
 
-  invokeCC('deltaUpload', [JSON.stringify(newListFileInfo)], type)
-  invokeCC('deltaUpload', [JSON.stringify(mergeListFileInfo)], type)
+  await invokeCC('deltaUpload', [JSON.stringify(newListFileInfo), type])
+  await invokeCC('fullUpload', [JSON.stringify(mergeListFileInfo), type])
 }
 
-function _mergeDeltaList (type, oldListStr, deltaList) {
+function _mergeDeltaList (oldListStr, deltaList) {
   let orgSet = new Set()
 
   // 保存旧的
