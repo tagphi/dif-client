@@ -38,8 +38,10 @@ var router = require('./router')
   router.mapRoutes(app)
 
   // 上传
+  let maxFileSize = appConfig.upload.maxFileSize * 1024 * 1024
+
   let uploadHelper = multer({
-    limits: {fileSize: appConfig.upload.maxFilesize}
+    limits: {fileSize: maxFileSize}
   })
 
   app.post(blacklistController.url + '/upload',
