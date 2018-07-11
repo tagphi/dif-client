@@ -62,13 +62,17 @@ async function addMulti (filePaths) {
  { path: 'QmZAM3NBJsFSPb6c5Up8DEsYadznZytk7suJPGoqHTLbHm',
     content: <Buffer 49 20 61 6d 20 75 70 6c 6f 61 64 65 64> }
  **/
-function get (hashPath) {
+function get (path, id) {
   let getPromise = new Promise((resolve, reject) => {
-    ipfs.get(hashPath, function (err, files) {
+    ipfs.get(path, function (err, files) {
       if (err || typeof files === 'undefined') {
         reject(err)
       } else {
-        resolve(files.pop())
+        let file = files.pop()
+        if (id) {
+          file.id = id
+        }
+        resolve(file)
       }
     })
   })
@@ -81,10 +85,10 @@ function get (hashPath) {
  [{ path: 'QmZAM3NBJsFSPb6c5Up8DEsYadznZytk7suJPGoqHTLbHm',
  content: <Buffer 49 20 61 6d 20 75 70 6c 6f 61 64 65 64> },...]
  **/
-async function getMulti (hashPaths) {
+async function getMulti (paths, ids) {
   let allPromises = []
-  hashPaths.forEach(path => {
-    let getPromise = get(path)
+  paths.forEach((path, pos) => {
+    let getPromise = get(path, ids[pos])
     allPromises.push(getPromise)
   })
   let files = await Promise.all(allPromises)
@@ -95,5 +99,6 @@ exports.add = add
 exports.addByBuffer = addByBuffer
 exports.addByStr = addByStr
 exports.addMulti = addMulti
+
 exports.get = get
 exports.getMulti = getMulti
