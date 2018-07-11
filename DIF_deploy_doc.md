@@ -3,12 +3,15 @@
 ## 前置条件
 
 ```
-1. docker-compose version > 1.20.1
-2. Docker version > 18.03.0
-3. Node version > 8.11
-4. npm version > 5.6.0
-3. go version > 1.10.3 (仅Admin节点)
-4. 开放端口7050-7053和80
+1. 配置2核2GHz 4G内存 500G硬盘
+2. docker-compose version > 1.20.1
+3. Docker version > 18.03.0
+4. Node version > 8.11
+5. npm version > 5.6.0
+6. go version > 1.10.3 (仅Admin节点)
+7. 开放端口7050-7053和80
+8. 准备一个peer0.[公司Domain]的域名指向部署peer的机器
+9. 定一个组织的MSPID作为在Fabric网络的标识，可以为无空格和特殊字符的大小写组合。比如RTBAsia, hdtMEDIA等
 ```
 
 
@@ -129,7 +132,9 @@ node app.js
 
 ### 拷贝组织证书到dif-client/crypto-config/ 目录下
 
-### 修改配置
+可以用RTBAsia提供的脚本生成证书，并将crypto-config/peerOrgnizations/[组织domain]/msp 目录发给RTBAsia。crypto-config/peerOrgnizations/ 底下所有的文件拷贝到dif-client/crypto-config/peerOrgnizations下。 
+
+### 确认证书存在
 
 * 确保order tls证书在dif-client/crypto-config/order-tls目录下
 * 确保本组织的证书在dif-client/crypto-config/peerOrganizations目录下
@@ -138,6 +143,7 @@ node app.js
 
 ```shell
 # 在 dif-client 目录下运行
+sudo npm install forever -g
 ./install-everything.sh [MSPID]
 ```
 
@@ -147,8 +153,6 @@ node app.js
 # 在 dif-client 目录下运行
 docker-compose -f docker-compose-peer.yaml -d
 ```
-
-
 
 ### 加入通道
 
@@ -161,6 +165,8 @@ node join-channel.js
 
  ```Shell
 # 在 dif-client/app 目录下运行
-node app.js
+forever start app.js
+
+#使用http://域名 访问客户端，默认用户名密码为admin/password
  ```
 

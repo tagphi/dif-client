@@ -25,7 +25,7 @@ function __validateDataCols (data, type) {
   }
 }
 
-function validateDeltaListFormat (row, type) {
+function _validateDeltaListFormat (row, type) {
   let cols = row.split('\t')
 
   if ((type === 'device' && cols.length !== 4) || (type === 'ip' && cols.length !== 2) ||
@@ -65,11 +65,14 @@ function validateUpload (dataType, type, dataListStr) {
   _validateType(type)
 
   let dataList = dataListStr.split('\n')
+
   dataList.forEach(function (row) {
-    if (dataType === 'delta') { // 黑名单
-      validateDeltaListFormat(row, type)
-    } else {
-      _validateRemoveListFormat(row, type)
+    if (row && row.trim() !== '') { // 空行可以是最后一行 被忽略
+      if (dataType === 'delta') { // 黑名单
+        _validateDeltaListFormat(row, type)
+      } else {
+        _validateRemoveListFormat(row, type)
+      }
     }
   })
 }
