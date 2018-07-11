@@ -2,7 +2,6 @@
 var respUtils = require('../../utils/resp-utils')
 var {check} = require('express-validator/check')
 
-var invokeChaincode = require('../../cc/invoke')
 var queryChaincode = require('../../cc/query')
 
 let ipfsCli = require('../../utils/ipfs-cli')
@@ -28,7 +27,6 @@ exports.upload = async function (req, res, next) {
 
   // 校验
   blacklistValidator.validateUpload(dataType, type, dataListStr)
-
   // 上传
   await blacklistService.upload(dataListStr, type, dataType)
 
@@ -44,8 +42,8 @@ exports.validateMergeBlacklist = [
 
 exports.mergeBlacklist = async function (req, res, next) {
   let type = req.body.type
-  let result = await invokeChaincode('merge', [type])
-  respUtils.succResponse(res, '合并成功', result)
+  await blacklistService.merge(type)
+  respUtils.succResponse(res, '合并成功')
 }
 
 /**
@@ -80,34 +78,17 @@ exports.validateDownloadMergedlist = [
 
 exports.downloadMergedlist = async function (req, res, next) {
   let type = req.query.type
-  res.set({
-    'Content-Type': 'application/octet-stream',
-    'Content-Disposition': 'attachment; filename=' + type + '-' + new Date().getTime() + '.txt'
-  })
+  let filename = type + '-merged-' + new Date().getTime() + '.txt'
 
-  let result = await invokeChaincode('merge', [type])
+  // 查询最新的合并版本信息
+  let mergedListIpfsInfo = await queryChaincode('getMergedList', [type])
+  if (!mergedListIpfsInfo) return respUtils.download(res, filename, '暂无数据')
 
-  result = await queryChaincode('getMergedList', [type])
-  if (!result || result.indexOf('Err') !== -1) {
-    res.send('')
-    return
-  }
+  // 从ipfs上下载
+  let downloadedMergedList = await ipfsCli.get(mergedListIpfsInfo.ipfsInfo.path)
+  let content = downloadedMergedList.content.toString()
 
-  if (!result || result.indexOf('Err') !== -1) {
-    res.send('')
-    return
-  } else {
-    result = JSON.parse(result)
-  }
-
-  let resultStr = ''
-  for (let prop in result) {
-    resultStr += prop + ':'
-    let orgs = result[prop].join(',')
-    resultStr += orgs + '\n'
-  }
-
-  res.send(resultStr)
+  respUtils.download(res, filename, content)
 }
 
 /**
