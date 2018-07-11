@@ -47,6 +47,9 @@ async function merge (type) {
   let version = await queryCC('version', [])
   version = parseInt(version) + 1
   await invokeCC('uploadMergeList', [JSON.stringify(ipfsInfo), type, version + ''])
+
+  // 链码中投票合并
+  await invokeCC('merge', [type])
 }
 
 async function _getCurrentFullListOfOrg (type) {
