@@ -1,14 +1,12 @@
 /* eslint-disable no-trailing-spaces,node/no-deprecated-api */
 var respUtils = require('../../utils/resp-utils')
-
-let base64 = require('base-64')
-
 var {check} = require('express-validator/check')
 
 var invokeChaincode = require('../../cc/invoke')
 var queryChaincode = require('../../cc/query')
 
-let siteConfig = require('../../../config').site
+let ipfsCli = require('../../utils/ipfs-cli')
+
 let blacklistService = require('../../services/blacklist-service')
 
 let blacklistValidator = require('../../validators/blacklist-validator')
@@ -58,35 +56,16 @@ exports.mergeBlacklist = async function (req, res, next) {
  device2    IMEI    MD5    1
  **/
 exports.validateDownload = [
-  check('dataType').not().isEmpty().withMessage('dataType不能为空'),
-  check('key').not().isEmpty().withMessage('key不能为空')
+  check('name').not().isEmpty().withMessage('name不能为空'),
+  check('path').not().isEmpty().withMessage('path不能为空')
 ]
 
 exports.download = async function (req, res, next) {
-  let dataType = req.query.dataType
-  let key = base64.decode(req.query.key)
-  let keyPieces = key.split('\u0000')
-  let filename = ''
-  for (let i = 1; i <= 4; i++) {
-    filename += keyPieces[i] + '-'
-  }
-
-  let result = []
-
-  if (dataType === 'delta') {
-    result = await queryChaincode('getDeltaList', [key])
-  } else if (dataType === 'remove') {
-    result = await queryChaincode('getRemoveList', [key])
-  } else {
-    throw new Error('未知的数据类型:' + dataType)
-  }
-
-  res.set({
-    'Content-Type': 'application/octet-stream',
-    'Content-Disposition': 'attachment; filename=' + filename + new Date().getTime() + '.txt'
-  })
-
-  res.send(result)
+  let path = req.query.path
+  let name = req.query.name
+  let result = await ipfsCli.get(path)
+  let content = result.content.toString()
+  respUtils.download(res, name, content)
 }
 
 /**
@@ -132,10 +111,17 @@ exports.downloadMergedlist = async function (req, res, next) {
 }
 
 /**
- *获取上传/移除历史
+ * 获取上传/移除历史
  *
- * result 示例
- *      "[{"timestamp":"1528929803302","mspid":"RTBAsia","type":"device","key":"\u0000ORGDELTA\u00001528929803302\u0000RTBAsia\u0000device\u0000"}]"
+ result 示例：
+ [ { timestamp: '1531269985958',
+    mspid: 'RTBAsia',
+    type: 'device',
+    ipfsInfo:
+     { hash: 'hashhash',
+       path: 'somewhereinipfs/filename.ext',
+       name: 'filename.ext',
+       size: 888 } } ]
  **/
 exports.validateHistories = [
   check('dataType').not().isEmpty().withMessage('dataType不能为空'),
@@ -149,11 +135,6 @@ exports.histories = async function (req, res, next) {
   let endTimestamp = Date.parse(req.body.endDate) + ''
 
   let pageNO = req.body.pageNO || 1
-  let pageSize = siteConfig.pageSize || 10
-
-  // 计算分页的开始结束位置
-  let startOffset = (pageNO - 1) * pageSize
-  let endOffset = startOffset + pageSize - 1
 
   let result
 
@@ -165,32 +146,8 @@ exports.histories = async function (req, res, next) {
     throw new Error('未知的数据类型:' + dataType)
   }
 
-  if (result.indexOf('Err') !== -1) {
-    next(result)
-    return
-  } else {
-    try {
-      result = JSON.parse(result)
-    } catch (e) {
-      return respUtils.errResonse(res, 'json格式错误')
-    }
-  }
+  if (result.indexOf('Err') !== -1) return next(result)
 
-  // 取得分页范围内的数据
-  let pageResult = []
-
-  result.forEach(function (row, id) {
-    if (id >= startOffset && id <= endOffset) {
-      row.key = base64.encode(row.key)
-      pageResult.push(row)
-    }
-  })
-
-  res.json({
-    success: true,
-    message: '查询成功',
-    total: result.length,
-    pageSize: pageSize,
-    data: pageResult
-  })
+  result = JSON.parse(result)
+  respUtils.page(res, result, pageNO)
 }

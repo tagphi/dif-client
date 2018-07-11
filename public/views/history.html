@@ -60,7 +60,8 @@
                         <td>{{hist.mspid}}</td>
                         <td>{{hist.date}}</td>
                         <td>{{hist.type}}</td>
-                        <td><a href="/blacklist/download?dataType={{selectDataType}}&key={{hist.key}}">下载</a></td>
+                        <td><a href="/blacklist/download?path={{hist.ipfsInfo.path}}&name={{hist.ipfsInfo.name}}">下载</a>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
