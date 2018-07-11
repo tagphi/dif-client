@@ -1,3 +1,4 @@
+/* eslint-disable node/no-deprecated-api */
 /**
  * ipfs文件系统客户端
  **/
@@ -32,6 +33,10 @@ function addByBuffer (buf) {
   })
 
   return addPromise
+}
+
+function addByStr (str) {
+  return addByBuffer(new Buffer(str))
 }
 
 /**
@@ -88,6 +93,7 @@ async function getMulti (hashPaths) {
 
 exports.add = add
 exports.addByBuffer = addByBuffer
+exports.addByStr = addByStr
 exports.addMulti = addMulti
 exports.get = get
 exports.getMulti = getMulti

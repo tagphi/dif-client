@@ -5,14 +5,15 @@ let queryCC = require('../cc/query')
 let invokeCC = require('../cc/invoke')
 
 async function upload (newAddListStr, type, dataType) {
-  let filename = type + '-' + new Date().getTime()
+  let filename = type + '-' + new Date().getTime() + '.txt'
   /* 移除列表 */
   if (dataType === 'remove') {
     // 将增量数据上传到ipfs
-    let newListFileInfo = await ipfsCli.addByBuffer(new Buffer(newAddListStr))
+    let newListFileInfo = await ipfsCli.addByStr(newAddListStr)
     newListFileInfo.name = filename
     // 保存到账本
     await invokeCC('uploadRemoveList', [JSON.stringify(newListFileInfo), type])
+    return
   }
 
   /* 黑名单 */
@@ -30,9 +31,9 @@ async function upload (newAddListStr, type, dataType) {
   let mergedListStr = _mergeDeltaList(currentListStr, newAddListStr)
 
   // 将增量数据和全量数据上传到ipfs
-  let newListFileInfo = await ipfsCli.addByBuffer(new Buffer(newAddListStr))
+  let newListFileInfo = await ipfsCli.addByStr(newAddListStr)
   newListFileInfo.name = filename
-  let mergeListFileInfo = await ipfsCli.addByBuffer(new Buffer(mergedListStr))
+  let mergeListFileInfo = await ipfsCli.addByStr(mergedListStr)
   mergeListFileInfo.name = filename
 
   await invokeCC('deltaUpload', [JSON.stringify(newListFileInfo), type])
