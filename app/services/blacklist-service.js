@@ -38,6 +38,8 @@ async function merge (type) {
   for (let record in mergedFullList) {
     if (rmSetOfConsensus.has(record)) delete mergedFullList[record]
   }
+  // 将投票集合转换为列表
+  _votesSetToArr(mergedFullList)
 
   /* 上传最终的合并列表 */
   // 1 上传到ipfs
@@ -195,6 +197,16 @@ function _voteEveryRecord (listFileInfos) {
   })
 
   return votedList
+}
+
+/**
+ * 将投票集合转换为列表
+ **/
+function _votesSetToArr (mergedFullList) {
+  for (let record in mergedFullList) {
+    let votesSet = mergedFullList[record]
+    mergedFullList[record] = Array.from(votesSet)
+  }
 }
 
 exports.upload = upload
