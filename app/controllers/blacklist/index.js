@@ -85,6 +85,7 @@ exports.downloadMergedlist = async function (req, res, next) {
   if (!mergedListIpfsInfo) return respUtils.download(res, filename, '暂无数据')
 
   // 从ipfs上下载
+  mergedListIpfsInfo = JSON.parse(mergedListIpfsInfo)
   let downloadedMergedList = await ipfsCli.get(mergedListIpfsInfo.ipfsInfo.path)
   let content = downloadedMergedList.content.toString()
 
