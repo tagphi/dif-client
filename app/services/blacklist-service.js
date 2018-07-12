@@ -238,13 +238,20 @@ function _formatMergedList (mergedFullList) {
   // 记录排序
   let records = Object.keys(mergedFullList)
   records.sort()
+  let len = records.length
+  for (let i = 0; i < len; i++) {
+    let record = records[i]
 
-  records.forEach(function (record) {
     let votesSet = mergedFullList[record]
     // 投票排序
     let votes = Array.from(votesSet).sort().join(',')
-    formattedStr += record + ':' + votes + '\n'
-  })
+
+    formattedStr += record + ':' + votes
+
+    if (i !== len - 1) { // 换行
+      formattedStr += '\n'
+    }
+  }
 
   return formattedStr
 }
