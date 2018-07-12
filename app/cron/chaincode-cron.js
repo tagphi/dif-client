@@ -39,14 +39,12 @@ async function onTick () {
     // 有较新的版本，下载并安装
     await downloadAndInstallCC(remoteLatestCC)
   } catch (e) {
-    console.log('chaincode sync err：', e)
-    logger.error(e)
+    logger.error('chaincode sync err：', e)
   }
 }
 
 async function downloadAndInstallCC (remoteLatestCC) {
   let msg = '---- download new version of chaincode ----'
-  console.log(msg)
   logger.info(msg)
 
   let ccPath = path.join(__dirname, '../../chaincode/build')
@@ -60,7 +58,7 @@ async function downloadAndInstallCC (remoteLatestCC) {
   await downloader.downloadFile(remoteLatestCC.downloadUrl, ccTmpPath, saveName)
   // 解压
   await tar.xz(ccTmpPath + '/' + saveName, ccPath)
-  await installCC.installChaincode(remoteLatestCC.name, remoteLatestCC.version,remoteLatestCC.type)
+  await installCC.installChaincode(remoteLatestCC.name, remoteLatestCC.version, remoteLatestCC.type)
 
   await agent.post(ADMIN_ADDR + '/peer/reportPeerCC', {
     mspId: CONFIG.msp.id,
@@ -68,7 +66,6 @@ async function downloadAndInstallCC (remoteLatestCC) {
   }).buffer()
 
   msg = 'Successfully install chaincode ——> name：' + remoteLatestCC.name + ' version：' + remoteLatestCC.version
-  console.log(msg)
   logger.info(msg)
 }
 

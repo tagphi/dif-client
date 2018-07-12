@@ -3,6 +3,9 @@
 let ipfsCli = require('../utils/ipfs-cli')
 let queryCC = require('../cc/query')
 let invokeCC = require('../cc/invoke')
+var CONFIG = require('../../config.json')
+var agent = require('superagent-promise')(require('superagent'), Promise)
+let ADMIN_ADDR = CONFIG.site.adminAddr
 
 async function upload (newAddListStr, type, dataType) {
   let filename = type + '-' + new Date().getTime() + '.txt'
@@ -27,7 +30,7 @@ async function upload (newAddListStr, type, dataType) {
   await _uploadDeltaAndFullList(newAddListStr, filename, mergedListStr, type)
 }
 
-async function merge (type) {
+async function merge (type, latestVersion) {
   // 获取共识的移除清单
   let rmSetOfConsensus = await _getConsensusedRmSet(type)
 
@@ -46,9 +49,11 @@ async function merge (type) {
   let ipfsInfo = await ipfsCli.addByStr(JSON.stringify(mergedFullList))
   ipfsInfo.name = type + '-merged-' + new Date().getTime() + '.txt'
   // 2 上传到账本
-  let version = await queryCC('version', [])
-  version = parseInt(version) + 1
-  await invokeCC('uploadMergeList', [JSON.stringify(ipfsInfo), type, version + ''])
+  if (!latestVersion) {
+    let version = await queryCC('version', [])
+    latestVersion = parseInt(version) + 1
+  }
+  await invokeCC('uploadMergeList', [JSON.stringify(ipfsInfo), type, latestVersion + ''])
 
   // 链码中投票合并
   await invokeCC('merge', [type])
@@ -123,15 +128,17 @@ async function _getConsensusedRmSet (type) {
   let mergedRmList = _voteEveryRecord(rmListFileInfosOfOrgs)
 
   // 提取共识名单
-  return extractListOfConsensus(mergedRmList)
+  let result = await _extractListOfConsensus(mergedRmList)
+  return result
 }
 
 /**
  * 提取共识名单
  **/
-function extractListOfConsensus (mergedRmList) {
-  // TODO: 获取共识标准
-  let minRmVotesOfConsensus = 0
+async function _extractListOfConsensus (mergedRmList) {
+  // 获取共识标准
+  let minRmVotesOfConsensus = await _getConsensusLimit()
+
   let rmSetOfConsensus = new Set()
   for (let record in mergedRmList) {
     let recordVotes = mergedRmList[record].size
@@ -141,6 +148,13 @@ function extractListOfConsensus (mergedRmList) {
   }
 
   return rmSetOfConsensus
+}
+
+async function _getConsensusLimit () {
+  let resp = await agent.post(ADMIN_ADDR + '/peer/peers2').buffer()
+  let peers = JSON.parse(resp.text)
+  let limit = Math.ceil(peers.length / 3)
+  return limit
 }
 
 /**

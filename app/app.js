@@ -52,7 +52,7 @@ var router = require('./router')
   app.use(exceptionFilter)
 
   let port = appConfig.port
-  app.listen(port, () => console.log('listen ' + port + ' , server started!'))
+  app.listen(port, () => logger.info('listen ' + port + ' , server started!'))
 
   // 背书节点，启动链码同步定时器
   if (chaincodeCron.isEndorer()) {

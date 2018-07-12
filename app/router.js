@@ -6,6 +6,7 @@ var path = require('path')
 const {validationResult} = require('express-validator/check')
 
 var utils = require('./utils/resp-utils')
+let logger = require('./utils/logger-utils').logger
 
 exports.mapRoutes = function (app) {
   let dir = path.join(__dirname, 'controllers')
@@ -65,6 +66,7 @@ exports.mapRoutes = function (app) {
  **/
 function asyncWrapper (handler) {
   return async function (req, res, next) {
+    _accessLog(req)
     let errors = validationResult(req)
     if (!errors.isEmpty()) {
       utils.errResonse(res, errors.array()[0].msg) // 这个地方应该支持字段和多个错误消息
@@ -77,6 +79,19 @@ function asyncWrapper (handler) {
       }
     }
   }
+}
+
+function _accessLog (req) {
+  let info = {
+    method: req.method,
+    originalUrl: req.originalUrl,
+    name: req.username,
+    token: req.body.token,
+    query: req.query,
+    body: req.body
+  }
+
+  logger.info(JSON.stringify(info))
 }
 
 exports.asyncWrapper = asyncWrapper
