@@ -10,8 +10,6 @@ let blacklistService = require('../../services/blacklist-service')
 
 let blacklistValidator = require('../../validators/blacklist-validator')
 
-let mergeCron = require('../../cron/merge-cron')
-
 exports.url = '/blacklist'
 exports.excludeHandlers = ['upload']
 
@@ -34,19 +32,6 @@ exports.upload = async function (req, res, next) {
   await blacklistService.upload(dataListStr, type, dataType)
 
   respUtils.succResponse(res, '上传成功')
-}
-
-/**
- * 合并黑名单
- **/
-exports.validateMergeBlacklist = [
-  // check('type').not().isEmpty().withMessage('类型不能为空')
-]
-
-exports.mergeBlacklist = async function (req, res, next) {
-  // let type = req.body.type
-  mergeCron.startCron()
-  respUtils.succResponse(res, '启动成功')
 }
 
 /**

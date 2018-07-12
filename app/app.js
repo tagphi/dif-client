@@ -11,6 +11,7 @@ var blacklistController = require('./controllers/blacklist/index')
 let logger = require('./utils/logger-utils').logger
 
 let chaincodeCron = require('./cron/chaincode-cron')
+let mergeCron = require('./cron/merge-cron')
 // 上传文件表单的处理
 var multer = require('multer')
 
@@ -54,8 +55,16 @@ var router = require('./router')
   let port = appConfig.port
   app.listen(port, () => logger.info('listen ' + port + ' , server started!'))
 
+  _startCrons()
+})()
+
+function _startCrons () {
   // 背书节点，启动链码同步定时器
   if (chaincodeCron.isEndorer()) {
     chaincodeCron.startCron()
   }
-})()
+
+  setTimeout(function () {
+    mergeCron.startCron()
+  }, 120 * 1000)
+}
