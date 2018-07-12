@@ -37,16 +37,15 @@ async function merge (type, latestVersion) {
   // 获取合并的全量列表
   let mergedFullList = await _getMergedFullListOfOrgs(type)
 
-  // 剔除最终全量列表中的移除记录
-  for (let record in mergedFullList) {
-    if (rmSetOfConsensus.has(record)) delete mergedFullList[record]
-  }
+  // 剔除不符合的记录
+  _delIllegalRecords(mergedFullList, rmSetOfConsensus, type)
+
   // 将投票集合转换为列表
-  _votesSetToArr(mergedFullList)
+  let formattedMergedStr = _formatMergedList(mergedFullList)
 
   /* 上传最终的合并列表 */
   // 1 上传到ipfs
-  let ipfsInfo = await ipfsCli.addByStr(JSON.stringify(mergedFullList))
+  let ipfsInfo = await ipfsCli.addByStr(formattedMergedStr)
   ipfsInfo.name = type + '-merged-' + new Date().getTime() + '.txt'
   // 2 上传到账本
   if (!latestVersion) {
@@ -214,13 +213,40 @@ function _voteEveryRecord (listFileInfos) {
 }
 
 /**
+ *  剔除不符合的记录
+ **/
+function _delIllegalRecords (mergedFullList, rmSetOfConsensus, type) {
+  for (let record in mergedFullList) {
+    // 剔除移除列表中的记录
+    if (rmSetOfConsensus.has(record)) return delete mergedFullList[record]
+
+    // 剔除未达到指定票数的记录
+    if (type === 'ip' || type === 'default') { // 必须2个以上投票
+      let votes = mergedFullList[record].size
+      if (votes < 2) {
+        delete mergedFullList[record]
+      }
+    }
+  }
+}
+
+/**
  * 将投票集合转换为列表
  **/
-function _votesSetToArr (mergedFullList) {
-  for (let record in mergedFullList) {
+function _formatMergedList (mergedFullList) {
+  let formattedStr = ''
+  // 记录排序
+  let records = Object.keys(mergedFullList)
+  records.sort()
+
+  records.forEach(function (record) {
     let votesSet = mergedFullList[record]
-    mergedFullList[record] = Array.from(votesSet)
-  }
+    // 投票排序
+    let votes = Array.from(votesSet).sort().join(',')
+    formattedStr += record + ':' + votes + '\n'
+  })
+
+  return formattedStr
 }
 
 exports.upload = upload
