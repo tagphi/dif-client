@@ -36,7 +36,8 @@
             "maxFilesize":1024
         },
         "cron":{
-            "query_cc_install":5
+            "query_cc_install":5,
+            "merge_interval":60
         },
         "ipfs":{
             "host":"117.161.21.126",

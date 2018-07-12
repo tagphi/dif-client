@@ -9,6 +9,7 @@ let ipfsCli = require('../../utils/ipfs-cli')
 let blacklistService = require('../../services/blacklist-service')
 
 let blacklistValidator = require('../../validators/blacklist-validator')
+
 exports.url = '/blacklist'
 exports.excludeHandlers = ['upload']
 
@@ -31,19 +32,6 @@ exports.upload = async function (req, res, next) {
   await blacklistService.upload(dataListStr, type, dataType)
 
   respUtils.succResponse(res, '上传成功')
-}
-
-/**
- * 合并黑名单
- **/
-exports.validateMergeBlacklist = [
-  check('type').not().isEmpty().withMessage('类型不能为空')
-]
-
-exports.mergeBlacklist = async function (req, res, next) {
-  let type = req.body.type
-  await blacklistService.merge(type)
-  respUtils.succResponse(res, '合并成功')
 }
 
 /**
@@ -76,6 +64,18 @@ exports.validateDownloadMergedlist = [
   check('type').not().isEmpty().withMessage('type不能为空')
 ]
 
+/**
+ mergedListIpfsInfo 示例
+   {
+      "version": 2,
+      "ipfsInfo": {
+          "path": "QmX96yBwjpwjUrdX64oKkNjUSQ4d7YYyayumsT6ZBpoyiw",
+          "hash": "QmX96yBwjpwjUrdX64oKkNjUSQ4d7YYyayumsT6ZBpoyiw",
+          "size": 1060314,
+          "name": "device-merged-1531304509027.txt"
+      }
+  }
+ **/
 exports.downloadMergedlist = async function (req, res, next) {
   let type = req.query.type
   let filename = type + '-merged-' + new Date().getTime() + '.txt'
