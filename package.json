@@ -30,6 +30,7 @@
     "fabric-ca-client": "^1.1.0",
     "fabric-client": "^1.1.0",
     "fabric-shim": "^1.1.2",
+    "forever": "0.15.3",
     "fs-extra": "^2.0.0",
     "iconv-lite": "^0.4.23",
     "ipfs-api": "22.2.2",

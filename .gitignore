@@ -1,5 +1,4 @@
 node_modules/**
-**/bower_components/**
 **/.DS_Store
 package-lock.json
 **/node_modules
@@ -16,3 +15,4 @@ config.json
 lint.txt
 chaincode/
 logs
+/tmp

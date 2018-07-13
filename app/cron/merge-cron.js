@@ -61,19 +61,19 @@ function _tryToMergeTypedList (latestVersion) {
       let typedMergedVersion = await _getMergedListVersionByType(type)
       if (latestVersion !== 1 && // 初始版本1，没有任何的上传和移除操作
         latestVersion > typedMergedVersion) { // 有新的版本时候，触发合并
-        let msg = commonUtils.format('start merge【%s】:currentVersion-%d,latestVersion-%d',
+        let msg = commonUtils.format('【%s】start merge:currentVersion-%d,latestVersion-%d',
           type, typedMergedVersion, latestVersion)
         logger.info(msg)
 
         await blacklistService.merge(type, latestVersion)
 
-        msg = commonUtils.format('success merge【%s】:from %d to %d',
+        msg = commonUtils.format('【%s】success merge:from %d to %d',
           type, typedMergedVersion, latestVersion)
         logger.info(msg)
       }
 
     } catch (e) {
-      let err = commonUtils.format('failed to merge【%s】 to %d', type, latestVersion)
+      let err = commonUtils.format('【%s】failed to merge to %d', type, latestVersion)
       logger.error(err)
     }
   }
