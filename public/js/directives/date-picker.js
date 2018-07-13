@@ -20,7 +20,9 @@ app.directive('ngDatePicker', function () {
         // format: attr.hasOwnProperty('format') && attr.format ? attr.format : 'YYYY-MM-DD',
         format: 'yyyy/MM/dd',
         done: function (value, date, endDate) {
-          scope.$apply(setDateVal)
+          scope.$apply(function() {
+            setDateVal(value)
+          })
         }
       }
 
@@ -62,17 +64,11 @@ app.directive('ngDatePicker', function () {
         element.val(ngModel.$viewValue || '')
       }
 
-      // 监听输入框 时刻同步 $viewValue 和 DOM节点的value
-      element.on('blur keyup change', function () {
-        scope.$apply(setDateVal)
-      })
-
       setDateVal()
 
       // 同步 DOM节点的value 到 $viewValue
-      function setDateVal () {
-        var val = element.val()
-        ngModel.$setViewValue(val)
+      function setDateVal (value) {
+        ngModel.$setViewValue(value)
       }
     }
   }
