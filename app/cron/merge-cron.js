@@ -17,10 +17,10 @@ function startCron () {
   if (isRunning) return
   isRunning = true
   let cronTime = '*/' + CONFIG.site.cron.merge_interval + ' * * * * *'
-  new CronJob(cronTime, _onTick, null, true, CONFIG.site.cron.timezone)
+  new CronJob(cronTime, onTick, null, true, CONFIG.site.cron.timezone)
 }
 
-async function _onTick () {
+async function onTick () {
   try {
     // 取的最新版本
     let latestVersion = await queryCC('version', [])
@@ -82,3 +82,4 @@ function _tryToMergeTypedList (latestVersion) {
 }
 
 exports.startCron = startCron
+exports.onTick = onTick
