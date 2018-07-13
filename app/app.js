@@ -64,9 +64,7 @@ function _startCrons () {
     chaincodeCron.startCron()
   }
 
-  if (!appConfig.dev) {
-    setTimeout(function () {
-      mergeCron.startCron()
-    }, 120 * 1000)
-  }
+  setTimeout(function () {
+    mergeCron.startCron()
+  }, 120 * 1000)
 }
