@@ -1,5 +1,6 @@
 /* eslint-disable no-trailing-spaces,node/no-deprecated-api */
 var respUtils = require('../../utils/resp-utils')
+const CONFIG__SITE = require('../../../config').site
 var {check} = require('express-validator/check')
 
 var queryChaincode = require('../../cc/query')
@@ -9,6 +10,7 @@ let ipfsCli = require('../../utils/ipfs-cli')
 let blacklistService = require('../../services/blacklist-service')
 
 let blacklistValidator = require('../../validators/blacklist-validator')
+let mergeCron = require('../../cron/merge-cron')
 
 exports.url = '/blacklist'
 exports.excludeHandlers = ['upload']
@@ -66,15 +68,15 @@ exports.validateDownloadMergedlist = [
 
 /**
  mergedListIpfsInfo 示例
-   {
-      "version": 2,
-      "ipfsInfo": {
-          "path": "QmX96yBwjpwjUrdX64oKkNjUSQ4d7YYyayumsT6ZBpoyiw",
-          "hash": "QmX96yBwjpwjUrdX64oKkNjUSQ4d7YYyayumsT6ZBpoyiw",
-          "size": 1060314,
-          "name": "device-merged-1531304509027.txt"
-      }
-  }
+ {
+    "version": 2,
+    "ipfsInfo": {
+        "path": "QmX96yBwjpwjUrdX64oKkNjUSQ4d7YYyayumsT6ZBpoyiw",
+        "hash": "QmX96yBwjpwjUrdX64oKkNjUSQ4d7YYyayumsT6ZBpoyiw",
+        "size": 1060314,
+        "name": "device-merged-1531304509027.txt"
+    }
+}
  **/
 exports.downloadMergedlist = async function (req, res, next) {
   let type = req.query.type
@@ -132,4 +134,10 @@ exports.histories = async function (req, res, next) {
 
   result = JSON.parse(result)
   respUtils.page(res, result, pageNO)
+}
+
+exports.mergeManually = async function (req, res, next) {
+  if (CONFIG__SITE.dev) {
+    mergeCron.onTick()
+  }
 }

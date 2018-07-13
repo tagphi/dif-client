@@ -6,16 +6,23 @@ let invokeCC = require('../cc/invoke')
 var CONFIG = require('../../config.json')
 var agent = require('superagent-promise')(require('superagent'), Promise)
 let ADMIN_ADDR = CONFIG.site.adminAddr
+let logger = require('../utils/logger-utils').logger
+let commonUtils = require('util')
 
 async function upload (newAddListStr, type, dataType) {
   let filename = type + '-' + new Date().getTime() + '.txt'
   /* 移除列表 */
   if (dataType === 'remove') {
     // 将增量数据上传到ipfs
-    let newListFileInfo = await ipfsCli.addByStr(newAddListStr)
-    newListFileInfo.name = filename
+    let newRmListFileInfo = await ipfsCli.addByStr(newAddListStr)
+    newRmListFileInfo.name = filename
+    newRmListFileInfo = JSON.stringify(newRmListFileInfo)
     // 保存到账本
-    await invokeCC('uploadRemoveList', [JSON.stringify(newListFileInfo), type])
+    await invokeCC('uploadRemoveList', [newRmListFileInfo, type])
+
+    let msg = commonUtils.format('【%s】success to upload remove list:%s',
+      type, newRmListFileInfo)
+    logger.info(msg)
     return
   }
 
@@ -38,7 +45,7 @@ async function merge (type, latestVersion) {
   let mergedFullList = await _getMergedFullListOfOrgs(type)
 
   // 剔除不符合的记录
-  _delIllegalRecords(mergedFullList, rmSetOfConsensus, type)
+  mergedFullList = _delIllegalRecords(mergedFullList, rmSetOfConsensus, type)
 
   // 将投票集合转换为列表
   let formattedMergedStr = _formatMergedList(mergedFullList)
@@ -52,10 +59,14 @@ async function merge (type, latestVersion) {
     let version = await queryCC('version', [])
     latestVersion = parseInt(version) + 1
   }
-  await invokeCC('uploadMergeList', [JSON.stringify(ipfsInfo), type, latestVersion + ''])
+  ipfsInfo = JSON.stringify(ipfsInfo)
+  await invokeCC('uploadMergeList', [ipfsInfo, type, latestVersion + ''])
 
   // 链码中投票合并
   await invokeCC('merge', [type])
+  let msg = commonUtils.format('【%s】new merge list:%s',
+    type, ipfsInfo)
+  logger.info(msg)
 }
 
 async function _getCurrentFullListOfOrg (type) {
@@ -63,6 +74,10 @@ async function _getCurrentFullListOfOrg (type) {
   let currentListStr = JSON.stringify([])
 
   if (currentListInfo) {
+    let msg = commonUtils.format('【%s】current full list:$s',
+      type, currentListStr)
+    logger.info(msg)
+
     // 获取到当前的列表
     currentListInfo = JSON.parse(currentListInfo)
     let currentListFile = await ipfsCli.get(currentListInfo.path)
@@ -109,8 +124,17 @@ async function _uploadDeltaAndFullList (newAddListStr, filename, mergedListStr, 
   let mergeListFileInfo = await ipfsCli.addByStr(mergedListStr)
   mergeListFileInfo.name = filename
 
-  await invokeCC('deltaUpload', [JSON.stringify(newListFileInfo), type])
-  await invokeCC('fullUpload', [JSON.stringify(mergeListFileInfo), type])
+  newListFileInfo = JSON.stringify(newListFileInfo)
+  mergeListFileInfo = JSON.stringify(mergeListFileInfo)
+  await invokeCC('deltaUpload', [newListFileInfo, type])
+  await invokeCC('fullUpload', [mergeListFileInfo, type])
+
+  let msg = commonUtils.format('【%s】success to upload delta list:%s',
+    type, newListFileInfo)
+  logger.info(msg)
+  msg = commonUtils.format('【%s】success to upload full list:%s',
+    type, mergeListFileInfo)
+  logger.info(msg)
 }
 
 /**
@@ -119,6 +143,9 @@ async function _uploadDeltaAndFullList (newAddListStr, filename, mergedListStr, 
 async function _getConsensusedRmSet (type) {
   // 从链码获取hash列表
   let rmListOfOrgs = await queryCC('getAllOrgsRemoveList', [type])
+  let msg = commonUtils.format('【%s】current orgs remove list:%s',
+    type, rmListOfOrgs)
+  logger.info(msg)
 
   // 下载全部移除列表数据
   let rmListFileInfosOfOrgs = await _downloadDataFromIPFS(rmListOfOrgs)
@@ -161,6 +188,9 @@ async function _getConsensusLimit () {
  **/
 async function _getMergedFullListOfOrgs (type) {
   let fullListOfArgs = await queryCC('getAllOrgsList', [type])
+  let msg = commonUtils.format('【%s】current orgs full list:%s',
+    type, fullListOfArgs)
+  logger.info(msg)
 
   // 下载全量列表
   let fullListFileInfos = await _downloadDataFromIPFS(fullListOfArgs)
@@ -216,18 +246,24 @@ function _voteEveryRecord (listFileInfos) {
  *  剔除不符合的记录
  **/
 function _delIllegalRecords (mergedFullList, rmSetOfConsensus, type) {
+  let tmpMergedFullList = {}
   for (let record in mergedFullList) {
     // 剔除移除列表中的记录
-    if (rmSetOfConsensus.has(record)) return delete mergedFullList[record]
+    let isRmItem = rmSetOfConsensus.has(record)
+    if (isRmItem) continue
 
     // 剔除未达到指定票数的记录
     if (type === 'ip' || type === 'default') { // 必须2个以上投票
       let votes = mergedFullList[record].size
       if (votes < 2) {
-        delete mergedFullList[record]
+        continue
       }
     }
+
+    tmpMergedFullList[record] = mergedFullList[record]
   }
+
+  return tmpMergedFullList
 }
 
 /**
