@@ -34,7 +34,7 @@
             "::1"
         ],
         "upload": {
-            "maxFilesize":1024
+            "maxFilesize":10
         },
         "cron":{
             "query_cc_install":5,
