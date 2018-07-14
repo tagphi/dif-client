@@ -16,3 +16,4 @@ lint.txt
 chaincode/
 logs
 /tmp
+crypto-config/peerOrganizations/*
