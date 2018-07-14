@@ -17,6 +17,7 @@ function setRequestTimeout (timeout) {
 // 绑定指定的端口的地址
 function bind (host, port) {
   ipfs = require('ipfs-api')(host, port)
+  return this
 }
 
 /**
