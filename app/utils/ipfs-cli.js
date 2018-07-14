@@ -6,6 +6,14 @@ const CONFIG_IPFS = require('../../config').site.ipfs
 const ipfs = require('ipfs-api')(CONFIG_IPFS.host, CONFIG_IPFS.port)
 let fs = require('fs-extra')
 
+// 请求超时
+let requestTimeout = 60 * 1000
+
+function setRequestTimeout (timeout) {
+  requestTimeout = timeout
+  return this
+}
+
 /**
  files示例：
  {
@@ -20,9 +28,9 @@ function add (filePath) {
   return addByBuffer(fileToAdd)
 }
 
-function addByBuffer (buf) {
+function addByBuffer (buffer) {
   let addPromise = new Promise((resolve, reject) => {
-    ipfs.add(buf, function (err, files) {
+    ipfs.add(new Buffer(buffer), function (err, files) {
       if (err || typeof files === 'undefined') {
         reject(err)
       } else {
@@ -62,8 +70,14 @@ async function addMulti (filePaths) {
  { path: 'QmZAM3NBJsFSPb6c5Up8DEsYadznZytk7suJPGoqHTLbHm',
     content: <Buffer 49 20 61 6d 20 75 70 6c 6f 61 64 65 64> }
  **/
-function get (path, id) {
+function get (path, id, timeout) {
   let getPromise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      let err = new Error('request timeout:[id]-' + id + '\t[path]-' + path)
+      err.err = true
+      resolve(err)
+    }, timeout || requestTimeout)
+
     ipfs.get(path, function (err, files) {
       if (err || typeof files === 'undefined') {
         reject(err)
@@ -85,15 +99,17 @@ function get (path, id) {
  [{ path: 'QmZAM3NBJsFSPb6c5Up8DEsYadznZytk7suJPGoqHTLbHm',
  content: <Buffer 49 20 61 6d 20 75 70 6c 6f 61 64 65 64> },...]
  **/
-async function getMulti (paths, ids) {
+async function getMulti (paths, ids, timeout) {
   let allPromises = []
   paths.forEach((path, pos) => {
-    let getPromise = get(path, ids[pos])
+    let getPromise = get(path, ids[pos], timeout)
     allPromises.push(getPromise)
   })
   let files = await Promise.all(allPromises)
   return files
 }
+
+exports.setRequestTimeout = setRequestTimeout
 
 exports.add = add
 exports.addByBuffer = addByBuffer
