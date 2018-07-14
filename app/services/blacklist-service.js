@@ -69,21 +69,27 @@ async function merge (type, latestVersion) {
   logger.info(msg)
 }
 
+/**
+ * 获取该组织的该类型的当前全量列表
+ **/
 async function _getCurrentFullListOfOrg (type) {
-  let currentListInfo = await queryCC('getOrgList', [type])
-  let currentListStr = JSON.stringify([])
+  let curFullListInfo = await queryCC('getOrgList', [type])
+  let curFullListStr = JSON.stringify([])
 
-  if (currentListInfo) {
-    let msg = commonUtils.format('【%s】current full list:$s',
-      type, currentListStr)
+  if (curFullListInfo) {
+    let msg = commonUtils.format('【%s】current full list:%s',
+      type, curFullListInfo)
     logger.info(msg)
 
     // 获取到当前的列表
-    currentListInfo = JSON.parse(currentListInfo)
-    let currentListFile = await ipfsCli.get(currentListInfo.path)
-    currentListStr = currentListFile.content.toString()
+    curFullListInfo = JSON.parse(curFullListInfo)
+    let currentListFile = await ipfsCli.get(curFullListInfo.path, curFullListInfo.name)
+    if (currentListFile.err) { // 超时
+      return curFullListStr
+    }
+    curFullListStr = currentListFile.content.toString()
   }
-  return currentListStr
+  return curFullListStr
 }
 
 function _mergeDeltaList (oldListStr, deltaList) {
@@ -212,9 +218,13 @@ async function _downloadDataFromIPFS (listOfOrgs) {
     listPathsOfOrgs.push(listInfoOfOneOrg.ipfsInfo.path)
   })
 
-  // 下载全部移除列表数据
-  let rmListFileInfosOfOrgs = await ipfsCli.getMulti(listPathsOfOrgs, msgIDsOfOrgs)
-  return rmListFileInfosOfOrgs
+  // 下载全部列表数据
+  let listFileInfosOfOrgs = await ipfsCli.getMulti(listPathsOfOrgs, msgIDsOfOrgs)
+  // 剔除所有超时而无数据的文件
+  listFileInfosOfOrgs = listFileInfosOfOrgs.filter(fileInfo => {
+    return !fileInfo.err
+  })
+  return listFileInfosOfOrgs
 }
 
 /**
