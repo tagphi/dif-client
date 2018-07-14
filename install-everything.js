@@ -45,6 +45,8 @@ if (!isNaN(stdout)) {
   process.exit(1)
 }
 
+console.log("bower install ...")
+
 // 安装前端web依赖的js
 stdout = execFileSync('bower', ['install'], {'cwd': path.join(__dirname, 'public')}).toString()
 
@@ -154,3 +156,5 @@ fs.writeFileSync(path.join(__dirname, 'config.json'), config)
 let dockerConfig = fs.readFileSync(path.join(__dirname, 'docker-compose-peer.yaml.tpl')).toString()
 dockerConfig = searchNReplace(dockerConfig)
 fs.writeFileSync(path.join(__dirname, 'docker-compose-peer.yaml'), dockerConfig)
+
+console.log("done!")
