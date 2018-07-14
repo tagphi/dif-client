@@ -1,20 +1,23 @@
 /* eslint-disable node/no-deprecated-api,no-trailing-spaces */
 
-let ipfsCli = require('../utils/ipfs-cli')
 let queryCC = require('../cc/query')
 let invokeCC = require('../cc/invoke')
 var CONFIG = require('../../config.json')
+var CONFIG_IPFS = require('../../config.json').site.ipfs
 var agent = require('superagent-promise')(require('superagent'), Promise)
 let ADMIN_ADDR = CONFIG.site.adminAddr
 let logger = require('../utils/logger-utils').logger
 let commonUtils = require('util')
+
+let ipfsCliLocal = require('../utils/ipfs-cli')
+let ipfsCliRemote = require('../utils/ipfs-cli').bind(CONFIG_IPFS.host, CONFIG_IPFS.port)
 
 async function upload (newAddListStr, type, dataType) {
   let filename = type + '-' + new Date().getTime() + '.txt'
   /* 移除列表 */
   if (dataType === 'remove') {
     // 将增量数据上传到ipfs
-    let newRmListFileInfo = await ipfsCli.addByStr(newAddListStr)
+    let newRmListFileInfo = await ipfsCliRemote.addByStr(newAddListStr)
     newRmListFileInfo.name = filename
     newRmListFileInfo = JSON.stringify(newRmListFileInfo)
     // 保存到账本
@@ -52,7 +55,7 @@ async function merge (type, latestVersion) {
 
   /* 上传最终的合并列表 */
   // 1 上传到ipfs
-  let ipfsInfo = await ipfsCli.addByStr(formattedMergedStr)
+  let ipfsInfo = await ipfsCliRemote.addByStr(formattedMergedStr)
   ipfsInfo.name = type + '-merged-' + new Date().getTime() + '.txt'
   // 2 上传到账本
   if (!latestVersion) {
@@ -83,7 +86,7 @@ async function _getCurrentFullListOfOrg (type) {
 
     // 获取到当前的列表
     curFullListInfo = JSON.parse(curFullListInfo)
-    let currentListFile = await ipfsCli.get(curFullListInfo.path, curFullListInfo.name)
+    let currentListFile = await ipfsCliLocal.get(curFullListInfo.path, curFullListInfo.name)
     if (currentListFile.err) { // 超时
       return curFullListStr
     }
@@ -125,9 +128,9 @@ function _mergeDeltaList (oldListStr, deltaList) {
 }
 
 async function _uploadDeltaAndFullList (newAddListStr, filename, mergedListStr, type) {
-  let newListFileInfo = await ipfsCli.addByStr(newAddListStr)
+  let newListFileInfo = await ipfsCliRemote.addByStr(newAddListStr)
   newListFileInfo.name = filename
-  let mergeListFileInfo = await ipfsCli.addByStr(mergedListStr)
+  let mergeListFileInfo = await ipfsCliRemote.addByStr(mergedListStr)
   mergeListFileInfo.name = filename
 
   newListFileInfo = JSON.stringify(newListFileInfo)
@@ -219,7 +222,7 @@ async function _downloadDataFromIPFS (listOfOrgs) {
   })
 
   // 下载全部列表数据
-  let listFileInfosOfOrgs = await ipfsCli.getMulti(listPathsOfOrgs, msgIDsOfOrgs)
+  let listFileInfosOfOrgs = await ipfsCliLocal.getMulti(listPathsOfOrgs, msgIDsOfOrgs)
   // 剔除所有超时而无数据的文件
   listFileInfosOfOrgs = listFileInfosOfOrgs.filter(fileInfo => {
     return !fileInfo.err

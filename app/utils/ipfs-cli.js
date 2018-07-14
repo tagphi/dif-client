@@ -2,8 +2,8 @@
 /**
  * ipfs文件系统客户端
  **/
-const CONFIG_IPFS = require('../../config').site.ipfs
-const ipfs = require('ipfs-api')(CONFIG_IPFS.host, CONFIG_IPFS.port)
+// 默认的绑定本地地址和端口的实例
+let ipfs = require('ipfs-api')('localhost', 5001)
 let fs = require('fs-extra')
 
 // 请求超时
@@ -12,6 +12,11 @@ let requestTimeout = 60 * 1000
 function setRequestTimeout (timeout) {
   requestTimeout = timeout
   return this
+}
+
+// 绑定指定的端口的地址
+function bind (host, port) {
+  ipfs = require('ipfs-api')(host, port)
 }
 
 /**
@@ -109,6 +114,7 @@ async function getMulti (paths, ids, timeout) {
   return files
 }
 
+exports.bind = bind
 exports.setRequestTimeout = setRequestTimeout
 
 exports.add = add
