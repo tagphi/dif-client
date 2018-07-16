@@ -149,7 +149,12 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
           respData.data.forEach(function (row) { // 转换时间戳
             let date = new Date()
             date.setTime(row.timestamp)
-            row.date = $filter('date')(date, 'yyyy-MM-dd hh:mm:ss')
+            row.date = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss')
+          })
+
+          // 时间逆序
+          respData.data.sort(function (item1, item2) {
+            return parseInt(item2.timestamp) - parseInt(item1.timestamp)
           })
 
           $scope.showingTab.histories = respData.data
