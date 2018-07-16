@@ -146,7 +146,7 @@ exports.histories = async function (req, res, next) {
   result = JSON.parse(result)
   // 时间逆序
   result.sort(function (item1, item2) {
-    return item2.timestamp - item1.timestamp
+    return parseInt(item2.timestamp) - parseInt(item1.timestamp)
   })
 
   respUtils.page(res, result, pageNO)
