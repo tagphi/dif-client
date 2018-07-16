@@ -1,5 +1,6 @@
 /* eslint-disable no-trailing-spaces,node/no-deprecated-api */
 var respUtils = require('../../utils/resp-utils')
+var logger = require('../../utils/logger-utils').logger
 const CONFIG__SITE = require('../../../config').site
 var {check} = require('express-validator/check')
 
@@ -51,9 +52,14 @@ exports.validateDownload = [
 exports.download = async function (req, res, next) {
   let path = req.query.path
   let name = req.query.name
-  let result = await ipfsCli.get(path)
-  let content = result.content.toString()
-  respUtils.download(res, name, content)
+  try {
+    let result = await ipfsCli.get(path)
+    let content = result.content.toString()
+    respUtils.download(res, name, content)
+  } catch (e) {
+    logger.error(e)
+    respUtils.download(res, name, '下载出错')
+  }
 }
 
 /**
@@ -82,16 +88,21 @@ exports.downloadMergedlist = async function (req, res, next) {
   let type = req.query.type
   let filename = type + '-merged-' + new Date().getTime() + '.txt'
 
-  // 查询最新的合并版本信息
-  let mergedListIpfsInfo = await queryChaincode('getMergedList', [type])
-  if (!mergedListIpfsInfo) return respUtils.download(res, filename, '暂无数据')
+  try {
+    // 查询最新的合并版本信息
+    let mergedListIpfsInfo = await queryChaincode('getMergedList', [type])
+    if (!mergedListIpfsInfo) return respUtils.download(res, filename, '暂无数据')
 
-  // 从ipfs上下载
-  mergedListIpfsInfo = JSON.parse(mergedListIpfsInfo)
-  let downloadedMergedList = await ipfsCli.get(mergedListIpfsInfo.ipfsInfo.path)
-  let content = downloadedMergedList.content.toString()
+    // 从ipfs上下载
+    mergedListIpfsInfo = JSON.parse(mergedListIpfsInfo)
+    let downloadedMergedList = await ipfsCli.get(mergedListIpfsInfo.ipfsInfo.path)
+    let content = downloadedMergedList.content.toString()
 
-  respUtils.download(res, filename, content)
+    respUtils.download(res, filename, content)
+  } catch (e) {
+    logger.error(e)
+    respUtils.download(res, filename, '下载合并版本出错')
+  }
 }
 
 /**
@@ -133,6 +144,11 @@ exports.histories = async function (req, res, next) {
   if (result.indexOf('Err') !== -1) return next(result)
 
   result = JSON.parse(result)
+  // 时间逆序
+  result.sort(function (item1, item2) {
+    return item2.timestamp - item1.timestamp
+  })
+
   respUtils.page(res, result, pageNO)
 }
 
