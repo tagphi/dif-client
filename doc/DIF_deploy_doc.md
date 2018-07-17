@@ -5,7 +5,7 @@
 ```
 1. 配置2核2GHz 4G内存 500G硬盘
 2. docker-compose version > 1.20.1
-3. Docker version > 18.03.0
+3. Docker version > 1.13
 4. Node version > 8.11
 5. npm version > 5.6.0
 6. go version > 1.10.3 (仅Admin节点)
@@ -37,7 +37,7 @@ sudo npm install forever -g
 
 ```
 # 在 dif-client 目录下运行
-docker-compose -f docker-compose-peer.yaml -d
+docker-compose -f docker-compose-peer.yaml up -d
 ```
 
 ### 加入通道
