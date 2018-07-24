@@ -17,3 +17,7 @@ chaincode/
 logs
 /tmp
 crypto-config/peerOrganizations/*
+prod-backups
+mgo-backups
+scripts/
+

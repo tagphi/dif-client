@@ -152,11 +152,6 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             row.date = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss')
           })
 
-          // 时间逆序
-          respData.data.sort(function (item1, item2) {
-            return parseInt(item2.timestamp) - parseInt(item1.timestamp)
-          })
-
           $scope.showingTab.histories = respData.data
           $scope.showingTab.total = respData.total
           $scope.showingTab.pageSize = respData.pageSize

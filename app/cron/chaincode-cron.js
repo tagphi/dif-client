@@ -86,3 +86,4 @@ async function isEndorer () {
 
 exports.startCron = startCron
 exports.isEndorer = isEndorer
+exports.onTick = onTick
