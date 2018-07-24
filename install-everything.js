@@ -38,20 +38,6 @@ if (nodeVersion < 8.11) {
   process.exit(1)
 }
 
-stdout = execFileSync('bower', ['-v']).toString()
-
-if (!isNaN(stdout)) {
-  console.log('bower 未安装, 运行sudo npm install -g bower')
-  process.exit(1)
-}
-
-console.log("bower install ...")
-
-// 安装前端web依赖的js
-stdout = execFileSync('bower', ['install'], {'cwd': path.join(__dirname, 'public')}).toString()
-
-console.log(stdout)
-
 // 检查docker 环境
 stdout = execFileSync('docker', ['-v']).toString()
 
