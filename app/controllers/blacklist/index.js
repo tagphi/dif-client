@@ -31,10 +31,42 @@ exports.upload = async function (req, res, next) {
 
   // 校验
   blacklistValidator.validateUpload(dataType, type, dataListStr)
+
   // 上传
   await blacklistService.upload(dataListStr, type, dataType)
 
   respUtils.succResponse(res, '上传成功')
+}
+
+exports.getMergedRmList = async function (req, res, next) {
+  let type = req.body.type
+
+  let mergedRmList = await blacklistService.getMergedRmList(type)
+
+  let response = ''
+
+  if (mergedRmList != null) {
+    for (let record in mergedRmList) {
+      let firstOrg = true
+
+      response += record + ':'
+
+      let orgs = mergedRmList[record]
+
+      orgs.forEach(function(org) {
+        if (!firstOrg) {
+          response += ','
+          firstOrg = false
+        }
+
+        response += org
+      })
+
+      response += '\n'
+    }
+  }
+
+  respUtils.download(res, 'remove_list_' + type + 'latest.txt', response)
 }
 
 /**
@@ -52,6 +84,7 @@ exports.validateDownload = [
 exports.download = async function (req, res, next) {
   let path = req.query.path
   let name = req.query.name
+
   try {
     let result = await ipfsCli.get(path)
     let content = result.content.toString()
