@@ -14,6 +14,7 @@
         <h2 class="history-head">
             <strong>历史提交记录</strong>
             <a ng-click="openUploadDlg()" class="link-normal"><i class="icon-upload"></i> 上传</a>
+            <a ng-click="openAppealDlg()" class="link-normal"><i class="iconfont">&#xe637;</i> 申诉</a>
             <a ng-click="openDownloadDlg()" class="link-default"><i class="icon-download"></i> 合并版本</a>
         </h2>
         <section class="mainarea tab-ctn-minh">
@@ -35,7 +36,7 @@
             <nav class="history-tab">
                 <ul>
                     <li ng-click="selectTab('delta')" ng-class="{on:selectDataType=='delta'}">黑名单</li>
-                    <li ng-click="selectTab('remove')" ng-class="{on:selectDataType=='remove'}">移除列表</li>
+                    <li ng-click="selectTab('appeal')" ng-class="{on:selectDataType=='appeal'}">申诉</li>
                 </ul>
             </nav>
             <!--黑名单表-->
@@ -53,6 +54,7 @@
                         <th>日期</th>
                         <th>类型</th>
                         <th>操作</th>
+                        <th ng-if="showingTab.type=='appeal'">投票</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -60,7 +62,25 @@
                         <td>{{hist.mspid}}</td>
                         <td>{{hist.date}}</td>
                         <td>{{hist.type}}</td>
-                        <td><a href="/blacklist/download?path={{hist.ipfsInfo.path}}&name={{hist.ipfsInfo.name}}">下载</a>
+                        <td><a href="/blacklist/download?path={{hist.ipfsInfo.path}}&name={{hist.ipfsInfo.name}}">下载</a></td>
+                        <td class="position-relative" ng-if="showingTab.type=='appeal'">
+                            <span ng-click="clickVoteHand(hist,'agree')"
+                                  ng-mouseenter="mouseMoveAgainVote(hist,'agree','enter')"
+                                  ng-mouseleave="mouseMoveAgainVote(hist,'agree','leave')"
+                                  ng-class="{iconfont:true,'d-inline-block':true,'icon-vote':true,'color-green-agree':hist.voteStatus!='unvote'}">&#xe63b;</span>
+                            <span class="color-green-agree" ng-show="hist.voteStatus!='unvote'">{{hist.votes.agrees.length}}</span>
+                            <ul ng-show="hist.showAgree" class="pop-votes">
+                                <li ng-repeat="agreeOrg in hist.votes.agrees" ng-class="{'blue-light':$index%2==1}">{{agreeOrg}}</li>
+                            </ul>
+                            <span>/</span>
+                            <span ng-click="clickVoteHand(hist,'disagree')"
+                                  ng-mouseenter="mouseMoveAgainVote(hist,'disagree','enter')"
+                                  ng-mouseleave="mouseMoveAgainVote(hist,'disagree','leave')"
+                                  ng-class="{iconfont:true,'icon-vote':true,'color-red-disagree':hist.voteStatus!='unvote'}">&#xe604;</span>
+                            <span class="color-red-disagree" ng-show="hist.voteStatus!='unvote'">{{hist.votes.disagrees.length}}</span>
+                            <ul ng-show="hist.showDisagree" class="pop-votes align-right">
+                                <li ng-repeat="disagreeOrg in hist.votes.disagrees" ng-class="{'blue-light':$index%2==1}">{{disagreeOrg}}</li>
+                            </ul>
                         </td>
                     </tr>
                     </tbody>

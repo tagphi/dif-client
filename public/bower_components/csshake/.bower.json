@@ -1,0 +1,38 @@
+{
+  "name": "csshake",
+  "homepage": "http://elrumordelaluz.github.io/csshake/",
+  "authors": [
+    "Lionel <elrumordelaluz@hotmail.com>"
+  ],
+  "description": "Some CSS classes to move your DOM!",
+  "main": [
+    "dist/csshake.css",
+    "scss/csshake.css"
+  ],
+  "keywords": [
+    "csshake",
+    "css",
+    "animations",
+    "transitions",
+    "shake"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "version": "1.5.2",
+  "_release": "1.5.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "v1.5.2",
+    "commit": "d01161fe363431cbb2f755b35db6e64ff2b92c72"
+  },
+  "_source": "https://github.com/elrumordelaluz/csshake.git",
+  "_target": "^1.5.2",
+  "_originalSource": "csshake",
+  "_direct": true
+}

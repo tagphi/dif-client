@@ -22,8 +22,21 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
    */
   $scope.showingTab = {
     type: 'blacklist', // 默认黑名单
-    histories: [], // 历史数据
-    total: 0, // 总历史记录数
+    histories: [{
+      histId: '1',
+      mspid: 'RtbAsia',
+      date: '2018-06-20',
+      type: 'device',
+      voteStatus: 'unvote', // 默认并未投票 枚举值：unvote、agree、disagree
+      votes: {
+        'agrees': ['rtbasia', 'hdt'],
+        'disagrees': ['admaster']
+      },
+      showAgree: false,
+      showDisagree: false,
+      ipfsInfo: {path: ''}
+    }], // 历史数据
+    total: 10, // 总历史记录数
     pageSize: 10,
     currentPage: 1 // 页面指针
   }
@@ -51,7 +64,6 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
       initDateRange = ''
     })
   }
-
   init()
 
   /**
@@ -114,6 +126,65 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
   }
 
   /**
+   * 上传申诉对话框
+   */
+  $scope.openAppealDlg = function () {
+    let dlgOpts = {
+      template: 'views/dlgs/appeal-dlg.html',
+      scope: $scope,
+      controller: ['$scope', 'HttpService', function ($scope, HttpService) {
+        $scope.selectFileName = '...'
+        $scope.prog = 0
+        $scope.confirmActionText = '上传'
+        $scope.dataType = 'appeal'
+
+        /**
+         * 上传黑名单
+         */
+        $scope.postAppealList = function () {
+          if (!$scope.uploadFile) {
+            $scope.closeThisDialog()
+            alertMsgService.alert('请先选择文件', false)
+            return
+          }
+
+          $scope.selectType = $scope.selectType || 'ip'
+
+          let request = {
+            url: '/blacklist/upload',
+            file: $scope.uploadFile,
+            fields: {
+              'dataType': $scope.dataType,
+              'type': $scope.selectType
+            }
+          }
+
+          Upload.upload(request)
+            .progress(function (evt) {
+              var prog = parseInt(evt.loaded / evt.total * 120)
+              $scope.prog = prog
+            })
+            .success(function (data, status, headers, config) {
+              $scope.prog = 0
+              $scope.closeThisDialog()
+              if (data.success) {
+                alertMsgService.alert('提交成功', true)
+                $scope.queryHistories()
+              } else {
+                alertMsgService.alert(data.message, false)
+              }
+            })
+            .error(function () {
+              $scope.closeThisDialog()
+              alertMsgService.alert('申诉出错', false)
+            })
+        }
+      }]
+    }
+    ngDialog.open(dlgOpts)
+  }
+
+  /**
    * 下载对话框
    */
   $scope.openDownloadDlg = function () {
@@ -128,6 +199,34 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     ngDialog.open(dlgOpts)
   }
 
+  /**
+   * 投票图标被点击
+   **/
+  $scope.clickVoteHand = function (hist, action) {
+    if (hist.voteStatus === 'unvote') {
+      switch (action) {
+        case 'agree':
+          hist.voteStatus = 'agree'
+          alertMsgService.alert('success to agree', true)
+          break
+
+        case 'disagree':
+          hist.voteStatus = 'disagree'
+          alertMsgService.alert('success to disagree', false)
+          break
+      }
+    }
+  }
+
+  /**
+   * 鼠标在投票手势上的移动事件
+   **/
+  $scope.mouseMoveAgainVote = function (hist, action, mouseAction) {
+    if (hist.voteStatus !== 'unvote') {
+      hist.showAgree = (action === 'agree' && mouseAction === 'enter')
+      hist.showDisagree = (action === 'disagree' && mouseAction === 'enter')
+    }
+  }
   /**
    * 查询
    */
@@ -183,6 +282,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
    */
   $scope.selectTab = function (dataType) {
     $scope.selectDataType = dataType
+    $scope.showingTab.type = dataType
 
     // 查询
     $scope.queryHistories()
