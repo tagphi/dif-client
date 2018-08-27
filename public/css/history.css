@@ -255,12 +255,12 @@ button:hover, .link-default:hover, .link-normal:hover {
     position: absolute;
     top: 14px;
     width: 120px;
-    background: #37a1e5;
+    background: #3695d6;
     color: white;
 }
 
 .align-right{
-    right: 0px;
+    right: -60px;
 }
 
 .position-relative {
@@ -268,5 +268,14 @@ button:hover, .link-default:hover, .link-normal:hover {
 }
 
 .blue-light {
-    background: #86c0ff;
+    background: #3bb6ff;
+}
+
+.appeal-summary{
+    width: 242px;
+    height: 131px;
+    background-color: white;
+    padding: 12px;
+    font-size: 14px;
+    color: grey;
 }

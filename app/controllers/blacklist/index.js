@@ -2,9 +2,11 @@
 var respUtils = require('../../utils/resp-utils')
 var logger = require('../../utils/logger-utils').logger
 const CONFIG__SITE = require('../../../config').site
+const CONFIG__MSP = require('../../../config').msp
 var {check} = require('express-validator/check')
 
 var queryChaincode = require('../../cc/query')
+var invokeCC = require('../../cc/invoke')
 
 let ipfsCli = require('../../utils/ipfs-cli')
 
@@ -27,13 +29,20 @@ exports.validateUpload = [
 exports.upload = async function (req, res, next) {
   let type = req.body.type
   let dataType = req.body.dataType
+  let summary = req.body.summary
   let dataListStr = req.file.buffer.toString()
+
+  if (dataType === 'appeal' &&
+    (!summary || summary.length === 0)) {
+    respUtils.errResonse(res, 'summary not exists')
+    return
+  }
 
   // 校验
   blacklistValidator.validateUpload(dataType, type, dataListStr)
 
   // 上传
-  await blacklistService.upload(dataListStr, type, dataType)
+  await blacklistService.upload(dataListStr, type, dataType, summary)
 
   respUtils.succResponse(res, '上传成功')
 }
@@ -53,7 +62,7 @@ exports.getMergedRmList = async function (req, res, next) {
 
       let orgs = mergedRmList[record]
 
-      orgs.forEach(function(org) {
+      orgs.forEach(function (org) {
         if (!firstOrg) {
           response += ','
           firstOrg = false
@@ -157,6 +166,25 @@ exports.validateHistories = [
   check('endDate').not().isEmpty().withMessage('结束日期不能为空')
 ]
 
+/**
+ * 查询历史
+ 申诉历史 示例：
+ [
+ {
+     "timestamp": "1534994441172",
+     "mspid": "RTBAsia",
+     "type": "ip",
+     "details": {
+         "ipfsInfo": "{\"path\":\"QmQgfZqtQSAkoWc3iF5wk4ceUqwjnz2kiVuQ93PMaLfKLq\",\"hash\":\"QmQgfZqtQSAkoWc3iF5wk4ceUqwjnz2kiVuQ93PMaLfKLq\",\"size\":37,\"name\":\"ip-1534994432534.txt\"}",
+         "summary": "被黑了",
+         "key": "\u0000V9_VERSION\u00001534994441172\u0000RTBAsia\u0000ip\u0000",
+         "agree": [],
+         "against": [],
+         "status": 0
+     }
+ }....
+ ]
+ **/
 exports.histories = async function (req, res, next) {
   let dataType = req.body.dataType
   let startTimestamp = Date.parse(req.body.startDate) + ''
@@ -168,8 +196,8 @@ exports.histories = async function (req, res, next) {
 
   if (dataType === 'delta') {
     result = await queryChaincode('listDeltaUploadHistory', [startTimestamp, endTimestamp])
-  } else if (dataType === 'remove') {
-    result = await queryChaincode('listRemoveListUploadHistory', [startTimestamp, endTimestamp])
+  } else if (dataType === 'appeal') {
+    result = await queryChaincode('listAppeals', [startTimestamp, endTimestamp])
   } else {
     throw new Error('未知的数据类型:' + dataType)
   }
@@ -182,6 +210,19 @@ exports.histories = async function (req, res, next) {
     return parseInt(item2.timestamp) - parseInt(item1.timestamp)
   })
 
+  if (dataType === 'appeal') { // 申诉 --> 转化每一个key
+    result.map(function (appeal) {
+      let appealDetails = appeal.details
+      appeal.details.key = Buffer.from(appealDetails.key).toString('base64')
+
+      // 检查自己是否已经投过票
+      let selfMspid = CONFIG__MSP.id
+      if (appealDetails.agree.indexOf(selfMspid) !== -1 ||
+        appealDetails.against.indexOf(selfMspid) !== -1) {
+        appeal.selfVoted = true
+      }
+    })
+  }
   respUtils.page(res, result, pageNO)
 }
 
@@ -189,4 +230,22 @@ exports.mergeManually = async function (req, res, next) {
   if (CONFIG__SITE.dev) {
     mergeCron.onTick()
   }
+}
+
+/**
+ * 给指定的申诉记录投票
+ **/
+exports.validateVoteAppeal = [
+  check('key').not().isEmpty().withMessage('key不能为空'),
+  check('action').not().isEmpty().withMessage('action不能为空')
+]
+
+exports.voteAppeal = async function (req, res, next) {
+  let key = new Buffer(req.body.key, 'base64').toString()
+  let action = req.body.action
+
+  let result = await invokeCC('voteAppeal', [action, key])
+  if (result && result.indexOf('Err') !== -1) return next(result)
+
+  respUtils.succResponse(res, '投票成功')
 }

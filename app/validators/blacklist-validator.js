@@ -17,8 +17,10 @@ function __validateDataCols (dataCols, type) {
       break
 
     case 'ip':
-      let ipType = dataCols[1]
-      if (validIpTypes.indexOf(ipType) === -1) throw new Error('unknown ip type ' + ipType)
+      if (type === 'delta') {
+        let ipType = dataCols[1]
+        if (validIpTypes.indexOf(ipType) === -1) throw new Error('unknown ip type ' + ipType)
+      }
       break
 
     default:
@@ -43,7 +45,10 @@ function _validateDeltaListFormat (row, type) {
   __validateDataCols(cols, type)
 }
 
-function _validateRemoveListFormat (row, type) {
+/**
+ * 验证申诉数据格式
+ **/
+function _validateAppealListFormat (row, type) {
   let cols = row.split('\t')
   let numOfCols = cols.length
   if ((type === 'device' && numOfCols !== 3) ||
@@ -61,8 +66,8 @@ function validateUpload (dataType, type, dataListStr) {
     if (row && row.trim() !== '') { // 空行可以是最后一行 被忽略
       if (dataType === 'delta') { // 黑名单
         _validateDeltaListFormat(row, type)
-      } else {
-        _validateRemoveListFormat(row, type)
+      } else { // 申诉
+        _validateAppealListFormat(row, type)
       }
     }
   })

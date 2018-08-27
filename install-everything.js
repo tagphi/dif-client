@@ -143,4 +143,4 @@ let dockerConfig = fs.readFileSync(path.join(__dirname, 'docker-compose-peer.yam
 dockerConfig = searchNReplace(dockerConfig)
 fs.writeFileSync(path.join(__dirname, 'docker-compose-peer.yaml'), dockerConfig)
 
-console.log("done!")
+console.log('done!')

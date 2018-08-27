@@ -55,6 +55,7 @@
                         <th>类型</th>
                         <th>操作</th>
                         <th ng-if="showingTab.type=='appeal'">投票</th>
+                        <th ng-if="showingTab.type=='appeal'">申诉理由</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -62,26 +63,34 @@
                         <td>{{hist.mspid}}</td>
                         <td>{{hist.date}}</td>
                         <td>{{hist.type}}</td>
-                        <td><a href="/blacklist/download?path={{hist.ipfsInfo.path}}&name={{hist.ipfsInfo.name}}">下载</a></td>
+                        <td>
+                            <a ng-if="showingTab.type=='delta'"
+                               href="/blacklist/download?path={{hist.ipfsInfo.path}}&name={{hist.ipfsInfo.name}}">下载</a>
+                            <a ng-if="showingTab.type=='appeal'"
+                               href="/blacklist/download?path={{hist.details.ipfsInfo.path}}&name={{hist.details.ipfsInfo.name}}">下载</a>
+                        </td>
                         <td class="position-relative" ng-if="showingTab.type=='appeal'">
                             <span ng-click="clickVoteHand(hist,'agree')"
                                   ng-mouseenter="mouseMoveAgainVote(hist,'agree','enter')"
                                   ng-mouseleave="mouseMoveAgainVote(hist,'agree','leave')"
-                                  ng-class="{iconfont:true,'d-inline-block':true,'icon-vote':true,'color-green-agree':hist.voteStatus!='unvote'}">&#xe63b;</span>
-                            <span class="color-green-agree" ng-show="hist.voteStatus!='unvote'">{{hist.votes.agrees.length}}</span>
+                                  ng-class="{iconfont:true,'d-inline-block':true,'icon-vote':true,
+                                  'color-green-agree':hist.selfVoted}">&#xe63b;</span>
+                            <span class="color-green-agree" ng-show="hist.selfVoted">
+                                {{hist.details.agree.length}}</span>
                             <ul ng-show="hist.showAgree" class="pop-votes">
-                                <li ng-repeat="agreeOrg in hist.votes.agrees" ng-class="{'blue-light':$index%2==1}">{{agreeOrg}}</li>
+                                <li ng-repeat="agreeOrg in hist.details.agree" ng-class="{'blue-light':$index%2==1}">{{agreeOrg}}</li>
                             </ul>
                             <span>/</span>
                             <span ng-click="clickVoteHand(hist,'disagree')"
                                   ng-mouseenter="mouseMoveAgainVote(hist,'disagree','enter')"
                                   ng-mouseleave="mouseMoveAgainVote(hist,'disagree','leave')"
-                                  ng-class="{iconfont:true,'icon-vote':true,'color-red-disagree':hist.voteStatus!='unvote'}">&#xe604;</span>
-                            <span class="color-red-disagree" ng-show="hist.voteStatus!='unvote'">{{hist.votes.disagrees.length}}</span>
+                                  ng-class="{iconfont:true,'icon-vote':true,'color-red-disagree':hist.selfVoted}">&#xe604;</span>
+                            <span class="color-red-disagree" ng-show="hist.selfVoted">{{hist.details.against.length}}</span>
                             <ul ng-show="hist.showDisagree" class="pop-votes align-right">
-                                <li ng-repeat="disagreeOrg in hist.votes.disagrees" ng-class="{'blue-light':$index%2==1}">{{disagreeOrg}}</li>
+                                <li ng-repeat="disagreeOrg in hist.details.against" ng-class="{'blue-light':$index%2==1}">{{disagreeOrg}}</li>
                             </ul>
                         </td>
+                        <td ng-if="showingTab.type=='appeal'">{{hist.details.summary}}</td>
                     </tr>
                     </tbody>
                 </table>

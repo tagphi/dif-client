@@ -1,3 +1,4 @@
+/* eslint-disable handle-callback-err */
 app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $filter, HttpService, ngDialog, alertMsgService, Upload) {
   /**
    * 退出
@@ -18,25 +19,12 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
   let initDateRange = ''
 
   /**
-   *面板状态
+   * 面板状态
    */
   $scope.showingTab = {
-    type: 'blacklist', // 默认黑名单
-    histories: [{
-      histId: '1',
-      mspid: 'RtbAsia',
-      date: '2018-06-20',
-      type: 'device',
-      voteStatus: 'unvote', // 默认并未投票 枚举值：unvote、agree、disagree
-      votes: {
-        'agrees': ['rtbasia', 'hdt'],
-        'disagrees': ['admaster']
-      },
-      showAgree: false,
-      showDisagree: false,
-      ipfsInfo: {path: ''}
-    }], // 历史数据
-    total: 10, // 总历史记录数
+    type: 'delta', // 默认黑名单
+    histories: [], // 历史数据
+    total: 0, // 总历史记录数
     pageSize: 10,
     currentPage: 1 // 页面指针
   }
@@ -126,7 +114,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
   }
 
   /**
-   * 上传申诉对话框
+   * 上传申诉列表对话框
    */
   $scope.openAppealDlg = function () {
     let dlgOpts = {
@@ -155,7 +143,8 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             file: $scope.uploadFile,
             fields: {
               'dataType': $scope.dataType,
-              'type': $scope.selectType
+              'type': $scope.selectType,
+              'summary': $scope.summary
             }
           }
 
@@ -202,19 +191,26 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
   /**
    * 投票图标被点击
    **/
+  var isVoting = false
   $scope.clickVoteHand = function (hist, action) {
-    if (hist.voteStatus === 'unvote') {
-      switch (action) {
-        case 'agree':
-          hist.voteStatus = 'agree'
-          alertMsgService.alert('success to agree', true)
-          break
+    if (hist.details.status === 0) { // 尚未投票过
+      action = action === 'agree' ? '1' : '0'
+      let appealKey = hist.details.key
 
-        case 'disagree':
-          hist.voteStatus = 'disagree'
-          alertMsgService.alert('success to disagree', false)
-          break
-      }
+      let payload = {key: appealKey, action: action}
+      isVoting = true
+      HttpService.post('/blacklist/voteAppeal', payload)
+        .then(function (respData) {
+          if (!respData.success) return alertMsgService.alert('投票失败', false)
+
+          alertMsgService.alert('投票成功', true)
+          $scope.queryHistories($scope.showingTab.currentPage)
+          isVoting = false
+        })
+        .catch(function (err) {
+          alertMsgService.alert('投票失败', false)
+          isVoting = false
+        })
     }
   }
 
@@ -252,6 +248,12 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
           })
 
           $scope.showingTab.histories = respData.data
+          // 转换ipfs信息
+          if ($scope.showingTab.type === 'appeal') {
+            $scope.showingTab.histories.map(function (hist, id) {
+              hist.details.ipfsInfo = JSON.parse(hist.details.ipfsInfo)
+            })
+          }
           $scope.showingTab.total = respData.total
           $scope.showingTab.pageSize = respData.pageSize
         } else {
