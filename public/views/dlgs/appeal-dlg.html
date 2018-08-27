@@ -2,7 +2,7 @@
 <div class="modal-dialog" role="document">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>上传</h3>
+            <h3>申诉</h3>
         </div>
         <form name="uploadForm" class="modal-body form">
             <ul class="plist">
@@ -41,11 +41,15 @@
                     </div>
                     </span>
                 </li>
+                <li style="margin-top: 16px;">
+                    <span class="pname">申诉理由</span>
+                    <textarea ng-model="summary" class="appeal-summary" placeholder="请输入申诉理由" required></textarea>
+                </li>
             </ul>
         </form>
         <div class="modal-footer ">
             <button ng-click="closeThisDialog()" type="button" class="btn-cancel">取消</button>
-            <button ng-click="postBlacklist()" type="button" class="link-default btn-up-down-load">上传</button>
+            <button ng-click="postAppealList()" type="button" class="link-default btn-up-down-load">申诉</button>
         </div>
     </div>
 </div>

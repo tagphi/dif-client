@@ -1,3 +1,4 @@
+/* eslint-disable handle-callback-err */
 app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $filter, HttpService, ngDialog, alertMsgService, Upload) {
   /**
    * 退出
@@ -18,10 +19,10 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
   let initDateRange = ''
 
   /**
-   *面板状态
+   * 面板状态
    */
   $scope.showingTab = {
-    type: 'blacklist', // 默认黑名单
+    type: 'delta', // 默认黑名单
     histories: [], // 历史数据
     total: 0, // 总历史记录数
     pageSize: 10,
@@ -51,7 +52,6 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
       initDateRange = ''
     })
   }
-
   init()
 
   /**
@@ -114,6 +114,66 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
   }
 
   /**
+   * 上传申诉列表对话框
+   */
+  $scope.openAppealDlg = function () {
+    let dlgOpts = {
+      template: 'views/dlgs/appeal-dlg.html',
+      scope: $scope,
+      controller: ['$scope', 'HttpService', function ($scope, HttpService) {
+        $scope.selectFileName = '...'
+        $scope.prog = 0
+        $scope.confirmActionText = '上传'
+        $scope.dataType = 'appeal'
+
+        /**
+         * 上传黑名单
+         */
+        $scope.postAppealList = function () {
+          if (!$scope.uploadFile) {
+            $scope.closeThisDialog()
+            alertMsgService.alert('请先选择文件', false)
+            return
+          }
+
+          $scope.selectType = $scope.selectType || 'ip'
+
+          let request = {
+            url: '/blacklist/upload',
+            file: $scope.uploadFile,
+            fields: {
+              'dataType': $scope.dataType,
+              'type': $scope.selectType,
+              'summary': $scope.summary
+            }
+          }
+
+          Upload.upload(request)
+            .progress(function (evt) {
+              var prog = parseInt(evt.loaded / evt.total * 120)
+              $scope.prog = prog
+            })
+            .success(function (data, status, headers, config) {
+              $scope.prog = 0
+              $scope.closeThisDialog()
+              if (data.success) {
+                alertMsgService.alert('提交成功', true)
+                $scope.queryHistories()
+              } else {
+                alertMsgService.alert(data.message, false)
+              }
+            })
+            .error(function () {
+              $scope.closeThisDialog()
+              alertMsgService.alert('申诉出错', false)
+            })
+        }
+      }]
+    }
+    ngDialog.open(dlgOpts)
+  }
+
+  /**
    * 下载对话框
    */
   $scope.openDownloadDlg = function () {
@@ -128,6 +188,41 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     ngDialog.open(dlgOpts)
   }
 
+  /**
+   * 投票图标被点击
+   **/
+  var isVoting = false
+  $scope.clickVoteHand = function (hist, action) {
+    if (hist.details.status === 0) { // 尚未投票过
+      action = action === 'agree' ? '1' : '0'
+      let appealKey = hist.details.key
+
+      let payload = {key: appealKey, action: action}
+      isVoting = true
+      HttpService.post('/blacklist/voteAppeal', payload)
+        .then(function (respData) {
+          if (!respData.success) return alertMsgService.alert('投票失败', false)
+
+          alertMsgService.alert('投票成功', true)
+          $scope.queryHistories($scope.showingTab.currentPage)
+          isVoting = false
+        })
+        .catch(function (err) {
+          alertMsgService.alert('投票失败', false)
+          isVoting = false
+        })
+    }
+  }
+
+  /**
+   * 鼠标在投票手势上的移动事件
+   **/
+  $scope.mouseMoveAgainVote = function (hist, action, mouseAction) {
+    if (hist.voteStatus !== 'unvote') {
+      hist.showAgree = (action === 'agree' && mouseAction === 'enter')
+      hist.showDisagree = (action === 'disagree' && mouseAction === 'enter')
+    }
+  }
   /**
    * 查询
    */
@@ -153,6 +248,12 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
           })
 
           $scope.showingTab.histories = respData.data
+          // 转换ipfs信息
+          if ($scope.showingTab.type === 'appeal') {
+            $scope.showingTab.histories.map(function (hist, id) {
+              hist.details.ipfsInfo = JSON.parse(hist.details.ipfsInfo)
+            })
+          }
           $scope.showingTab.total = respData.total
           $scope.showingTab.pageSize = respData.pageSize
         } else {
@@ -183,6 +284,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
    */
   $scope.selectTab = function (dataType) {
     $scope.selectDataType = dataType
+    $scope.showingTab.type = dataType
 
     // 查询
     $scope.queryHistories()

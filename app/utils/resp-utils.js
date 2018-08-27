@@ -1,12 +1,13 @@
 'use strict'
 
 let CONFIG_SITE = require('../../config').site
-
+let logger = require('../utils/logger-utils').logger
 var errResonse = function (res, msg) {
   var response = {
     success: false,
     message: msg
   }
+  logger.info(response)
 
   res.json(response)
 }
@@ -16,6 +17,8 @@ var succResponse = function (res, msg, data) {
     success: true,
     message: msg
   }
+  logger.info(respData)
+
   if (data) {
     respData.data = data
   }
@@ -28,6 +31,7 @@ function download (res, filename, content) {
     'Content-Type': 'application/octet-stream',
     'Content-Disposition': 'attachment; filename=' + filename
   })
+  logger.info('downloading file:' + filename)
 
   res.send(content)
 }
@@ -42,13 +46,16 @@ function page (res, result, pageNO) {
 
   let pageResult = _getPageData(result, startOffset, endOffset)
 
-  res.json({
+  let ret = {
     success: true,
     message: '查询成功',
     total: result.length,
-    pageSize: pageSize,
-    data: pageResult
-  })
+    pageSize: pageSize
+  }
+  logger.info(ret)
+
+  ret.data = pageResult
+  res.json(ret)
 }
 
 function _getPageData (result, startOffset, endOffset) {

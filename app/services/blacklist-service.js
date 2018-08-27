@@ -1,4 +1,4 @@
-/* eslint-disable node/no-deprecated-api,no-trailing-spaces */
+/* eslint-disable node/no-deprecated-api,no-trailing-spaces,space-before-function-paren */
 
 let queryCC = require('../cc/query')
 let invokeCC = require('../cc/invoke')
@@ -12,20 +12,20 @@ let commonUtils = require('util')
 let ipfsCliLocal = require('../utils/ipfs-cli')
 let ipfsCliRemote = require('../utils/ipfs-cli').bind(CONFIG_IPFS.host, CONFIG_IPFS.port)
 
-async function upload (newAddListStr, type, dataType) {
+async function upload (newAddListStr, type, dataType, summary) {
   let filename = type + '-' + new Date().getTime() + '.txt'
 
-  /* 移除列表 */
-  if (dataType === 'remove') {
+  /* 申诉列表 */
+  if (dataType === 'appeal') {
     // 将增量数据上传到ipfs
-    let newRmListFileInfo = await ipfsCliRemote.addByStr(newAddListStr)
-    newRmListFileInfo.name = filename
-    newRmListFileInfo = JSON.stringify(newRmListFileInfo)
+    let newAppealListFileInfo = await ipfsCliRemote.addByStr(newAddListStr)
+    newAppealListFileInfo.name = filename
+    newAppealListFileInfo = JSON.stringify(newAppealListFileInfo)
     // 保存到账本
-    await invokeCC('uploadRemoveList', [newRmListFileInfo, type])
+    await invokeCC('createAppeal', [newAppealListFileInfo, type, summary])
 
     let msg = commonUtils.format('[%s] success to upload remove list:%s',
-      type, newRmListFileInfo)
+      type, newAppealListFileInfo)
     logger.info(msg)
     return
   }
@@ -35,7 +35,7 @@ async function upload (newAddListStr, type, dataType) {
   let currentListStr = await _getCurrentFullListOfOrg(type)
 
   // 合并列表
-  let mergedListStr = _mergeDeltaList(currentListStr, newAddListStr)
+  let mergedListStr = await _mergeDeltaList(type, currentListStr, newAddListStr)
 
   // 将增量数据和全量数据上传到ipfs
   await _uploadDeltaAndFullList(newAddListStr, filename, mergedListStr, type)
@@ -75,6 +75,22 @@ async function merge (type, latestVersion) {
     type, ipfsInfo))
 }
 
+async function getMergedRmList (type) {
+  // 从链码获取hash列表
+  let rmListOfOrgs = await queryCC('getMergedList', [type])
+
+  logger.info(commonUtils.format('[%s] current orgs remove list:%s',
+    type, rmListOfOrgs))
+
+  // 下载全部申诉列表数据
+  let rmListFileInfosOfOrgs = await _downloadDataFromIPFS(rmListOfOrgs)
+
+  // 合并所有组织的申诉列表的投票
+  let mergedRmList = _groupVoterByRecord(rmListFileInfosOfOrgs)
+
+  return mergedRmList
+}
+
 /**
  * 获取该组织的该类型的当前全量列表
  **/
@@ -100,14 +116,44 @@ async function _getCurrentFullListOfOrg (type) {
   return curFullListStr
 }
 
-function _mergeDeltaList (oldListStr, deltaList) {
+/**
+ * 过滤动态ip
+ **/
+async function filterDynamicIp (ipLines) {
+  let filterdIpLines = []
+
+  let numOfDeltaLines = ipLines.length
+  for (let i = 0; i < numOfDeltaLines; i++) {
+    let ipLine = ipLines[i]
+    let ip = ipLine.split('\t')[0]
+    let reqParams = {
+      key: 'HIMABID',
+      ip: ip,
+      r: '1'
+    }
+
+    let resp = await agent.get('https://api.rtbasia.com/ipscore/query', reqParams).buffer()
+    let result = JSON.parse(resp.text)[0]
+    if (result.type !== '4') { // 移动宽带
+      filterdIpLines.push(ipLine)
+    }
+  }
+
+  return filterdIpLines
+}
+
+async function _mergeDeltaList (type, oldListStr, deltaList) {
   let orgSet = new Set()
 
-  // 保存新的
-  let lines = deltaList.split('\n')
+  let deltaLines = deltaList.split('\n')
+
+  // 过滤掉动态ip
+  if (type === 'ip') {
+    deltaLines = await filterDynamicIp(deltaLines)
+  }
 
   // 合并到公司设备黑名单列表
-  lines.forEach((row) => {
+  deltaLines.forEach((row) => {
     if (!row) return
 
     let flagPos = row.lastIndexOf('\t')
@@ -133,6 +179,9 @@ function _mergeDeltaList (oldListStr, deltaList) {
   return JSON.stringify(Array.from(orgSet))
 }
 
+/**
+ * 上传增量和全量列表
+ **/
 async function _uploadDeltaAndFullList (newAddListStr, filename, mergedListStr, type) {
   let newListFileInfo = await ipfsCliRemote.addByStr(newAddListStr)
   newListFileInfo.name = filename
@@ -150,22 +199,6 @@ async function _uploadDeltaAndFullList (newAddListStr, filename, mergedListStr, 
 
   logger.info(commonUtils.format('[%s] success to upload full list:%s',
     type, mergeListFileInfo))
-}
-
-async function getMergedRmList(type) {
-  // 从链码获取hash列表
-  let rmListOfOrgs = await queryCC('getAllOrgsRemoveList', [type])
-
-  logger.info(commonUtils.format('[%s] current orgs remove list:%s',
-    type, rmListOfOrgs))
-
-  // 下载全部移除列表数据
-  let rmListFileInfosOfOrgs = await _downloadDataFromIPFS(rmListOfOrgs)
-
-  // 合并所有组织的移除列表的投票
-  let mergedRmList = _groupVoterByRecord(rmListFileInfosOfOrgs)
-
-  return mergedRmList
 }
 
 /**
@@ -191,7 +224,7 @@ async function _getConsensusedRmList (type) {
 }
 
 /**
- * 移除列表共识所需最小票数为所有成员数的1/3
+ * 申诉列表共识所需最小票数为所有成员数的1/3
  */
 async function _getQuorum () {
   let resp = await agent.post(ADMIN_ADDR + '/peer/peers2').buffer()
@@ -222,6 +255,7 @@ async function _getMergedFullListOfOrgs (type) {
  * 下载数据文件
  **/
 async function _downloadDataFromIPFS (listOfOrgs) {
+  if (listOfOrgs === '') return []
   listOfOrgs = JSON.parse(listOfOrgs)
 
   let msgIDsOfOrgs = []
@@ -269,7 +303,7 @@ function _groupVoterByRecord (listFileInfos) {
 }
 
 /**
- *  提出没达到票数的记录，和存在于移除列表中的记录
+ *  提出没达到票数的记录，和存在于申诉列表中的记录
  **/
 function _getFinnalRecords (mergedFullList, rmSetOfConsensus, type) {
   let tmpMergedFullList = {}
