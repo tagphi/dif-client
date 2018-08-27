@@ -238,6 +238,12 @@ button:hover, .link-default:hover, .link-normal:hover {
     transform: scale(1.5);
 }
 
+.scaler{}
+.scaler:hover{
+    display: inline-block;
+    transform: scale(1.5);
+}
+
 .color-green-agree {
     color: #6db76d
 }
