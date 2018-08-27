@@ -77,7 +77,7 @@ async function merge (type, latestVersion) {
 
 async function getMergedRmList (type) {
   // 从链码获取hash列表
-  let rmListOfOrgs = await queryCC('getMergedList', [type])
+  let rmListOfOrgs = await queryCC('getRemoveList', [type])
 
   logger.info(commonUtils.format('[%s] current orgs remove list:%s',
     type, rmListOfOrgs))
@@ -255,7 +255,7 @@ async function _getMergedFullListOfOrgs (type) {
  * 下载数据文件
  **/
 async function _downloadDataFromIPFS (listOfOrgs) {
-  if (listOfOrgs === '') return []
+  if (!listOfOrgs || listOfOrgs === '') return []
   listOfOrgs = JSON.parse(listOfOrgs)
 
   let msgIDsOfOrgs = []

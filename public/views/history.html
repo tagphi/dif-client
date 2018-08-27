@@ -56,6 +56,7 @@
                         <th>操作</th>
                         <th ng-if="showingTab.type=='appeal'">投票</th>
                         <th ng-if="showingTab.type=='appeal'">申诉理由</th>
+                        <th ng-if="showingTab.type=='appeal'">共识状态</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -91,6 +92,10 @@
                             </ul>
                         </td>
                         <td ng-if="showingTab.type=='appeal'">{{hist.details.summary}}</td>
+                        <td ng-if="showingTab.type=='appeal'">
+                            <span ng-class="{iconfont:true,scaler:true,
+                            'color-green-agree':hist.details.status}">&#xe60d;</span>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
