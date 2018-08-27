@@ -261,9 +261,9 @@ async function _downloadDataFromIPFS (listOfOrgs) {
   let msgIDsOfOrgs = []
   let listPathsOfOrgs = []
 
-  listOfOrgs.forEach(function (listInfoOfOneOrg) {
-    msgIDsOfOrgs.push(listInfoOfOneOrg.mspId)
-    listPathsOfOrgs.push(listInfoOfOneOrg.ipfsInfo.path)
+  listOfOrgs.forEach(function (oneOrg) {
+    msgIDsOfOrgs.push(oneOrg.mspId)
+    listPathsOfOrgs.push(oneOrg.ipfsInfo.path)
   })
 
   // 下载全部列表数据

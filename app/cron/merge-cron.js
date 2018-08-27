@@ -67,14 +67,15 @@ function _tryToMergeTypedList (latestVersion) {
 
         await blacklistService.merge(type, latestVersion)
 
-        msg = commonUtils.format('【%s】success merge:from %d to %d',
+        msg = commonUtils.format('[%s] success merge:from %d to %d',
           type, typedMergedVersion, latestVersion)
         logger.info(msg)
       }
 
     } catch (e) {
-      let err = commonUtils.format('【%s】failed to merge to %d', type, latestVersion)
+      let err = commonUtils.format('[%s] failed to merge to %d', type, latestVersion)
       logger.error(err)
+      logger.error(e)
     }
   }
 
