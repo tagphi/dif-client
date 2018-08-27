@@ -5,7 +5,6 @@ function _validateType (type) {
 function __validateDataCols (dataCols, type) {
   let validDeviceTypes = ['IMEI', 'IDFA', 'MAC', 'ANDROIDID']
   let validEncryptTypes = ['MD5', 'RAW']
-  let validIpTypes = ['1', '2', '3', '4', '5', '6', '7']
 
   let deviceType
   switch (type) {
@@ -16,14 +15,7 @@ function __validateDataCols (dataCols, type) {
       if (validDeviceTypes.indexOf(deviceType) === -1) throw new Error('unknown device type ' + deviceType)
       break
 
-    case 'ip':
-      if (type === 'delta') {
-        let ipType = dataCols[1]
-        if (validIpTypes.indexOf(ipType) === -1) throw new Error('unknown ip type ' + ipType)
-      }
-      break
-
-    default:
+    case 'default':
       deviceType = dataCols[1]
       if (validDeviceTypes.indexOf(deviceType) === -1) throw new Error('unknown device type ' + deviceType)
   }
@@ -33,7 +25,7 @@ function _validateDeltaListFormat (row, type) {
   let cols = row.split('\t')
   let numOfCols = cols.length
   if ((type === 'device' && numOfCols !== 4) ||
-    (type === 'ip' && numOfCols !== 3) ||
+    (type === 'ip' && numOfCols !== 2) ||
     (type === 'default' && numOfCols !== 3)) throw new Error('invalid format ' + row)
 
   let flagPos = row.lastIndexOf('\t')
