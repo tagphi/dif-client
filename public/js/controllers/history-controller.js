@@ -193,7 +193,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
    **/
   var isVoting = false
   $scope.clickVoteHand = function (hist, action) {
-    if (hist.details.status === 0) { // 尚未投票过
+    if (!hist.selfVoted) { // 自己尚未投票过
       action = action === 'agree' ? '1' : '0'
       let appealKey = hist.details.key
 

@@ -265,8 +265,9 @@ button:hover, .link-default:hover, .link-normal:hover {
     color: white;
 }
 
+
 .align-right{
-    right: -60px;
+    /*right: -60px;*/
 }
 
 .position-relative {
