@@ -262,8 +262,15 @@ async function _downloadDataFromIPFS (listOfOrgs) {
   let listPathsOfOrgs = []
 
   listOfOrgs.forEach(function (oneOrg) {
-    msgIDsOfOrgs.push(oneOrg.mspId)
-    listPathsOfOrgs.push(oneOrg.ipfsInfo.path)
+    let mspid = oneOrg.mspId || oneOrg.mspid
+    msgIDsOfOrgs.push(mspid)
+    let ipfsInfo
+    if (typeof oneOrg.ipfsInfo === 'string') {
+      ipfsInfo = JSON.parse(oneOrg.ipfsInfo)
+    } else {
+      ipfsInfo = oneOrg.ipfsInfo
+    }
+    listPathsOfOrgs.push(ipfsInfo.path)
   })
 
   // 下载全部列表数据
