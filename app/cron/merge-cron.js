@@ -61,7 +61,7 @@ function _tryToMergeTypedList (latestVersion) {
       let typedMergedVersion = await _getMergedListVersionByType(type)
       if (latestVersion !== 1 && // 初始版本1，没有任何的上传和移除操作
         latestVersion > typedMergedVersion) { // 有新的版本时候，触发合并
-        let msg = commonUtils.format('【%s】start merge:currentVersion-%d,latestVersion-%d',
+        let msg = commonUtils.format('[%s] start merge:currentVersion-%d,latestVersion-%d',
           type, typedMergedVersion, latestVersion)
         logger.info(msg)
 

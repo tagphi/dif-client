@@ -228,7 +228,8 @@ exports.histories = async function (req, res, next) {
 
 exports.mergeManually = async function (req, res, next) {
   if (CONFIG__SITE.dev) {
-    mergeCron.onTick()
+    let result = await mergeCron.onTick()
+    respUtils.succResponse(res, result)
   }
 }
 
