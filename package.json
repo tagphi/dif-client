@@ -17,6 +17,7 @@
   "dependencies": {
     "awesome-bootstrap-checkbox": "^1.0.1",
     "base-64": "^0.1.0",
+    "bloomfilter": "0.0.18",
     "body-parser": "^1.17.1",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.3",

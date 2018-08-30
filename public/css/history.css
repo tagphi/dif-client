@@ -286,3 +286,7 @@ button:hover, .link-default:hover, .link-normal:hover {
     font-size: 14px;
     color: grey;
 }
+
+.grp-label{
+    width: 100px;
+}

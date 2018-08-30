@@ -11,6 +11,7 @@ let commonUtils = require('util')
 
 let ipfsCliLocal = require('../utils/ipfs-cli')
 let ipfsCliRemote = require('../utils/ipfs-cli').bind(CONFIG_IPFS.host, CONFIG_IPFS.port)
+var BloomFilter = require('bloomfilter').BloomFilter
 
 async function upload (newAddListStr, type, dataType, summary) {
   let filename = type + '-' + new Date().getTime() + '.txt'
@@ -31,6 +32,12 @@ async function upload (newAddListStr, type, dataType, summary) {
   }
 
   /* 黑名单 */
+  if (type === 'publisherIp') { // 媒体ip
+    await invokeCC('uploadPublisherIp', [newAddListStr])
+    logger.info(commonUtils.format('[%s] success to upload delta list', type))
+    return
+  }
+
   // 链码查询该组织该类型的列表的全量数据的路径
   let currentListStr = await _getCurrentFullListOfOrg(type)
 
@@ -48,8 +55,15 @@ async function merge (type, latestVersion) {
   // 获取合并的全量列表
   let mergedFullList = await _getMergedFullListOfOrgs(type)
 
+  // 剔除媒体ip
+  if (type === 'ip') {
+    mergedFullList = await filterPublisherIps(mergedFullList)
+  }
+
   // 剔除不符合的记录
-  mergedFullList = _getFinnalRecords(mergedFullList, rmSetOfConsensus, type)
+  let finnalResult = _getFinnalRecords(mergedFullList, rmSetOfConsensus, type)
+  mergedFullList = finnalResult.tmpMergedFullList
+  let bloomFilter = finnalResult.bloomFilter
 
   // 将投票集合转换为列表
   let formattedMergedStr = _formatMergedList(mergedFullList)
@@ -66,7 +80,11 @@ async function merge (type, latestVersion) {
   }
 
   ipfsInfo = JSON.stringify(ipfsInfo)
-  await invokeCC('uploadMergeList', [ipfsInfo, type, latestVersion + ''])
+  if (type === 'ip') {
+    await invokeCC('uploadMergeList', [ipfsInfo, type, latestVersion + '', bloomFilter.buckets.join(',')])
+  } else {
+    await invokeCC('uploadMergeList', [ipfsInfo, type, latestVersion + ''])
+  }
 
   // 链码中投票合并
   await invokeCC('merge', [type])
@@ -89,6 +107,18 @@ async function getMergedRmList (type) {
   let mergedRmList = _groupVoterByRecord(rmListFileInfosOfOrgs)
 
   return mergedRmList
+}
+
+/**
+ * 上传ipfs和账本
+ **/
+async function _uploadIpfsAndLedger (type, newAddListStr, filename, ccFn) {
+  let newListFileInfo = await ipfsCliRemote.addByStr(newAddListStr)
+  newListFileInfo.name = filename
+  newListFileInfo = JSON.stringify(newListFileInfo)
+  await invokeCC(ccFn, [newListFileInfo, type])
+  logger.info(commonUtils.format('[%s] success to upload delta list:%s',
+    type, newListFileInfo))
 }
 
 /**
@@ -116,41 +146,10 @@ async function _getCurrentFullListOfOrg (type) {
   return curFullListStr
 }
 
-/**
- * 过滤动态ip
- **/
-async function filterDynamicIp (ipLines) {
-  let filterdIpLines = []
-
-  let numOfDeltaLines = ipLines.length
-  for (let i = 0; i < numOfDeltaLines; i++) {
-    let ipLine = ipLines[i]
-    let ip = ipLine.split('\t')[0]
-    let reqParams = {
-      key: 'HIMABID',
-      ip: ip,
-      r: '1'
-    }
-
-    let resp = await agent.get('https://api.rtbasia.com/ipscore/query', reqParams).buffer()
-    let result = JSON.parse(resp.text)[0]
-    if (result.type !== '4') { // 移动宽带
-      filterdIpLines.push(ipLine)
-    }
-  }
-
-  return filterdIpLines
-}
-
 async function _mergeDeltaList (type, oldListStr, deltaList) {
   let orgSet = new Set()
 
   let deltaLines = deltaList.split('\n')
-
-  // 过滤掉动态ip
-  if (type === 'ip') {
-    deltaLines = await filterDynamicIp(deltaLines)
-  }
 
   // 合并到公司设备黑名单列表
   deltaLines.forEach((row) => {
@@ -183,22 +182,8 @@ async function _mergeDeltaList (type, oldListStr, deltaList) {
  * 上传增量和全量列表
  **/
 async function _uploadDeltaAndFullList (newAddListStr, filename, mergedListStr, type) {
-  let newListFileInfo = await ipfsCliRemote.addByStr(newAddListStr)
-  newListFileInfo.name = filename
-  let mergeListFileInfo = await ipfsCliRemote.addByStr(mergedListStr)
-  mergeListFileInfo.name = filename
-
-  newListFileInfo = JSON.stringify(newListFileInfo)
-  mergeListFileInfo = JSON.stringify(mergeListFileInfo)
-
-  await invokeCC('deltaUpload', [newListFileInfo, type])
-  await invokeCC('fullUpload', [mergeListFileInfo, type])
-
-  logger.info(commonUtils.format('[%s] success to upload delta list:%s',
-    type, newListFileInfo))
-
-  logger.info(commonUtils.format('[%s] success to upload full list:%s',
-    type, mergeListFileInfo))
+  await _uploadIpfsAndLedger(type, newAddListStr, filename, 'deltaUpload')
+  await _uploadIpfsAndLedger(type, mergedListStr, filename, 'fullUpload')
 }
 
 /**
@@ -314,7 +299,10 @@ function _groupVoterByRecord (listFileInfos) {
  **/
 function _getFinnalRecords (mergedFullList, rmSetOfConsensus, type) {
   let tmpMergedFullList = {}
-
+  var bloomFilter = new BloomFilter(
+    8 * 256, // number of bits to allocate.
+    16 // number of hash functions.
+  )
   for (let record in mergedFullList) {
     if (rmSetOfConsensus.has(record)) continue
 
@@ -327,10 +315,33 @@ function _getFinnalRecords (mergedFullList, rmSetOfConsensus, type) {
       }
     }
 
+    // 生成ip的布隆过滤器
+    if (type === 'ip') {
+      bloomFilter.add(record)
+    }
+
     tmpMergedFullList[record] = mergedFullList[record]
   }
 
-  return tmpMergedFullList
+  return {tmpMergedFullList, bloomFilter}
+}
+
+/**
+ * 过滤掉媒体ip
+ **/
+async function filterPublisherIps(mergedIps) {
+  // eg:"["127.0.0.1"]"
+  let publisterIps = await queryCC('getPublisherIp', [])
+  if (!publisterIps) return mergedIps
+
+  publisterIps = JSON.parse(publisterIps)
+  let ips = Object.keys(mergedIps)
+  ips.forEach(function (ip) {
+    if (publisterIps.indexOf(ip) !== -1) { // 为媒体ip
+      delete mergedIps[publisterIps]
+    }
+  })
+  return mergedIps
 }
 
 /**
