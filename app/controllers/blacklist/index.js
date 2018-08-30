@@ -151,14 +151,20 @@ exports.downloadMergedlist = async function (req, res, next) {
  * 获取上传/移除历史
  *
  result 示例：
- [ { timestamp: '1531269985958',
+ [
+  {
+    timestamp: '1531269985958',
     mspid: 'RTBAsia',
     type: 'device',
     ipfsInfo:
-     { hash: 'hashhash',
+     {
+       hash: 'hashhash',
        path: 'somewhereinipfs/filename.ext',
        name: 'filename.ext',
-       size: 888 } } ]
+       size: 888
+     }
+  }
+ ]
  **/
 exports.validateHistories = [
   check('dataType').not().isEmpty().withMessage('dataType不能为空'),

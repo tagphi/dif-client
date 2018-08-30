@@ -7,13 +7,13 @@
         <form name="uploadForm" class="modal-body form">
             <ul class="plist">
                 <li>
-                    <span class="pname">类型</span>
+                    <span class="pname grp-label">类型</span>
                     <!--选择类型-->
                     <div class="upload-dlg-types">
                         <input id="type_ip" ng-model="selectType" value="ip" type="radio" class="magic-radio"
                                ng-checked="true">
                         <label for="type_ip"
-                               ng-class="{'d-inline':true,'color-lightslategray':selectType!='ip','color-blue-raido':selectType=='ip'}">ip</label>
+                               ng-class="{'d-inline':true,'color-lightslategray':selectType!='ip','color-blue-raido':selectType=='ip'}">IP</label>
 
                         <input id="type_device" ng-model="selectType" value="device" type="radio" class="magic-radio">
                         <label for="type_device"
@@ -22,10 +22,14 @@
                         <input id="type_default" ng-model="selectType" value="default" type="radio" class="magic-radio">
                         <label for="type_default"
                                ng-class="{'d-inline':true,'color-lightslategray':selectType!='default','color-blue-raido':selectType=='default'}">默认设备</label>
+
+                        <input id="type_publisherIp" ng-model="selectType" value="publisherIp" type="radio" class="magic-radio">
+                        <label for="type_publisherIp"
+                               ng-class="{'d-inline':true,'color-lightslategray':selectType!='publisherIp','color-blue-raido':selectType=='publisherIp'}">媒体IP</label>
                     </div>
                 </li>
                 <li>
-                    <span class="pname">文件</span>
+                    <span class="pname grp-label">文件</span>
                     <span class="pcon">
                     <div id="file" name="file" ng-model="uploadFile" type="file"
                          ngf-select

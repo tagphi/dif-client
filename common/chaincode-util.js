@@ -35,9 +35,8 @@ var sendNConfirm = async function (txId, channel, sendFn, validateProposalFn) {
 
   if (!endorsementOK) {
     logger.error('Did not get enough endorsement, invocation failed')
-    let prefix = 'error executing chaincode: transaction returned with failure: invalid format '
+    let prefix = 'error executing chaincode: transaction returned with failure: '
     let err = proposalResponses[0].details.split(prefix)[1]
-    err = '格式错误：' + err
     throw new Error(err)
   }
 
