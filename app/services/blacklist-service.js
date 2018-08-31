@@ -151,7 +151,7 @@ async function _mergeDeltaList (type, oldListStr, deltaList) {
 
   let deltaLines = deltaList.split('\n')
 
-  // 合并到公司设备黑名单列表
+  // 保存新的
   deltaLines.forEach((row) => {
     if (!row) return
 
@@ -162,8 +162,6 @@ async function _mergeDeltaList (type, oldListStr, deltaList) {
 
     if (flag === '1') { // 增加
       orgSet.add(record)
-    } else if (flag === '0') { // 删除
-      orgSet.delete(record)
     }
   })
 
@@ -171,7 +169,12 @@ async function _mergeDeltaList (type, oldListStr, deltaList) {
   if (oldListStr) {
     let oldList = JSON.parse(oldListStr)
     oldList.forEach((item) => {
-      orgSet.add(item)
+      // 找出新增列表中的对应记录
+      if (deltaLines.indexOf(item + '\t0') !== -1) { // 要删除
+        orgSet.delete(item)
+      } else {
+        orgSet.add(item)
+      }
     })
   }
 
@@ -225,7 +228,7 @@ async function _getQuorum () {
 async function _getMergedFullListOfOrgs (type) {
   let fullListOfArgs = await queryCC('getAllOrgsList', [type])
 
-  logger.info(commonUtils.format('[%s]current orgs full list:%s',
+  logger.info(commonUtils.format('[%s] current orgs full list:%s',
     type, fullListOfArgs))
 
   // 下载全量列表
