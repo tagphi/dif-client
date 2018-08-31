@@ -288,5 +288,5 @@ button:hover, .link-default:hover, .link-normal:hover {
 }
 
 .grp-label{
-    width: 100px;
+    width: 80px !important;
 }
