@@ -333,15 +333,14 @@ function _getFinnalRecords (mergedFullList, rmSetOfConsensus, type) {
  * 过滤掉媒体ip
  **/
 async function filterPublisherIps(mergedIps) {
-  // eg:"["127.0.0.1"]"
+  // eg:"["127.0.0.1\n127.0.0.2",]"
   let publisterIps = await queryCC('getPublisherIp', [])
   if (!publisterIps) return mergedIps
 
-  publisterIps = JSON.parse(publisterIps)
   let ips = Object.keys(mergedIps)
   ips.forEach(function (ip) {
     if (publisterIps.indexOf(ip) !== -1) { // 为媒体ip
-      delete mergedIps[publisterIps]
+      delete mergedIps[ip]
     }
   })
   return mergedIps
