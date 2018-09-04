@@ -31,8 +31,7 @@ async function onTick () {
       return
     }
 
-    let localLatestCC = localInstalledCCs.pop()
-    let localLatestCCInt = parseInt(localLatestCC.version.replace('v', ''))
+    let localLatestCCInt = _findLatestVersionOfInstalledCC(localInstalledCCs)
 
     if (remoteLatestCCVersionInt <= localLatestCCInt) return
 
@@ -41,6 +40,19 @@ async function onTick () {
   } catch (e) {
     logger.error('chaincode sync err：', e)
   }
+}
+
+/**
+ * 确定已经安装的最高版本的链码
+ [{"name":"dif","version":"v10"},{"name":"dif","version":"v11"},{"name":"dif","version":"v12"},{"name":"dif","version":"v13"},{"name":"dif","version":"v14"},{"name":"dif","version":"v9"}]
+ **/
+function _findLatestVersionOfInstalledCC (installedCCs) {
+  let latestVersion = -1
+  installedCCs.forEach(function (cc) {
+    let ccVersion = parseInt(cc.version.replace('v', ''))
+    if (ccVersion > latestVersion) latestVersion = ccVersion
+  })
+  return latestVersion
 }
 
 async function downloadAndInstallCC (remoteLatestCC) {

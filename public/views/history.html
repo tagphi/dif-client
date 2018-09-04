@@ -37,6 +37,7 @@
                 <ul>
                     <li ng-click="selectTab('delta')" ng-class="{on:selectDataType=='delta'}">黑名单</li>
                     <li ng-click="selectTab('appeal')" ng-class="{on:selectDataType=='appeal'}">申诉</li>
+                    <li ng-click="selectTab('publisherIP')" ng-class="{on:selectDataType=='publisherIP'}">媒体IP</li>
                 </ul>
             </nav>
             <!--黑名单表-->
@@ -52,7 +53,8 @@
                     <tr>
                         <th>成员名</th>
                         <th>日期</th>
-                        <th>类型</th>
+                        <th ng-if="showingTab.type!='publisherIP'">类型</th>
+                        <th ng-if="showingTab.type=='publisherIP'">记录数</th>
                         <th>操作</th>
                         <th ng-if="showingTab.type=='appeal'">投票</th>
                         <th ng-if="showingTab.type=='appeal'">申诉理由</th>
@@ -61,14 +63,17 @@
                     </thead>
                     <tbody>
                     <tr ng-repeat="hist in showingTab.histories">
-                        <td>{{hist.mspid}}</td>
+                        <td>{{hist.mspid || hist.mspId}}</td>
                         <td>{{hist.date}}</td>
-                        <td>{{hist.type}}</td>
+                        <td ng-if="showingTab.type!='publisherIP'">{{hist.type}}</td>
+                        <td ng-if="showingTab.type=='publisherIP'">{{hist.lines}}</td>
                         <td>
                             <a ng-if="showingTab.type=='delta'"
                                href="/blacklist/download?path={{hist.ipfsInfo.path}}&name={{hist.ipfsInfo.name}}">下载</a>
                             <a ng-if="showingTab.type=='appeal'"
                                href="/blacklist/download?path={{hist.details.ipfsInfo.path}}&name={{hist.details.ipfsInfo.name}}">下载</a>
+                            <a ng-if="showingTab.type=='publisherIP'"
+                               href="/blacklist/downloadPublishIPs?mspId={{hist.mspId}}">下载</a>
                         </td>
                         <td class="position-relative" ng-if="showingTab.type=='appeal'">
                             <span ng-click="clickVoteHand(hist,'agree')"
