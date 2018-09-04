@@ -148,6 +148,28 @@ exports.downloadMergedlist = async function (req, res, next) {
 }
 
 /**
+ * 下载媒体ip接口
+ **/
+exports.validateDownloadPublishIPs = [
+  check('mspId').not().isEmpty().withMessage('mspId不能为空')
+]
+
+exports.downloadPublishIPs = async function (req, res, next) {
+  let mspId = req.query.mspId
+  let filename = mspId + '-publisher-ips-' + new Date().getTime() + '.txt'
+
+  try {
+    // 查询最新的合并版本信息
+    // "127.0.0.1\n127.0.0.2"
+    let publisherIPs = await queryChaincode('getPublisherIpByMspId', [mspId])
+    respUtils.download(res, filename, publisherIPs)
+  } catch (e) {
+    logger.error(e)
+    respUtils.download(res, filename, '下载合并版本出错')
+  }
+}
+
+/**
  * 获取上传/移除历史
  *
  result 示例：
@@ -229,6 +251,30 @@ exports.histories = async function (req, res, next) {
       }
     })
   }
+  respUtils.page(res, result, pageNO)
+}
+
+/**
+ * 获取媒体ip列表
+ *
+ **/
+exports.validatePublisherIPs = [
+  check('pageNO').not().isEmpty().withMessage('pageNO不能为空')
+]
+
+exports.publisherIPs = async function (req, res, next) {
+  let pageNO = req.body.pageNO
+  // [{"mspId":"RTBAsia","timestamp":"1535951671633","lines":2}]
+  let result = await queryChaincode('getPublishers', [])
+
+  if (result.indexOf('Err') !== -1) return next(result)
+
+  result = JSON.parse(result)
+  // 时间逆序
+  result.sort(function (item1, item2) {
+    return parseInt(item2.timestamp) - parseInt(item1.timestamp)
+  })
+
   respUtils.page(res, result, pageNO)
 }
 

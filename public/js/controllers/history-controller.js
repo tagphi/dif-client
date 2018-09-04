@@ -15,7 +15,6 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
   }
 
   $scope.selectDataType = 'delta' // 默认选中的标签为
-  $scope.showblacklist = true
   let initDateRange = ''
 
   /**
@@ -238,7 +237,8 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     payload.dataType = $scope.selectDataType
     payload.pageNO = pageNO || $scope.showingTab.currentPage
 
-    HttpService.post('/blacklist/histories', payload)
+    let api = $scope.selectDataType === 'publisherIP' ? '/blacklist/publisherIPs' : '/blacklist/histories'
+    HttpService.post(api, payload)
       .then(function (respData) {
         if (respData.success) {
           respData.data.forEach(function (row) { // 转换时间戳

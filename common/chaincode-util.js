@@ -42,6 +42,14 @@ var sendNConfirm = async function (txId, channel, sendFn, validateProposalFn) {
       err = details.split(prefix)[1]
       throw new Error(err)
     }
+    // 判断是否有错误响应
+    prefix = 'transaction returned with failure:'
+    let errResp = proposalResponses[0].response
+    if (errResp && errResp.status === 500) {
+      err = errResp.message.split(prefix)[1]
+      throw new Error(err)
+    }
+
     err = proposalResponses[0].message || proposalResponses[0].msg || proposalResponses[0].err || proposalResponses[0].error
     throw new Error(err)
   }

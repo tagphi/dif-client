@@ -29,6 +29,8 @@
         "jwt_expiretime": "36000",
         "jwt_secret": "thisismysecret",
         "pageSize": 10,
+        "req_timeout":180000,
+        "res_timeout":180000,
         "whitelist":[
             "127.0.0.1",
             "::1"
