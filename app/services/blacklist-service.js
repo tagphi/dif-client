@@ -81,7 +81,8 @@ async function merge (type, latestVersion) {
 
   ipfsInfo = JSON.stringify(ipfsInfo)
   if (type === 'ip') {
-    await invokeCC('uploadMergeList', [ipfsInfo, type, latestVersion + '', bloomFilter.buckets.join(',')])
+    let bloomBuckets = JSON.stringify([].slice.call(bloomFilter.buckets))
+    await invokeCC('uploadMergeList', [ipfsInfo, type, latestVersion + '', bloomBuckets])
   } else {
     await invokeCC('uploadMergeList', [ipfsInfo, type, latestVersion + ''])
   }
