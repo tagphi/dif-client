@@ -24,18 +24,18 @@ function __validateDataCols (dataCols, type) {
 function _validateDeltaListFormat (row, type) {
   let cols = row.split('\t')
   let numOfCols = cols.length
+  
   if ((type === 'device' && numOfCols !== 4) ||
     (type === 'ip' && numOfCols !== 2) ||
-    (type === 'publisherIp' && numOfCols !== 1) ||
+    (type === 'publisherIp' && numOfCols !== 2) ||
     (type === 'default' && numOfCols !== 3)) throw new Error('invalid format ' + row)
 
-  if (type !== 'publisherIp') {
-    let flagPos = row.lastIndexOf('\t')
-    flagPos++
-    let flag = row.substring(flagPos)
-    let validFlags = ['0', '1']
-    if (validFlags.indexOf(flag) === -1) throw new Error('unknown flag ' + row)
-  }
+  let flagPos = row.lastIndexOf('\t')
+  flagPos++
+
+  let flag = row.substring(flagPos)
+  let validFlags = ['0', '1']
+  if (validFlags.indexOf(flag) === -1) throw new Error('unknown flag ' + row)
 
   __validateDataCols(cols, type)
 }
