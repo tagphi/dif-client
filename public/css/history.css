@@ -290,3 +290,17 @@ button:hover, .link-default:hover, .link-normal:hover {
 .grp-label{
     width: 80px !important;
 }
+
+
+.btn-down-crts {
+    float: right;
+    position: relative;
+    left: -50px;
+    top: 54px;
+}
+
+.down-ip{
+    position: relative !important;
+    top: 0 !important;
+    left: -182px !important;
+}
