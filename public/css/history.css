@@ -304,3 +304,7 @@ button:hover, .link-default:hover, .link-normal:hover {
     top: 0 !important;
     left: -182px !important;
 }
+
+.down-merge-type{
+    width: 50px;
+}
