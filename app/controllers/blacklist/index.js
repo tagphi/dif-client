@@ -3,7 +3,11 @@ var respUtils = require('../../utils/resp-utils')
 var logger = require('../../utils/logger-utils').logger
 const CONFIG__SITE = require('../../../config').site
 const CONFIG__MSP = require('../../../config').msp
+const CONFIG_IPFS = require('../../../config').site.ipfs
+const ADMIN_ADDR = require('../../../config').site.adminAddr
 var {check} = require('express-validator/check')
+var agent = require('superagent-promise')(require('superagent'), Promise)
+let ipfsCliRemote = require('../../utils/ipfs-cli').bind(CONFIG_IPFS.host, CONFIG_IPFS.port)
 
 var queryChaincode = require('../../cc/query')
 var invokeCC = require('../../cc/invoke')
@@ -145,6 +149,18 @@ exports.downloadMergedlist = async function (req, res, next) {
     logger.error(e)
     respUtils.download(res, filename, '下载合并版本出错')
   }
+}
+
+/**
+ * 下载真实的ip
+ **/
+exports.downloadRealIPs = async function (req, res, next) {
+  let resp = await agent.get(ADMIN_ADDR + '/peer/downloadRealIPs').buffer()
+  let realIPsInfo = JSON.parse(resp.text)
+  if (!realIPsInfo.path) return respUtils.download(res, `real-ips-${new Date().getTime()}.txt`, '暂无脱水ip')
+  let realIPFileInfo = await ipfsCliRemote.get(realIPsInfo.path, realIPsInfo.name)
+  let realIps = realIPFileInfo.content.toString()
+  respUtils.download(res, realIPsInfo.name, realIps)
 }
 
 /**
