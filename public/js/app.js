@@ -18,6 +18,10 @@ var app = angular.module('dif', [
       controller: 'HistoryController',
       templateUrl: 'views/history.html'
     })
+    .when('/merges', {
+      controller: 'MergesController',
+      templateUrl: 'views/merges.html'
+    })
 }).run(function ($rootScope, $location) {
   $rootScope.$on('$routeChangeStart', function (evt, next, current) {
     let token = sessionStorage.getItem('token')

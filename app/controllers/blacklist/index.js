@@ -271,6 +271,23 @@ exports.histories = async function (req, res, next) {
 }
 
 /**
+ * 查询合并版本历史
+ result eg:
+ [{"timestamp":"1536819883948","version":"2","ipfsInfo":{"version":2,"ipfsInfo":{"path":"QmYuNupvr9cBeSBo7sr1EgdthshSDFuXCM1Fw5oYDrgVoo","hash":"QmYuNupvr9cBeSBo7sr1EgdthshSDFuXCM1Fw5oYDrgVoo","size":260,"name":"device-merged-1536819877325.txt"}}}]
+ **/
+exports.validateMergedHistories = [
+  check('type').not().isEmpty().withMessage('type不能为空')
+]
+
+exports.mergedHistories = async function (req, res, next) {
+  let type = req.body.type
+  let result = await queryChaincode('getMergedHistoryList', [type])
+  if (result.indexOf('Err') !== -1) return next(result)
+  result = JSON.parse(result)
+  respUtils.succResponse(res, '获取成功', result)
+}
+
+/**
  * 获取媒体ip列表
  *
  **/

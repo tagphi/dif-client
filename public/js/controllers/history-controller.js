@@ -188,6 +188,13 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
   }
 
   /**
+   * 跳转到合并界面
+   **/
+  $scope.jumpToMergesPage = function () {
+    $location.path('/merges')
+  }
+
+  /**
    * 投票图标被点击
    **/
   var isVoting = false
