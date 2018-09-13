@@ -122,7 +122,7 @@ button:hover, .link-default:hover, .link-normal:hover {
     【上传对话框】
 */
 .upload-dlg-types {
-    width: 262px !important;
+    width: 600px !important;
 }
 
 .opt-common {

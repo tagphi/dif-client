@@ -188,28 +188,47 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
   }
 
   /**
+   * 跳转到合并界面
+   **/
+  $scope.jumpToMergesPage = function () {
+    $location.path('/merges')
+  }
+
+  /**
    * 投票图标被点击
    **/
   var isVoting = false
   $scope.clickVoteHand = function (hist, action) {
     if (!hist.selfVoted) { // 自己尚未投票过
-      action = action === 'agree' ? '1' : '0'
-      let appealKey = hist.details.key
+      let dlgOpts = {
+        template: 'views/dlgs/vote-dlg.html',
+        scope: $scope,
+        controller: ['$scope', 'HttpService', function ($scope, HttpService) {
+          $scope.vote = function () {
+            action = action === 'agree' ? '1' : '0'
+            let appealKey = hist.details.key
 
-      let payload = {key: appealKey, action: action}
-      isVoting = true
-      HttpService.post('/blacklist/voteAppeal', payload)
-        .then(function (respData) {
-          if (!respData.success) return alertMsgService.alert('投票失败', false)
+            let payload = {key: appealKey, action: action}
+            isVoting = true
+            HttpService.post('/blacklist/voteAppeal', payload)
+              .then(function (respData) {
+                $scope.closeThisDialog()
+                if (!respData.success) return alertMsgService.alert('投票失败', false)
 
-          alertMsgService.alert('投票成功', true)
-          $scope.queryHistories($scope.showingTab.currentPage)
-          isVoting = false
-        })
-        .catch(function (err) {
-          alertMsgService.alert('投票失败', false)
-          isVoting = false
-        })
+                alertMsgService.alert('投票成功', true)
+                $scope.queryHistories($scope.showingTab.currentPage)
+                isVoting = false
+              })
+              .catch(function (err) {
+                $scope.closeThisDialog()
+                alertMsgService.alert('投票失败', false)
+                isVoting = false
+              })
+          }
+        }]
+      }
+
+      ngDialog.open(dlgOpts)
     }
   }
 

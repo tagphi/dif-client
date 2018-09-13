@@ -1,0 +1,59 @@
+<div>
+    <header class="header">
+        <h1 class="hlogo"></h1>
+        <div class="header-title">
+            <h2>DIF</h2>
+            <p>Distributed Invalid Traffic Filter</p>
+        </div>
+    </header>
+    <section class="main">
+        <alert-msg alert-messages="alertMessages"></alert-msg>
+        <h2 class="history-head">
+            <strong>历史合并版本</strong>
+        </h2>
+        <section class="mainarea tab-ctn-minh">
+            <nav class="history-tab">
+                <ul>
+                    <li ng-click="selectTab('device')" ng-class="{on:type=='device'}">设备ID</li>
+                    <li ng-click="selectTab('ip')" ng-class="{on:type=='ip'}">IP</li>
+                    <li ng-click="selectTab('default')" ng-class="{on:type=='default'}">默认设备ID</li>
+                </ul>
+            </nav>
+            <!--黑名单表-->
+            <div class="text-center">
+                <div class="empty-container" ng-show="histories.length==0">
+                    <div class="empty-content animated rotateIn">
+                        <span class="iconfont  empty-icon">&#xe60b;</span><br>
+                        <div class="empty-label">暂无数据</div>
+                    </div>
+                </div>
+                <table class="table tc" ng-show="histories.length!=0">
+                    <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>日期</th>
+                        <th>类型</th>
+                        <th>版本</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="hist in histories">
+                        <td>{{hist.id}}</td>
+                        <td>{{hist.date}}</td>
+                        <td>{{hist.type}}</td>
+                        <td>{{hist.version}}</td>
+                        <td>
+                            <a href="/blacklist/download?path={{hist.ipfsInfo.ipfsInfo.path}}&name={{hist.ipfsInfo.ipfsInfo.name}}">下载</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </section>
+    <footer class="footer" style="position: static;bottom: auto">
+        <p>Powered by Hyperledger Fabric</p>
+        <p>© 2018-2028 RTBAsia</p>
+    </footer>
+</div>

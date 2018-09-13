@@ -15,7 +15,8 @@
             <strong>历史提交记录</strong>
             <a ng-click="openUploadDlg()" class="link-normal"><i class="icon-upload"></i> 上传</a>
             <a ng-click="openAppealDlg()" class="link-normal"><i class="iconfont">&#xe637;</i> 申诉</a>
-            <a ng-click="openDownloadDlg()" class="link-default"><i class="icon-download"></i> 合并版本</a>
+            <a ng-click="openDownloadDlg()" class="link-default"><i class="icon-download"></i> 下载合并版本</a>
+            <a ng-click="jumpToMergesPage()" class="link-default"><i class="iconfont">&#xe60c;</i> 合并历史</a>
         </h2>
         <section class="mainarea tab-ctn-minh">
             <div class="htitle">
@@ -30,14 +31,14 @@
 
                 <span class="hlink">
 					<a ng-click="queryHistories()" class="link-default"> 查询</a>
-					<a ng-click="clearDate()" class="link-normal"><i class="icon-trash"></i> 清空</a>
+
 				</span>
             </div>
             <nav class="history-tab">
                 <ul>
                     <li ng-click="selectTab('delta')" ng-class="{on:selectDataType=='delta'}">黑名单</li>
                     <li ng-click="selectTab('appeal')" ng-class="{on:selectDataType=='appeal'}">申诉</li>
-                    <li ng-click="selectTab('publisherIP')" ng-class="{on:selectDataType=='publisherIP'}">媒体IP</li>
+                    <li ng-click="selectTab('publisherIP')" ng-class="{on:selectDataType=='publisherIP'}">媒体服务器IP</li>
                 </ul>
             </nav>
             <!--黑名单表-->
@@ -113,7 +114,7 @@
             </div>
         </section>
     </section>
-    <footer class="footer">
+    <footer class="footer" style="position: static;bottom: auto">
         <p>Powered by Hyperledger Fabric</p>
         <p>© 2018-2028 RTBAsia</p>
     </footer>
