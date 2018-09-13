@@ -17,19 +17,19 @@
 
                         <input id="type_device" ng-model="selectType" value="device" type="radio" class="magic-radio">
                         <label for="type_device"
-                               ng-class="{'d-inline':true,'color-lightslategray':selectType!='device','color-blue-raido':selectType=='device'}">设备</label>
+                               ng-class="{'d-inline':true,'color-lightslategray':selectType!='device','color-blue-raido':selectType=='device'}">设备ID</label>
 
                         <input id="type_default" ng-model="selectType" value="default" type="radio" class="magic-radio">
                         <label for="type_default"
-                               ng-class="{'d-inline':true,'color-lightslategray':selectType!='default','color-blue-raido':selectType=='default'}">默认设备</label>
+                               ng-class="{'d-inline':true,'color-lightslategray':selectType!='default','color-blue-raido':selectType=='default'}">默认设备ID</label>
 
                         <input id="type_publisherIp" ng-model="selectType" value="publisherIp" type="radio" class="magic-radio">
                         <label for="type_publisherIp"
-                               ng-class="{'d-inline':true,'color-lightslategray':selectType!='publisherIp','color-blue-raido':selectType=='publisherIp'}">媒体IP</label>
+                               ng-class="{'d-inline':true,'color-lightslategray':selectType!='publisherIp','color-blue-raido':selectType=='publisherIp'}">媒体服务器IP</label>
                     </div>
                 </li>
                 <li>
-                    <span class="pname grp-label">文件</span>
+                    <span class="pname grp-label" style="width: 45px !important;">文件</span>
                     <span class="pcon">
                     <div id="file" name="file" ng-model="uploadFile" type="file"
                          ngf-select

@@ -7,9 +7,9 @@
         <form name="downloadForm" class="modal-body form">
             <ul class="plist">
                 <li>
-                    <span class="pname" style="width: 70px">类型</span>
+                    <span class="pname" style="width: 44px;">类型</span>
                     <!--选择类型-->
-                    <div class="pname upload-dlg-types" style="width: 300px !important;">
+                    <div class="pname upload-dlg-types" style="width: 334px !important;">
                         <input id="type_ip" ng-model="dataType" value="ip" type="radio" class="magic-radio"
                                ng-checked="true">
                         <label for="type_ip"
@@ -17,16 +17,16 @@
 
                         <input id="type_device" ng-model="dataType" value="device" type="radio" class="magic-radio">
                         <label for="type_device"
-                               ng-class="{'d-inline':true,'color-lightslategray':dataType!='device','color-blue-raido':dataType=='device'}">设备</label>
+                               ng-class="{'d-inline':true,'color-lightslategray':dataType!='device','color-blue-raido':dataType=='device'}">设备ID</label>
 
                         <input id="type_default" ng-model="dataType" value="default" type="radio" class="magic-radio">
                         <label for="type_default"
-                               ng-class="{'d-inline':true,'color-lightslategray':dataType!='default','color-blue-raido':dataType=='default'}">默认设备</label>
+                               ng-class="{'d-inline':true,'color-lightslategray':dataType!='default','color-blue-raido':dataType=='default'}">默认设备ID</label>
                         <input id="type_realip" ng-model="dataType" value="realip" type="radio" class="magic-radio">
                         <label for="type_realip"
                                ng-class="{'d-inline':true,
                                'color-lightslategray':dataType!='realip',
-                               'color-blue-raido':dataType=='realip'}">IP(脱水)</label>
+                               'color-blue-raido':dataType=='realip'}">IP(除动态IP)</label>
                     </div>
                 </li>
             </ul>
