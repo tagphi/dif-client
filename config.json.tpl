@@ -29,8 +29,8 @@
         "jwt_expiretime": "36000",
         "jwt_secret": "thisismysecret",
         "pageSize": 10,
-        "req_timeout":180000,
-        "res_timeout":180000,
+        "req_timeout":3600000,
+        "res_timeout":3600000,
         "whitelist":[
             "127.0.0.1",
             "::1"
@@ -44,7 +44,8 @@
         },
         "ipfs":{
             "host":"117.161.21.126",
-            "port":5001
+            "port":5001,
+            "timeout":3600
         }
     },
     "channel_name": "difchannel"
