@@ -24,9 +24,7 @@ async function onTick () {
   try {
     // 取的最新版本
     let latestVersion = await queryCC('version', [])
-    latestVersion = latestVersion || '0'
-    latestVersion = latestVersion === 'NaN' ? '0' : latestVersion
-    latestVersion = parseInt(latestVersion) + 1
+    latestVersion = parseInt(latestVersion)
 
     // 取的各类型的最新合并列表，并根据版本决定是否合并
     DATA_TYPES.forEach(_tryToMergeTypedList(latestVersion))
@@ -62,7 +60,7 @@ function _tryToMergeTypedList (latestVersion) {
     try {
       let typedMergedVersion = await _getMergedListVersionByType(type)
 
-      if (latestVersion !== 1 && // 初始版本1，没有任何的上传和移除操作
+      if (latestVersion !== 0 && // 初始版本1，没有任何的上传和移除操作
         latestVersion > typedMergedVersion) { // 有新的版本时候，触发合并
         let msg = commonUtils.format('[%s] start merge:currentVersion-%d,latestVersion-%d',
           type, typedMergedVersion, latestVersion)
