@@ -7,6 +7,13 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
   $scope.type = 'device'
 
   /**
+   * 返回
+   **/
+  $scope.back = function () {
+    window.history.back()
+  }
+
+  /**
    * 查询合并历史
    **/
   $scope.queryHists = function (type) {

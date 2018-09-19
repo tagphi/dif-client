@@ -5,9 +5,10 @@
 // 默认的绑定本地地址和端口的实例
 let ipfs = require('ipfs-api')('localhost', 5001)
 let fs = require('fs-extra')
+const CONFIG_IPFS = require('../../config').site.ipfs
 
 // 请求超时
-let requestTimeout = 60 * 1000
+let requestTimeout = CONFIG_IPFS.timeout * 1000
 
 function setRequestTimeout (timeout) {
   requestTimeout = timeout
