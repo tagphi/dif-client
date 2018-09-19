@@ -7,7 +7,7 @@ const CONFIG_IPFS = require('../../../config').site.ipfs
 const ADMIN_ADDR = require('../../../config').site.adminAddr
 var {check} = require('express-validator/check')
 var agent = require('superagent-promise')(require('superagent'), Promise)
-let ipfsCliRemote = require('../../utils/ipfs-cli').bind(CONFIG_IPFS.host, CONFIG_IPFS.port)
+let ipfsCliRemote = require('../../utils/ipfs-cli-remote').bind(CONFIG_IPFS.host, CONFIG_IPFS.port)
 
 var queryChaincode = require('../../cc/query')
 var invokeCC = require('../../cc/invoke')
