@@ -10,7 +10,7 @@ let logger = require('../utils/logger-utils').logger
 let commonUtils = require('util')
 
 let ipfsCliLocal = require('../utils/ipfs-cli')
-let ipfsCliRemote = require('../utils/ipfs-cli').bind(CONFIG_IPFS.host, CONFIG_IPFS.port)
+let ipfsCliRemote = require('../utils/ipfs-cli-remote').bind(CONFIG_IPFS.host, CONFIG_IPFS.port)
 var BloomFilter = require('bloomfilter').BloomFilter
 
 async function upload (newAddListStr, type, dataType, summary) {
@@ -76,7 +76,7 @@ async function merge (type, latestVersion) {
   // 2 上传到账本
   if (!latestVersion) {
     let version = await queryCC('version', [])
-    latestVersion = parseInt(version) + 1
+    latestVersion = parseInt(version)
   }
 
   ipfsInfo = JSON.stringify(ipfsInfo)
