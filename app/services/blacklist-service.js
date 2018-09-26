@@ -191,9 +191,7 @@ async function _mergeDeltaList (type, oldListStr, deltaList) {
     let oldList = JSON.parse(oldListStr)
     oldList.forEach((item, id) => {
       // 找出新增列表中的对应记录
-      if (toRmSet.has(item)) { // 要删除
-        orgSet.delete(item)
-      } else {
+      if (!toRmSet.has(item)) { // 不在移除集合中
         orgSet.add(item)
       }
     })
