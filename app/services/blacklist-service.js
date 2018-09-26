@@ -16,6 +16,8 @@ var BloomFilter = require('bloomfilter').BloomFilter
 async function upload (newAddListStr, type, dataType, summary) {
   let filename = type + '-' + new Date().getTime() + '.txt'
 
+  let startTime = new Date().getTime()
+  logger.info(`start to upload ${type} delta list:${filename}`)
   /* 申诉列表 */
   if (dataType === 'appeal') {
     // 将增量数据上传到ipfs
@@ -40,12 +42,17 @@ async function upload (newAddListStr, type, dataType, summary) {
 
   // 链码查询该组织该类型的列表的全量数据的路径
   let currentListStr = await _getCurrentFullListOfOrg(type)
+  let endTimeOfFulllist = new Date().getTime()
+  logger.info(`time to load ${type} full list ${endTimeOfFulllist - startTime}`)
 
   // 合并列表
   let mergedListStr = await _mergeDeltaList(type, currentListStr, newAddListStr)
+  let endTimeOfMergeList = new Date().getTime()
+  logger.info(`time to merge delta and full list:${endTimeOfMergeList - endTimeOfFulllist}`)
 
   // 将增量数据和全量数据上传到ipfs
   await _uploadDeltaAndFullList(newAddListStr, filename, mergedListStr, type)
+  logger.info(`end to upload ${type} delta list:${filename}`)
 }
 
 async function merge (type, latestVersion) {
@@ -114,9 +121,18 @@ async function getMergedRmList (type) {
  * 上传ipfs和账本
  **/
 async function _uploadIpfsAndLedger (type, newAddListStr, filename, ccFn) {
-  let newListFileInfo = await ipfsCliRemote.addByStr(newAddListStr)
+  logger.info(`start to upload ${type}[${ccFn}] to ipfs:${filename}`)
+  let startTime = new Date().getTime()
+  let newListFileInfo = await ipfsCliRemote.addByStr(newAddListStr, {
+    progress: function (uploadedSize) {
+      uploadedSize = Math.floor(uploadedSize / (1024 * 1024))
+      logger.info(`progress of uploading ${type}[${ccFn}]-${filename} to ipfs:${uploadedSize}`)
+    }
+  })
   newListFileInfo.name = filename
   newListFileInfo = JSON.stringify(newListFileInfo)
+  let endTime = new Date().getTime()
+  logger.info(`end to upload ${type}[${ccFn}]-${filename} to ipfs:${endTime - startTime}`)
   await invokeCC(ccFn, [newListFileInfo, type])
   logger.info(commonUtils.format('[%s] success to upload delta list:%s',
     type, newListFileInfo))
@@ -151,6 +167,8 @@ async function _mergeDeltaList (type, oldListStr, deltaList) {
   let orgSet = new Set()
 
   let deltaLines = deltaList.split('\n')
+  // 要删除的记录的集合
+  let toRmSet = new Set()
 
   // 保存新的
   deltaLines.forEach((row) => {
@@ -163,15 +181,17 @@ async function _mergeDeltaList (type, oldListStr, deltaList) {
 
     if (flag === '1') { // 增加
       orgSet.add(record)
+    } else {
+      toRmSet.add(record)
     }
   })
 
   // 保存旧的
   if (oldListStr) {
     let oldList = JSON.parse(oldListStr)
-    oldList.forEach((item) => {
+    oldList.forEach((item, id) => {
       // 找出新增列表中的对应记录
-      if (deltaLines.indexOf(item + '\t0') !== -1) { // 要删除
+      if (toRmSet.has(item)) { // 要删除
         orgSet.delete(item)
       } else {
         orgSet.add(item)

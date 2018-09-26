@@ -30,14 +30,14 @@ function bind (host, port) {
     origin: '/Users/kiky/kk/js-ipfs-api/test/input/upload2'
   }
  **/
-function add (filePath) {
+function add (filePath, opts) {
   let fileToAdd = fs.readFileSync(filePath)
-  return addByBuffer(fileToAdd)
+  return addByBuffer(fileToAdd, opts)
 }
 
-function addByBuffer (buffer) {
+function addByBuffer (buffer, opts) {
   let addPromise = new Promise((resolve, reject) => {
-    ipfs.add(new Buffer(buffer), function (err, files) {
+    ipfs.add(new Buffer(buffer), opts, function (err, files) {
       if (err || typeof files === 'undefined') {
         reject(err)
       } else {
@@ -50,8 +50,8 @@ function addByBuffer (buffer) {
   return addPromise
 }
 
-function addByStr (str) {
-  return addByBuffer(new Buffer(str))
+function addByStr (str, opts) {
+  return addByBuffer(new Buffer(str), opts)
 }
 
 /**
