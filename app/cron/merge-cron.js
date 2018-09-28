@@ -48,7 +48,7 @@ async function onTick () {
  **/
 async function _getMergedListVersionByType (type) {
   // 查询最新的合并版本信息
-  let mergedListIpfsInfo = await queryCC('getMergedList', [type])
+  let mergedListIpfsInfo = await queryCC('getOrgMergeList', [type])
   if (!mergedListIpfsInfo) return -1
 
   mergedListIpfsInfo = JSON.parse(mergedListIpfsInfo)
