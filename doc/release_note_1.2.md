@@ -22,13 +22,13 @@
 
 ## 升级部署
 
-* 从Github上pull最新的代码。
-
 * 停掉peer容器并清空volume(非常重要！)
 
   ```shell
   docker-compose -f docker-compose-peer.yaml down --volumes
   ```
+
+* 从Github上pull最新的代码。
 
 * 生成配置，安装node modules。（请将下面命令中的MSPID替换为各自成员的mspid）
 
