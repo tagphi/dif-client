@@ -3,7 +3,7 @@
 let CronJob = require('cron').CronJob
 
 let CONFIG = require('../../config')
-let logger = require('../utils/logger-utils').logger
+let logger = require('../utils/logger-utils').logger()
 let commonUtils = require('util')
 
 let blacklistService = require('../services/blacklist-service')
