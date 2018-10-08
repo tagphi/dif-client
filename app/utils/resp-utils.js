@@ -1,13 +1,13 @@
 'use strict'
 
 let CONFIG_SITE = require('../../config').site
-let logger = require('../utils/logger-utils').logger
+let logger = require('../utils/logger-utils').logger()
 var errResonse = function (res, msg) {
   var response = {
     success: false,
     message: msg
   }
-  logger.info(response)
+  logger.info(JSON.stringify(response))
 
   res.json(response)
 }
@@ -17,7 +17,7 @@ var succResponse = function (res, msg, data) {
     success: true,
     message: msg
   }
-  logger.info(respData)
+  logger.info(JSON.stringify(respData))
 
   if (data) {
     respData.data = data
@@ -52,7 +52,7 @@ function page (res, result, pageNO) {
     total: result.length,
     pageSize: pageSize
   }
-  logger.info(ret)
+  logger.info(JSON.stringify(ret))
 
   ret.data = pageResult
   res.json(ret)

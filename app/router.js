@@ -6,7 +6,7 @@ var path = require('path')
 const {validationResult} = require('express-validator/check')
 
 var utils = require('./utils/resp-utils')
-let logger = require('./utils/logger-utils').logger
+let logger = require('./utils/logger-utils').logger()
 
 exports.mapRoutes = function (app) {
   let dir = path.join(__dirname, 'controllers')

@@ -9,7 +9,7 @@ let queryCC = require('../../query-installed-chaincode')
 let path = require('path')
 let installCC = require('../../install-chaincode')
 let tar = require('../utils/tar-utils')
-let logger = require('../utils/logger-utils').logger
+let logger = require('../utils/logger-utils').logger()
 
 function startCron () {
   let cronTime = '*/' + CONFIG.site.cron.query_cc_install + ' * * * * *'

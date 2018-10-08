@@ -1,33 +1,91 @@
 /**
- * 全局的日志管理工具
+ * 【日志服务】
  **/
-var log4js = require('log4js')
-let path = require('path')
-let fs = require('fs-extra')
 
-let appDir = path.join(__dirname, '../')
+const log4js = require('log4js')
+const path = require('path')
+
+// 支持的日志界别
+const levels = {
+  'trace': log4js.levels.TRACE,
+  'debug': log4js.levels.DEBUG,
+  'info': log4js.levels.INFO,
+  'warn': log4js.levels.WARN,
+  'error': log4js.levels.ERROR,
+  'fatal': log4js.levels.FATAL
+}
 
 log4js.configure({
-  levels: {
-    'log_date': 'debug'
+  appenders: {
+    console: {'type': 'console'}, // 控制台输出
+    access: { // 访问日志
+      type: 'dateFile',
+      filename: path.join(__dirname, '../logs/access/acc'), // 需要手动创建此文件夹
+      pattern: 'yyyy-MM-dd.log',
+      alwaysIncludePattern: true // 包含模型
+    },
+    error: { // 访问日志
+      type: 'dateFile',
+      filename: path.join(__dirname, '../logs/error/err'), // 需要手动创建此文件夹
+      pattern: '-yyyy-MM-dd.log',
+      alwaysIncludePattern: true // 包含模型
+    }
   },
-  appenders: [{
-    type: 'console',
-    category: 'log_date'
-  }, {
-    type: 'dateFile',
-    filename: appDir + 'logs/log', // 您要写入日志文件的路径
-    alwaysIncludePattern: true, // （默认为false） - 将模式包含在当前日志文件的名称以及备份中
-    pattern: '-yyyy-MM-dd.log', // （可选，默认为.yyyy-MM-dd） - 用于确定何时滚动日志的模式。格式:.yyyy-MM-dd-hh:mm:ss.log
-    encoding: 'utf-8', // default "utf-8"，文件的编码
-    category: 'log_date'
-  }],
-  replaceConsole: true
+  categories: {
+    default: { // debug模式
+      appenders: ['console', 'access'],
+      level: 'debug'
+    },
+    err: {
+      appenders: ['console', 'error'],
+      level: 'error'
+    }
+  },
+  replaceConsole: true // 替换 console.log
 })
 
-;(function init () {
-  let logDir = path.join(__dirname, '../logs')
-  fs.ensureDirSync(logDir)
-})()
+exports.logger = function () {
+  let stackInfos = stackInfo()
+  var logger = log4js.getLogger(stackInfos.file)
 
-module.exports.logger = log4js.getLogger('log_date')
+  // 要包装的日志级别
+  logger.info = logWrapper(logger, 'info')
+  logger.debug = logWrapper(logger, 'debug')
+  logger.error = logWrapper(logger, 'error')
+  return logger
+}
+
+/**
+ * 日志函数包装器
+ *
+ * @param level {string} 要包装的日志级别，如debug,info等
+ **/
+function logWrapper (logger, level) {
+  logger['old' + level] = logger[level]
+  return function (msg) {
+    let stackInfos = stackInfo()
+    logger['old' + level](` [${stackInfos.line}:${stackInfos.pos}] ` + msg)
+  }
+}
+
+/**
+ * 追踪日志输出文件名,方法名,行号等信息
+ * @returns Object
+ */
+function stackInfo () {
+  var path = require('path')
+  var stackReg = /at\s+(.*)\s+\((.*):(\d*):(\d*)\)/i
+  var stackReg2 = /at\s+()(.*):(\d*):(\d*)/i
+  var stacklist = (new Error()).stack.split('\n').slice(3)
+  var s = stacklist[0]
+  var sp = stackReg.exec(s) || stackReg2.exec(s)
+  var data = {}
+  if (sp && sp.length === 5) {
+    data.method = sp[1]
+    data.path = sp[2]
+    data.line = sp[3]
+    data.pos = sp[4]
+    data.file = path.basename(data.path)
+  }
+  return data
+}
