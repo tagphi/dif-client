@@ -1,7 +1,7 @@
 /**
  * 全局的异常处理
  **/
-var logger = require('../utils/logger-utils').logger
+var logger = require('../utils/logger-utils').logger()
 var respUtils = require('../utils/resp-utils')
 var appConfig = require('../../config').site
 

@@ -1,6 +1,6 @@
 /* eslint-disable no-trailing-spaces,node/no-deprecated-api */
 var respUtils = require('../../utils/resp-utils')
-var logger = require('../../utils/logger-utils').logger
+var logger = require('../../utils/logger-utils').logger()
 const CONFIG__SITE = require('../../../config').site
 const CONFIG__MSP = require('../../../config').msp
 const CONFIG_IPFS = require('../../../config').site.ipfs

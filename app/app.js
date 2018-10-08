@@ -8,7 +8,7 @@ var tokenManager = require('./interceptors/token-manager')
 
 var blacklistController = require('./controllers/blacklist/index')
 
-let logger = require('./utils/logger-utils').logger
+let logger = require('./utils/logger-utils').logger()
 
 let chaincodeCron = require('./cron/chaincode-cron')
 let mergeCron = require('./cron/merge-cron')
