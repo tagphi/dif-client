@@ -9,7 +9,10 @@ let commonUtils = require('util')
 let blacklistService = require('../services/blacklist-service')
 let queryCC = require('../cc/query')
 
-const DATA_TYPES = ['device', 'ip', 'default']
+const DATA_TYPES = [
+  {type: 'device', merging: false},
+  {type: 'ip', merging: false},
+  {type: 'default', merging: false}]
 
 let isRunning = false
 
@@ -56,25 +59,28 @@ async function _getMergedListVersionByType (type) {
 }
 
 function _tryToMergeTypedList (latestVersion) {
-  async function _asyncTryToMergeTypedList (type) {
+  async function _asyncTryToMergeTypedList (typeItem) {
     try {
-      let typedMergedVersion = await _getMergedListVersionByType(type)
+      let typedMergedVersion = await _getMergedListVersionByType(typeItem.type)
 
       if (latestVersion !== 0 && // 初始版本1，没有任何的上传和移除操作
         latestVersion > typedMergedVersion) { // 有新的版本时候，触发合并
+        if (typeItem.merging) return
+        typeItem.merging = true
         let msg = commonUtils.format('[%s] start merge:currentVersion-%d,latestVersion-%d',
-          type, typedMergedVersion, latestVersion)
+          typeItem.type, typedMergedVersion, latestVersion)
         logger.info(msg)
 
-        await blacklistService.merge(type, latestVersion)
+        await blacklistService.merge(typeItem.type, latestVersion)
+        typeItem.merging = false
 
         msg = commonUtils.format('[%s] success merge:from %d to %d',
-          type, typedMergedVersion, latestVersion)
+          typeItem.type, typedMergedVersion, latestVersion)
         logger.info(msg)
       }
 
     } catch (e) {
-      let err = commonUtils.format('[%s] failed to merge to %d', type, latestVersion)
+      let err = commonUtils.format('[%s] failed to merge to %d', typeItem.type, latestVersion)
       logger.error(err)
       logger.error(e)
     }

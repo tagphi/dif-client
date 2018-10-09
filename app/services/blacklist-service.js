@@ -17,11 +17,21 @@ async function upload (newAddListStr, type, dataType, summary) {
   let filename = type + '-' + new Date().getTime() + '.txt'
 
   let startTime = new Date().getTime()
+  let endTime = new Date().getTime()
   logger.info(`start to upload ${type} delta list:${filename}`)
   /* 申诉列表 */
   if (dataType === 'appeal') {
     // 将增量数据上传到ipfs
-    let newAppealListFileInfo = await ipfsCliRemote.addByStr(newAddListStr)
+    let lenOfnewAddListStr = strLenInHuman(newAddListStr)
+    logger.info(`[${type}]:start to upload appeal list to ipfs:${lenOfnewAddListStr}`)
+    let newAppealListFileInfo = await ipfsCliRemote.addByStr(newAddListStr, {
+      progress: function (uploadedSize) {
+        uploadedSize = Math.floor(uploadedSize / (1024 * 1024))
+        logger.info(`[${type}]:progress of uploading ${filename} to ipfs:${uploadedSize}`)
+      }
+    })
+    endTime = new Date().getTime()
+    logger.info(`[${type}]:start to upload appeal list to ipfs:${endTime - startTime}ms`)
     newAppealListFileInfo.name = filename
     newAppealListFileInfo = JSON.stringify(newAppealListFileInfo)
     // 保存到账本
@@ -41,6 +51,8 @@ async function upload (newAddListStr, type, dataType, summary) {
   }
 
   // 链码查询该组织该类型的列表的全量数据的路径
+  startTime = new Date().getTime()
+  logger.info(`[${type}]:start to download full list`)
   let currentListStr = await _getCurrentFullListOfOrg(type)
   let endTimeOfFulllist = new Date().getTime()
   logger.info(`time to load ${type} full list ${endTimeOfFulllist - startTime}`)
@@ -57,27 +69,50 @@ async function upload (newAddListStr, type, dataType, summary) {
 
 async function merge (type, latestVersion) {
   // 获取共识的移除清单
+  let startTime = new Date().getTime()
+  logger.info(`[${type}]:start to download consused rm list of all orgs`)
   let rmSetOfConsensus = await _getConsensusedRmList(type)
+  let endTime = new Date().getTime()
+  logger.info(`[${type}]:end to download consused rm list of all orgs:${endTime - startTime}ms`)
 
+  logger.info(`[${type}]:start to download full list`)
   // 获取合并的全量列表
   let mergedFullList = await _getMergedFullListOfOrgs(type)
+  let endTimeOfDownFull = new Date().getTime()
+  logger.info(`[${type}]:end to download full list:${endTimeOfDownFull - endTime}ms`)
 
   // 剔除媒体ip
   if (type === 'ip') {
+    logger.info(`[${type}]:start to filter ips of publishers`)
     mergedFullList = await filterPublisherIps(mergedFullList)
+    let endOfFilter = new Date().getTime()
+    logger.info(`[${type}]:end to filter ips of publishers:${endOfFilter - endTimeOfDownFull}ms`)
   }
 
   // 剔除不符合的记录
+  logger.info(`[${type}]:start to consenus`)
+  let startTimeOfConsensus = new Date().getTime()
   let finnalResult = _getFinnalRecords(mergedFullList, rmSetOfConsensus, type)
   mergedFullList = finnalResult.tmpMergedFullList
   let bloomFilter = finnalResult.bloomFilter
-
+  let endOfConsensus = new Date().getTime()
+  logger.info(`[${type}]:end to consenus:${endOfConsensus - startTimeOfConsensus}ms`)
   // 将投票集合转换为列表
   let formattedMergedStr = _formatMergedList(mergedFullList)
 
   /* 上传最终的合并列表 */
   // 1 上传到ipfs
-  let ipfsInfo = await ipfsCliRemote.addByStr(formattedMergedStr)
+  let lenOfformattedMergedStr = strLenInHuman(formattedMergedStr)
+  logger.info(`[${type}]:start to upload merged list to ipfs:${lenOfformattedMergedStr}`)
+  startTime = new Date().getTime()
+  let ipfsInfo = await ipfsCliRemote.addByStr(formattedMergedStr, {
+    progress: function (uploadedSize) {
+      uploadedSize = Math.floor(uploadedSize / (1024 * 1024))
+      logger.info(`[${type}]:progress of uploading to ipfs:${uploadedSize}`)
+    }
+  })
+  endTime = new Date().getTime()
+  logger.info(`[${type}]:end to upload merged list to ipfs:${endTime - startTime}ms`)
   ipfsInfo.name = type + '-merged-' + new Date().getTime() + '.txt'
 
   // 2 上传到账本
@@ -121,7 +156,8 @@ async function getMergedRmList (type) {
  * 上传ipfs和账本
  **/
 async function _uploadIpfsAndLedger (type, newAddListStr, filename, ccFn) {
-  logger.info(`start to upload ${type}[${ccFn}] to ipfs:${filename}`)
+  let lenOfnewAddListStr = strLenInHuman(newAddListStr)
+  logger.info(`start to upload ${type}[${ccFn}] to ipfs:${filename}(${lenOfnewAddListStr})`)
   let startTime = new Date().getTime()
   let newListFileInfo = await ipfsCliRemote.addByStr(newAddListStr, {
     progress: function (uploadedSize) {
@@ -146,11 +182,12 @@ async function _getCurrentFullListOfOrg (type) {
   let curFullListStr = JSON.stringify([])
 
   if (curFullListInfo) {
-    logger.info(commonUtils.format('[%s]current full list: %s',
-      type, curFullListInfo))
-
     // 获取到当前的列表
     curFullListInfo = JSON.parse(curFullListInfo)
+    let size = curFullListInfo.size || 0
+    let sizeInH = sizeInHuman(size)
+    logger.info(`[${type}]:start to download current full list(${sizeInH}): ${curFullListInfo}`)
+
     let currentListFile = await ipfsCliLocal.get(curFullListInfo.path, curFullListInfo.name)
 
     if (currentListFile.err) { // 超时
@@ -268,6 +305,7 @@ async function _downloadDataFromIPFS (listOfOrgs) {
   let msgIDsOfOrgs = []
   let listPathsOfOrgs = []
 
+  let sizeOfAllList = 0
   listOfOrgs.forEach(function (oneOrg) {
     let mspid = oneOrg.mspId || oneOrg.mspid
     msgIDsOfOrgs.push(mspid)
@@ -277,9 +315,12 @@ async function _downloadDataFromIPFS (listOfOrgs) {
     } else {
       ipfsInfo = oneOrg.ipfsInfo
     }
+    let sizeOfOne = ipfsInfo.size || 0
+    sizeOfAllList += sizeOfOne
     listPathsOfOrgs.push(ipfsInfo.path)
   })
-
+  let sizeOfAllListInHuman = sizeInHuman(sizeOfAllList)
+  logger.info(`size to download:${sizeOfAllListInHuman}`)
   // 下载全部列表数据
   let listFileInfosOfOrgs = await ipfsCliLocal.getMulti(listPathsOfOrgs, msgIDsOfOrgs)
 
@@ -392,6 +433,27 @@ function _formatMergedList (mergedFullList) {
   }
 
   return formattedStr
+}
+
+/**
+ * 计算字符串大小
+ **/
+function strLenInHuman(str) {
+  str = str || ''
+  let len = str.length
+  return sizeInHuman(len)
+}
+
+/**
+ * size转换为友好单位
+ **/
+function sizeInHuman(len) {
+  let UNIT_KB = 1024
+  let lenInMB = len / (UNIT_KB * UNIT_KB)
+  if (lenInMB >= 1) return Math.floor(lenInMB) + 'MB'
+  let lenInKB = len / (UNIT_KB)
+  if (lenInKB >= 1) return Math.floor(lenInKB) + 'KB'
+  return len + 'B'
 }
 
 exports.upload = upload
