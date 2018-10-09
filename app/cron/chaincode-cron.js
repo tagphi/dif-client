@@ -38,7 +38,7 @@ async function onTick () {
     // 有较新的版本，下载并安装
     await downloadAndInstallCC(remoteLatestCC)
   } catch (e) {
-    logger.error('chaincode sync err：', e)
+    logger.error(`chaincode sync err：${e}`)
   }
 }
 
