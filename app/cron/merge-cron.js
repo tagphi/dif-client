@@ -80,6 +80,7 @@ function _tryToMergeTypedList (latestVersion) {
       }
 
     } catch (e) {
+      typeItem.merging = false
       let err = commonUtils.format('[%s] failed to merge to %d', typeItem.type, latestVersion)
       logger.error(err)
       logger.error(e)
