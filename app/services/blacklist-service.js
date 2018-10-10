@@ -36,17 +36,14 @@ async function upload (newAddListStr, type, dataType, summary) {
     newAppealListFileInfo = JSON.stringify(newAppealListFileInfo)
     // 保存到账本
     await invokeCC('createAppeal', [newAppealListFileInfo, type, summary])
-
-    let msg = commonUtils.format('[%s] success to upload remove list:%s',
-      type, newAppealListFileInfo)
-    logger.info(msg)
+    logger.info(`[${type}] success to upload remove list:${newAppealListFileInfo}`)
     return
   }
 
   /* 黑名单 */
   if (type === 'publisherIp') { // 媒体ip
     await invokeCC('uploadPublisherIp', [newAddListStr])
-    logger.info(commonUtils.format('[%s] success to upload delta list', type))
+    logger.info(`[${type}] success to upload delta list`)
     return
   }
 
@@ -131,17 +128,14 @@ async function merge (type, latestVersion) {
 
   // 链码中投票合并
   await invokeCC('merge', [type])
-
-  logger.info(commonUtils.format('[%s] new merge list:%s',
-    type, ipfsInfo))
+  logger.info(`[${type}] new merge list:${ipfsInfo}`)
 }
 
 async function getMergedRmList (type) {
   // 从链码获取hash列表
   let rmListOfOrgs = await queryCC('getRemoveList', [type])
 
-  logger.info(commonUtils.format('[%s] current orgs remove list:%s',
-    type, rmListOfOrgs))
+  logger.info(`[${type}] current orgs remove list:${rmListOfOrgs}`)
 
   // 下载全部申诉列表数据
   let rmListFileInfosOfOrgs = await _downloadDataFromIPFS(rmListOfOrgs)
@@ -170,8 +164,7 @@ async function _uploadIpfsAndLedger (type, newAddListStr, filename, ccFn) {
   let endTime = new Date().getTime()
   logger.info(`end to upload ${type}[${ccFn}]-${filename} to ipfs:${endTime - startTime}`)
   await invokeCC(ccFn, [newListFileInfo, type])
-  logger.info(commonUtils.format('[%s] success to upload delta list:%s',
-    type, newListFileInfo))
+  logger.info(`[${type}] success to upload delta list:${newListFileInfo}`)
 }
 
 /**
@@ -284,9 +277,7 @@ async function _getQuorum () {
 async function _getMergedFullListOfOrgs (type) {
   let fullListOfArgs = await queryCC('getAllOrgsList', [type])
 
-  logger.info(commonUtils.format('[%s] current orgs full list:%s',
-    type, fullListOfArgs))
-
+  logger.info(`[${type}] current orgs full list:${fullListOfArgs}`)
   // 下载全量列表
   let fullListFileInfos = await _downloadDataFromIPFS(fullListOfArgs)
 

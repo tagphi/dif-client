@@ -67,22 +67,17 @@ function _tryToMergeTypedList (latestVersion) {
         latestVersion > typedMergedVersion) { // 有新的版本时候，触发合并
         if (typeItem.merging) return
         typeItem.merging = true
-        let msg = commonUtils.format('[%s] start merge:currentVersion-%d,latestVersion-%d',
-          typeItem.type, typedMergedVersion, latestVersion)
-        logger.info(msg)
+        logger.info(`[${typeItem.type}] start merge:currentVersion-${typedMergedVersion},latestVersion-${latestVersion}`)
 
         await blacklistService.merge(typeItem.type, latestVersion)
         typeItem.merging = false
 
-        msg = commonUtils.format('[%s] success merge:from %d to %d',
-          typeItem.type, typedMergedVersion, latestVersion)
-        logger.info(msg)
+        logger.info(`[${typeItem.type}] success merge:from ${typedMergedVersion} to ${latestVersion}`)
       }
 
     } catch (e) {
       typeItem.merging = false
-      let err = commonUtils.format('[%s] failed to merge to %d', typeItem.type, latestVersion)
-      logger.error(err)
+      logger.error(`[${typeItem.type}] failed to merge to ${latestVersion}`)
       logger.error(e)
     }
   }
