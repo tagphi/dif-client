@@ -4,7 +4,6 @@ let CronJob = require('cron').CronJob
 
 let CONFIG = require('../../config')
 let logger = require('../utils/logger-utils').logger()
-let commonUtils = require('util')
 
 let blacklistService = require('../services/blacklist-service')
 let queryCC = require('../cc/query')
@@ -76,9 +75,8 @@ function _tryToMergeTypedList (latestVersion) {
       }
 
     } catch (e) {
+      logger.error(`[${typeItem.type}] failed to merge to ${latestVersion}:${e}`)
       typeItem.merging = false
-      logger.error(`[${typeItem.type}] failed to merge to ${latestVersion}`)
-      logger.error(e)
     }
   }
 

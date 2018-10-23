@@ -7,7 +7,6 @@ var CONFIG_IPFS = require('../../config.json').site.ipfs
 var agent = require('superagent-promise')(require('superagent'), Promise)
 let ADMIN_ADDR = CONFIG.site.adminAddr
 let logger = require('../utils/logger-utils').logger()
-let commonUtils = require('util')
 
 let ipfsCliLocal = require('../utils/ipfs-cli')
 let ipfsCliRemote = require('../utils/ipfs-cli-remote').bind(CONFIG_IPFS.host, CONFIG_IPFS.port)
