@@ -1,0 +1,98 @@
+[
+  {
+  "timestamp": "1538988737507",
+  "version": "7",
+  "ipfsInfo": {
+    "version": 7,
+    "ipfsInfo": {
+      "path": "QmboqjogRkiW7wGEQ63siUDZifvxGHvcSnWCbHEvRvG5uw",
+      "hash": "QmboqjogRkiW7wGEQ63siUDZifvxGHvcSnWCbHEvRvG5uw",
+      "size": 54721722,
+      "name": "device-merged-1538988435226.txt"
+    }
+  }
+}, {
+  "timestamp": "1539000806778",
+  "version": "8",
+  "ipfsInfo": {
+    "version": 8,
+    "ipfsInfo": {
+      "path": "QmboqjogRkiW7wGEQ63siUDZifvxGHvcSnWCbHEvRvG5uw",
+      "hash": "QmboqjogRkiW7wGEQ63siUDZifvxGHvcSnWCbHEvRvG5uw",
+      "size": 54721722,
+      "name": "device-merged-1539001042003.txt"
+    }
+  }
+}, {
+  "timestamp": "1539057802643",
+  "version": "9",
+  "ipfsInfo": {
+    "version": 9,
+    "ipfsInfo": {
+      "path": "QmboqjogRkiW7wGEQ63siUDZifvxGHvcSnWCbHEvRvG5uw",
+      "hash": "QmboqjogRkiW7wGEQ63siUDZifvxGHvcSnWCbHEvRvG5uw",
+      "size": 54721722,
+      "name": "device-merged-1539058041334.txt"
+    }
+  }
+}, {
+  "timestamp": "1539058957833",
+  "version": "10",
+  "ipfsInfo": {
+    "version": 10,
+    "ipfsInfo": {
+      "path": "QmboqjogRkiW7wGEQ63siUDZifvxGHvcSnWCbHEvRvG5uw",
+      "hash": "QmboqjogRkiW7wGEQ63siUDZifvxGHvcSnWCbHEvRvG5uw",
+      "size": 54721722,
+      "name": "device-merged-1539059121261.txt"
+    }
+  }
+}, {
+  "timestamp": "1539059186440",
+  "version": "11",
+  "ipfsInfo": {
+    "version": 11,
+    "ipfsInfo": {
+      "path": "QmboqjogRkiW7wGEQ63siUDZifvxGHvcSnWCbHEvRvG5uw",
+      "hash": "QmboqjogRkiW7wGEQ63siUDZifvxGHvcSnWCbHEvRvG5uw",
+      "size": 54721722,
+      "name": "device-merged-1539059422336.txt"
+    }
+  }
+}, {
+  "timestamp": "1539059243811",
+  "version": "12",
+  "ipfsInfo": {
+    "version": 12,
+    "ipfsInfo": {
+      "path": "QmboqjogRkiW7wGEQ63siUDZifvxGHvcSnWCbHEvRvG5uw",
+      "hash": "QmboqjogRkiW7wGEQ63siUDZifvxGHvcSnWCbHEvRvG5uw",
+      "size": 54721722,
+      "name": "device-merged-1539059481619.txt"
+    }
+  }
+}, {
+  "timestamp": "1539140960543",
+  "version": "13",
+  "ipfsInfo": {
+    "version": 13,
+    "ipfsInfo": {
+      "path": "QmboqjogRkiW7wGEQ63siUDZifvxGHvcSnWCbHEvRvG5uw",
+      "hash": "QmboqjogRkiW7wGEQ63siUDZifvxGHvcSnWCbHEvRvG5uw",
+      "size": 54721722,
+      "name": "device-merged-1539141201756.txt"
+    }
+  }
+}, {
+  "timestamp": "1539141079360",
+  "version": "14",
+  "ipfsInfo": {
+    "version": 14,
+    "ipfsInfo": {
+      "path": "QmboqjogRkiW7wGEQ63siUDZifvxGHvcSnWCbHEvRvG5uw",
+      "hash": "QmboqjogRkiW7wGEQ63siUDZifvxGHvcSnWCbHEvRvG5uw",
+      "size": 54721722,
+      "name": "device-merged-1539141320942.txt"
+    }
+  }
+}]

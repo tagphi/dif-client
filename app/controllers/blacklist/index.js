@@ -284,6 +284,10 @@ exports.mergedHistories = async function (req, res, next) {
   let result = await queryChaincode('getMergedHistoryList', [type])
   if (result.indexOf('Err') !== -1) return next(result)
   result = JSON.parse(result)
+  // 时间逆序
+  result.sort(function (item1, item2) {
+    return parseInt(item2.timestamp) - parseInt(item1.timestamp)
+  })
   respUtils.succResponse(res, '获取成功', result)
 }
 
