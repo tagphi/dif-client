@@ -39,6 +39,7 @@
             "maxFilesize":10
         },
         "cron":{
+            "enabled":true,
             "query_cc_install":5,
             "merge_interval":60
         },
