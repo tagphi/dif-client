@@ -32,7 +32,7 @@ node install-chaincode-manually.js
 
 echo "启动ipfs容器————>" 
 cd ~/dif-client/scripts/ipfs
-. run.sh
+. ~/dif-client/scripts/ipfs/run.sh
 
 # 启动app
 cd ~/dif-client/app
