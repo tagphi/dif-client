@@ -1,6 +1,6 @@
 ## 生成证书
 
-* 浏览器打开http://orderer0.dif.rtbasia.com:8080/static/#!/ 点击下载证书按钮
+* 浏览器打开http://orderer2.dif.rtbasia.com:8080/static/#!/ 点击下载证书按钮
 * 填写组织名，即MSPID。建议用非空白符的字母大小写组合
 * 填写节点名，建议填写peer0。
 * 填写公司域名，如rtbasia.com。
