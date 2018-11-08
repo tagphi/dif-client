@@ -5,7 +5,7 @@
 ######
 
 echo "清理ipfs————>"
-docker rm -f dif-ipfs
+docker rm -f  `docker ps -a | grep ipfs | cut -c 1-10`
 sudo rm -rf scripts/ipfs/data
 
 echo "关闭app————>"
