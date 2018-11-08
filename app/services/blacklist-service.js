@@ -34,14 +34,14 @@ async function upload (newAddListStr, type, dataType, summary) {
     newAppealListFileInfo.name = filename
     newAppealListFileInfo = JSON.stringify(newAppealListFileInfo)
     // 保存到账本
-    await invokeCC('createAppeal', [newAppealListFileInfo, type, summary])
+    await invokeCC('createAppeal', [newAppealListFileInfo, type, summary, new Date().getTime().toString()])
     logger.info(`[${type}] success to upload remove list:${newAppealListFileInfo}`)
     return
   }
 
   /* 黑名单 */
   if (type === 'publisherIp') { // 媒体ip
-    await invokeCC('uploadPublisherIp', [newAddListStr])
+    await invokeCC('uploadPublisherIp', [newAddListStr, new Date().getTime().toString()])
     logger.info(`[${type}] success to upload delta list`)
     return
   }
@@ -126,7 +126,7 @@ async function merge (type, latestVersion) {
   }
 
   // 链码中投票合并
-  await invokeCC('merge', [type])
+  await invokeCC('merge', [type, new Date().getTime().toString()])
   logger.info(`[${type}] new merge list:${ipfsInfo}`)
 }
 
@@ -162,7 +162,11 @@ async function _uploadIpfsAndLedger (type, newAddListStr, filename, ccFn) {
   newListFileInfo = JSON.stringify(newListFileInfo)
   let endTime = new Date().getTime()
   logger.info(`end to upload ${type}[${ccFn}]-${filename} to ipfs:${endTime - startTime}`)
-  await invokeCC(ccFn, [newListFileInfo, type])
+  if (ccFn === 'deltaUpload') {
+    await invokeCC(ccFn, [newListFileInfo, type, new Date().getTime().toString()])
+  } else {
+    await invokeCC(ccFn, [newListFileInfo, type])
+  }
   logger.info(`[${type}] success to upload delta list:${newListFileInfo}`)
 }
 
