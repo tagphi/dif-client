@@ -55,7 +55,9 @@ var router = require('./router')
   let port = appConfig.port
   app.listen(port, () => logger.info('listen ' + port + ' , server started!'))
 
-  _startCrons()
+  if (appConfig.cron.enabled) {
+    _startCrons()
+  }
 })()
 
 function _startCrons () {

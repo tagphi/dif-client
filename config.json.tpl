@@ -8,8 +8,8 @@
     },
     "orderer": {
         "tls_cert_path": "../crypto-config/order-tls/tlsca.rtbasia.com-cert.pem",
-        "url": "grpc://orderer0.dif.rtbasia.com:7050",
-        "ssl_target_name_override": "orderer0.dif.rtbasia.com",
+        "url": "grpc://orderer2.dif.rtbasia.com:7050",
+        "ssl_target_name_override": "orderer2.dif.rtbasia.com",
         "timeout": 30000
     },
     "peer": {
@@ -21,7 +21,7 @@
     },
     "site": {
         "dev":true,
-        "adminAddr":"http://orderer0.dif.rtbasia.com:8080",
+        "adminAddr":"http://orderer2.dif.rtbasia.com:8080",
         "key_value_store": "/tmp/dif-kvs/",
         "port": 8081,
         "username": "admin",
@@ -39,6 +39,7 @@
             "maxFilesize":10
         },
         "cron":{
+            "enabled":true,
             "query_cc_install":5,
             "merge_interval":60
         },
