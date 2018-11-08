@@ -20,6 +20,7 @@ services:
     environment:
       - CORE_PEER_ID=%peerHost%
       - CORE_PEER_ADDRESS=%peerHost%:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=%peerHost%:7051
       - CORE_PEER_LOCALMSPID=%mspId%
       - CORE_CHAINCODE_STARTUPTIMEOUT=1800s
     volumes:
