@@ -5,6 +5,9 @@
 app.controller('JobHistoryController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $filter, HttpService, ngDialog, alertMsgService, Upload) {
   $scope.histories = mock.jobHistories
   $scope.type = 'device'
+  $scope.total = 0
+  $scope.pageSize = 10
+  $scope.currentPage = 1
 
   /**
    * 返回

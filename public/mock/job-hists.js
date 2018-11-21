@@ -6,7 +6,7 @@ if (!mock) {
   var mock = {}
 }
 
-mock.jobHistories = mockJobHists(12)
+mock.jobHistories = mockJobHists(10)
 
 function mockJobHists (size) {
   let hists = []

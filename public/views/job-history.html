@@ -45,6 +45,14 @@
                         <span class="iconfont  empty-icon">&#xe60b;</span><br>
                         <div class="empty-label">暂无数据</div>
                     </div>
+
+                    <nav ng-if="total!=0" aria-label="Page navigation" class="tr"
+                         style="line-height: normal;margin-top: 18px;">
+                        <common-pagination
+                                total="total"
+                                page-size="pageSize"
+                                current-page="currentPage"></common-pagination>
+                    </nav>
                 </div>
             </div>
         </section>
