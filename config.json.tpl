@@ -25,7 +25,7 @@
         "key_value_store": "/tmp/dif-kvs/",
         "port": 8081,
         "username": "admin",
-        "password": "password",
+        "password": "dajfaO0ej838fdh",
         "jwt_expiretime": "36000",
         "jwt_secret": "thisismysecret",
         "pageSize": 10,
