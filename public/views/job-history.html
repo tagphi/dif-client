@@ -12,43 +12,50 @@
             <strong class="title-label">任务追踪器</strong>
         </h2>
         <section class="mainarea tab-ctn-minh">
-            <nav class="history-tab">
-                <ul>
-                    <li ng-click="selectTab('device')" ng-class="{on:type=='device'}">设备ID</li>
-                    <li ng-click="selectTab('ip')" ng-class="{on:type=='ip'}">IP</li>
-                    <li ng-click="selectTab('default')" ng-class="{on:type=='default'}">默认设备ID</li>
-                </ul>
-            </nav>
             <!--黑名单表-->
             <div class="text-center">
                 <div class="empty-container" ng-show="histories.length==0">
+                    <table class="table tc">
+                        <thead>
+                        <tr>
+                            <th>任务</th>
+                            <th>文件</th>
+                            <th>类型</th>
+                            <th>操作</th>
+                            <th>步骤</th>
+                            <th>状态</th>
+                            <th>修改时间</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        <tr>
+                            <td>任务</td>
+                            <td>文件</td>
+                            <td>类型</td>
+                            <td>操作</td>
+                            <td>步骤</td>
+                            <td>状态</td>
+                            <td>修改时间</td>
+                        </tr>
+
+                        <tr ng-repeat="hist in histories">
+                            <td>{{hist.id}}</td>
+                            <td>{{hist.date}}</td>
+                            <td>{{hist.type}}</td>
+                            <td>{{hist.version}}</td>
+                            <td>
+                                <a href="/blacklist/download?path={{hist.ipfsInfo.ipfsInfo.path}}&name={{hist.ipfsInfo.ipfsInfo.name}}">下载</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
                     <div class="empty-content animated rotateIn">
                         <span class="iconfont  empty-icon">&#xe60b;</span><br>
                         <div class="empty-label">暂无数据</div>
                     </div>
                 </div>
-                <table class="table tc">
-                    <thead>
-                    <tr>
-                        <th>序号</th>
-                        <th>日期</th>
-                        <th>类型</th>
-                        <th>版本</th>
-                        <th>操作</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr ng-repeat="hist in histories">
-                        <td>{{hist.id}}</td>
-                        <td>{{hist.date}}</td>
-                        <td>{{hist.type}}</td>
-                        <td>{{hist.version}}</td>
-                        <td>
-                            <a href="/blacklist/download?path={{hist.ipfsInfo.ipfsInfo.path}}&name={{hist.ipfsInfo.ipfsInfo.name}}">下载</a>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
             </div>
         </section>
     </section>

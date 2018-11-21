@@ -320,3 +320,12 @@ button:hover, .link-default:hover, .link-normal:hover {
     color: #3c8dbc;
     font-size: 24px;
 }
+
+.table th {
+   color: #0c63a3;
+    background-color: #3e97eb61;
+}
+
+.table th:hover,.table td:hover{
+    background: #eee;
+}
