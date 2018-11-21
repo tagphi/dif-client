@@ -5,9 +5,11 @@
 app.controller('JobHistoryController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $filter, HttpService, ngDialog, alertMsgService, Upload) {
   $scope.histories = mock.jobHistories
   $scope.type = 'device'
-  $scope.total = 0
-  $scope.pageSize = 10
-  $scope.currentPage = 1
+  $scope.page = {
+    total: 11, // 总历史记录数
+    pageSize: 10,
+    currentPage: 1 // 页面指针
+  }
 
   /**
    * 返回
@@ -54,7 +56,15 @@ app.controller('JobHistoryController', function ($q, $scope, $http, $rootScope, 
     $scope.queryHists(type)
   }
 
-  ;(function init () {
+  function init () {
     $scope.queryHists($scope.type)
-  })()
+
+    // 监听所有面板的选项中页面的变化
+    $scope.$watch('page.currentPage', function (newCurPage, old) {
+      if (newCurPage === 1 && old === 1) return
+      $scope.queryHists(newCurPage)
+    })
+  }
+
+  init()
 })

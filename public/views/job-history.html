@@ -49,9 +49,9 @@
                     <nav ng-if="total!=0" aria-label="Page navigation" class="tr"
                          style="line-height: normal;margin-top: 18px;">
                         <common-pagination
-                                total="total"
-                                page-size="pageSize"
-                                current-page="currentPage"></common-pagination>
+                                total="page.total"
+                                page-size="page.pageSize"
+                                current-page="page.currentPage"></common-pagination>
                     </nav>
                 </div>
             </div>

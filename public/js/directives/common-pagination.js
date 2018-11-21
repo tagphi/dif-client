@@ -44,7 +44,6 @@ angular.module('dif').directive('commonPagination', function ($http, $q, $timeou
       scope.changePageSize = function (n) {
         scope.pageSize = n
         scope.currentPage = 1
-        scope.loadData(scope.payload)
       }
 
       scope.next = function () {
@@ -57,7 +56,6 @@ angular.module('dif').directive('commonPagination', function ($http, $q, $timeou
       scope.prev = function () {
         if (scope.currentPage > 1) {
           scope.currentPage--
-          scope.loadData(scope.payload)
         }
       }
 
