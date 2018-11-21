@@ -18,6 +18,10 @@ var app = angular.module('dif', [
       controller: 'HistoryController',
       templateUrl: 'views/history.html'
     })
+    .when('/job-history', {
+      controller: 'JobHistoryController',
+      templateUrl: 'views/job-history.html'
+    })
     .when('/merges', {
       controller: 'MergesController',
       templateUrl: 'views/merges.html'
