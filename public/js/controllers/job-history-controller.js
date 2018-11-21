@@ -3,7 +3,7 @@
  * 合并版本历史页面控制器
  **/
 app.controller('JobHistoryController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $filter, HttpService, ngDialog, alertMsgService, Upload) {
-  $scope.histories = []
+  $scope.histories = mock.jobHistories
   $scope.type = 'device'
 
   /**

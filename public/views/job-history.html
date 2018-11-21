@@ -14,7 +14,7 @@
         <section class="mainarea tab-ctn-minh">
             <!--黑名单表-->
             <div class="text-center">
-                <div class="empty-container" ng-show="histories.length==0">
+                <div class="empty-container">
                     <table class="table tc">
                         <thead>
                         <tr>
@@ -29,29 +29,19 @@
                         </thead>
                         <tbody>
 
-                        <tr>
-                            <td>任务</td>
-                            <td>文件</td>
-                            <td>类型</td>
-                            <td>操作</td>
-                            <td>步骤</td>
-                            <td>状态</td>
-                            <td>修改时间</td>
-                        </tr>
-
                         <tr ng-repeat="hist in histories">
-                            <td>{{hist.id}}</td>
-                            <td>{{hist.date}}</td>
+                            <td>{{hist.jobID}}</td>
+                            <td>{{hist.file}}</td>
                             <td>{{hist.type}}</td>
-                            <td>{{hist.version}}</td>
-                            <td>
-                                <a href="/blacklist/download?path={{hist.ipfsInfo.ipfsInfo.path}}&name={{hist.ipfsInfo.ipfsInfo.name}}">下载</a>
-                            </td>
+                            <td>{{hist.opt}}</td>
+                            <td>{{hist.steps}}</td>
+                            <td>{{hist.status}}</td>
+                            <td>{{hist.latestTime}}</td>
                         </tr>
                         </tbody>
                     </table>
 
-                    <div class="empty-content animated rotateIn">
+                    <div class="empty-content animated rotateIn" ng-show="histories.length==0">
                         <span class="iconfont  empty-icon">&#xe60b;</span><br>
                         <div class="empty-label">暂无数据</div>
                     </div>
