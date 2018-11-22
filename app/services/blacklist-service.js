@@ -233,3 +233,7 @@ exports.commitBlacklist = commitBlacklist
 exports.merge = merge
 exports.commitMerge = commitMerge
 exports.getMergedRmList = getMergedRmList
+exports.cbtest = function (args) {
+  console.log('cbtest————>', args)
+  return true
+}

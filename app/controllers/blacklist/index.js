@@ -348,3 +348,19 @@ exports.voteAppeal = async function (req, res, next) {
 
   respUtils.succResponse(res, '投票成功')
 }
+
+/**
+ * 回调接口
+ **/
+exports.callback = async function (req, res) {
+  let cmd = req.body.cmd
+  let args = req.body.args
+  let result = blacklistService[cmd](args)
+  if (result) {
+    respUtils.succResponse(res, `success to call ${cmd}(${args})`)
+    logger.info(`success to call ${cmd}(${args})`)
+  } else {
+    respUtils.errResonse(res, `error to call ${cmd}(${args})`)
+    logger.info(`error to call ${cmd}(${args})`)
+  }
+}
