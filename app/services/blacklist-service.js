@@ -24,12 +24,20 @@ async function uploadAppeal (filename, newAppealList, type, dataType, summary) {
 /**
  * 上传媒体ip
  **/
-async function uploadPublisherIP (type, newPublisherIps) {
-  logger.info(`[${type}] start to upload publisher ip list`)
+async function uploadPublisherIP (type, publisherIps) {
+  // TODO:提交到历史服务器
 
-  await invokeCC('uploadPublisherIp', [newPublisherIps, new Date().getTime().toString()])
+  logger.info(`[${type}] submit job:upload publisher ip list`)
+}
 
-  logger.info(`[${type}] success to upload publisher ip list`)
+/**
+ * 确认提交媒体ip
+ **/
+async function commitPublisherIPs (publisherIpsInfo) {
+  await invokeCC('uploadPublisherIp', [publisherIpsInfo, new Date().getTime().toString()])
+
+  logger.info(`commit job:upload publisher ip list:${publisherIpsInfo}`)
+  return true
 }
 
 /**
@@ -63,6 +71,7 @@ async function commitBlacklist (type, filename, newBlacklistIpfsInfo, mergedBlac
 
   await invokeCC('fullUpload', [mergedBlacklistIpfsInfo, type])
   logger.info(`success to upload ${type} fulllist`)
+  return true
 }
 
 async function merge (type, latestVersion) {
@@ -102,6 +111,7 @@ async function commitMerge (type, latestVersion, latestMergeIpfsInfo, bloomBucke
   await invokeCC('merge', [type, new Date().getTime().toString()])
 
   logger.info(`[${type}]:success to generate merge list:${latestMergeIpfsInfo}`)
+  return true
 }
 
 async function getMergedRmList (type) {
@@ -226,6 +236,7 @@ function sizeInHuman(len) {
 
 exports.uploadAppeal = uploadAppeal
 exports.uploadPublisherIP = uploadPublisherIP
+exports.commitPublisherIPs = commitPublisherIPs
 
 exports.uploadBlacklist = uploadBlacklist
 exports.commitBlacklist = commitBlacklist
