@@ -12,55 +12,52 @@ let ipfsCliLocal = require('../utils/ipfs-cli')
 let ipfsCliRemote = require('../utils/ipfs-cli-remote').bind(CONFIG_IPFS.host, CONFIG_IPFS.port)
 var BloomFilter = require('bloomfilter').BloomFilter
 
-async function upload (newAddListStr, type, dataType, summary) {
-  let filename = type + '-' + new Date().getTime() + '.txt'
+/**
+ * 上传申诉
+ **/
+async function uploadAppeal (filename, newAppealList, type, dataType, summary) {
+  logger.info(`start to upload ${type} appeal list:${filename},timestamp:${new Date().getTime()}`)
+  let appealFileIpfsinfo = await _uploadToIpfs(filename, type, newAppealList)
+  // 保存到账本
+  await invokeCC('createAppeal', [appealFileIpfsinfo, type, summary, new Date().getTime().toString()])
+  logger.info(`[${type}] success to upload appeal list:${appealFileIpfsinfo}`)
+}
 
+/**
+ * 上传媒体ip
+ **/
+async function uploadPublisherIP (type, newPublisherIps) {
+  await invokeCC('uploadPublisherIp', [newPublisherIps, new Date().getTime().toString()])
+  logger.info(`[${type}] success to upload publisher ip list ${new Date().getTime()}`)
+}
+
+/**
+ * 上传黑名单
+ **/
+async function uploadBlacklist (filename, newBlacklist, type) {
   let startTime = new Date().getTime()
-  let endTime = new Date().getTime()
-  logger.info(`start to upload ${type} delta list:${filename}`)
-  /* 申诉列表 */
-  if (dataType === 'appeal') {
-    // 将增量数据上传到ipfs
-    let lenOfnewAddListStr = strLenInHuman(newAddListStr)
-    logger.info(`[${type}]:start to upload appeal list to ipfs:${lenOfnewAddListStr}`)
-    let newAppealListFileInfo = await ipfsCliRemote.addByStr(newAddListStr, {
-      progress: function (uploadedSize) {
-        uploadedSize = Math.floor(uploadedSize / (1024 * 1024))
-        logger.info(`[${type}]:progress of uploading ${filename} to ipfs:${uploadedSize}`)
-      }
-    })
-    endTime = new Date().getTime()
-    logger.info(`[${type}]:start to upload appeal list to ipfs:${endTime - startTime}ms`)
-    newAppealListFileInfo.name = filename
-    newAppealListFileInfo = JSON.stringify(newAppealListFileInfo)
-    // 保存到账本
-    await invokeCC('createAppeal', [newAppealListFileInfo, type, summary, new Date().getTime().toString()])
-    logger.info(`[${type}] success to upload remove list:${newAppealListFileInfo}`)
-    return
-  }
-
-  /* 黑名单 */
-  if (type === 'publisherIp') { // 媒体ip
-    await invokeCC('uploadPublisherIp', [newAddListStr, new Date().getTime().toString()])
-    logger.info(`[${type}] success to upload delta list`)
-    return
-  }
-
+  logger.info(`start to upload ${type} blacklist:${filename}`)
   // 链码查询该组织该类型的列表的全量数据的路径
-  startTime = new Date().getTime()
   logger.info(`[${type}]:start to download full list`)
   let currentListStr = await _getCurrentFullListOfOrg(type)
   let endTimeOfFulllist = new Date().getTime()
   logger.info(`time to load ${type} full list ${endTimeOfFulllist - startTime}`)
 
   // 合并列表
-  let mergedListStr = await _mergeDeltaList(type, currentListStr, newAddListStr)
+  let mergedBlacklist = await _mergeBlackList(type, currentListStr, newBlacklist)
   let endTimeOfMergeList = new Date().getTime()
   logger.info(`time to merge delta and full list:${endTimeOfMergeList - endTimeOfFulllist}`)
 
   // 将增量数据和全量数据上传到ipfs
-  await _uploadDeltaAndFullList(newAddListStr, filename, mergedListStr, type)
-  logger.info(`end to upload ${type} delta list:${filename}`)
+  let newBlacklistIpfs = await _uploadToIpfs(filename, type, newBlacklist)
+  await invokeCC('deltaUpload', [newBlacklistIpfs, type, new Date().getTime().toString()])
+  logger.info(`success to upload ${type} blacklist:${filename}`)
+
+  let mergedBlacklistIpfs = await _uploadToIpfs(filename, type, mergedBlacklist)
+  await invokeCC('fullUpload', [mergedBlacklistIpfs, type])
+  logger.info(`success to upload ${type} fulllist`)
+
+  logger.info(`end to upload ${type} blacklist:${filename}`)
 }
 
 async function merge (type, latestVersion) {
@@ -146,28 +143,25 @@ async function getMergedRmList (type) {
 }
 
 /**
- * 上传ipfs和账本
+ * 上传数据到ipfs
  **/
-async function _uploadIpfsAndLedger (type, newAddListStr, filename, ccFn) {
-  let lenOfnewAddListStr = strLenInHuman(newAddListStr)
-  logger.info(`start to upload ${type}[${ccFn}] to ipfs:${filename}(${lenOfnewAddListStr})`)
+async function _uploadToIpfs (filename, type, dataList) {
+  let lenOfdata = strLenInHuman(dataList)
   let startTime = new Date().getTime()
-  let newListFileInfo = await ipfsCliRemote.addByStr(newAddListStr, {
+  logger.info(`start to upload ${type} to ipfs:${filename}(${lenOfdata}),timestamp:${startTime}`)
+
+  let uploadedIpfsinfo = await ipfsCliRemote.addByStr(dataList, {
     progress: function (uploadedSize) {
       uploadedSize = Math.floor(uploadedSize / (1024 * 1024))
-      logger.info(`progress of uploading ${type}[${ccFn}]-${filename} to ipfs:${uploadedSize}`)
+      logger.info(`progress of uploading ${type}-${filename} to ipfs:${uploadedSize}`)
     }
   })
-  newListFileInfo.name = filename
-  newListFileInfo = JSON.stringify(newListFileInfo)
+  uploadedIpfsinfo.name = filename
+  uploadedIpfsinfo = JSON.stringify(uploadedIpfsinfo)
+
   let endTime = new Date().getTime()
-  logger.info(`end to upload ${type}[${ccFn}]-${filename} to ipfs:${endTime - startTime}`)
-  if (ccFn === 'deltaUpload') {
-    await invokeCC(ccFn, [newListFileInfo, type, new Date().getTime().toString()])
-  } else {
-    await invokeCC(ccFn, [newListFileInfo, type])
-  }
-  logger.info(`[${type}] success to upload delta list:${newListFileInfo}`)
+  logger.info(`end to upload ${type}-${filename} to ipfs:timestamp:${endTime - startTime}`)
+  return uploadedIpfsinfo
 }
 
 /**
@@ -196,7 +190,7 @@ async function _getCurrentFullListOfOrg (type) {
   return curFullListStr
 }
 
-async function _mergeDeltaList (type, oldListStr, deltaList) {
+async function _mergeBlackList (type, oldListStr, deltaList) {
   let orgSet = new Set()
 
   let deltaLines = deltaList.split('\n')
@@ -231,14 +225,6 @@ async function _mergeDeltaList (type, oldListStr, deltaList) {
   }
 
   return JSON.stringify(Array.from(orgSet))
-}
-
-/**
- * 上传增量和全量列表
- **/
-async function _uploadDeltaAndFullList (newAddListStr, filename, mergedListStr, type) {
-  await _uploadIpfsAndLedger(type, newAddListStr, filename, 'deltaUpload')
-  await _uploadIpfsAndLedger(type, mergedListStr, filename, 'fullUpload')
 }
 
 /**
@@ -450,6 +436,9 @@ function sizeInHuman(len) {
   return len + 'B'
 }
 
-exports.upload = upload
+exports.uploadAppeal = uploadAppeal
+exports.uploadPublisherIP = uploadPublisherIP
+exports.uploadBlacklist = uploadBlacklist
+
 exports.merge = merge
 exports.getMergedRmList = getMergedRmList

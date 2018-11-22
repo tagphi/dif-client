@@ -15,8 +15,6 @@ var invokeCC = require('../../cc/invoke')
 let ipfsCli = require('../../utils/ipfs-cli')
 
 let blacklistService = require('../../services/blacklist-service')
-
-let blacklistValidator = require('../../validators/blacklist-validator')
 let mergeCron = require('../../cron/merge-cron')
 
 exports.url = '/blacklist'
@@ -35,6 +33,7 @@ exports.upload = async function (req, res, next) {
   let dataType = req.body.dataType
   let summary = req.body.summary
   let dataListStr = req.file.buffer.toString()
+  let filename = req.file.originalname.toString()
 
   if (dataType === 'appeal' &&
     (!summary || summary.length === 0)) {
@@ -42,11 +41,19 @@ exports.upload = async function (req, res, next) {
     return
   }
 
-  // 校验
-  blacklistValidator.validateUpload(dataType, type, dataListStr)
+  /* 申诉列表 */
+  if (dataType === 'appeal') {
+    await blacklistService.uploadAppeal(filename, dataListStr, type, dataType, summary)
+    return
+  }
 
-  // 上传
-  await blacklistService.upload(dataListStr, type, dataType, summary)
+  /* 黑名单 */
+  if (type === 'publisherIp') { // 媒体ip
+    await blacklistService.uploadPublisherIP(type, dataListStr)
+    return
+  }
+
+  await blacklistService.uploadBlacklist(filename, dataListStr, type)
 
   respUtils.succResponse(res, '上传成功')
 }
