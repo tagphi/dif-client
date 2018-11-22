@@ -47,7 +47,8 @@
             "host":"175.6.228.227",
             "port":5001,
             "timeout":900
-        }
+        },
+        "jobHistoryUrl":"http://localhost:8888"
     },
     "channel_name": "difchannel"
 }

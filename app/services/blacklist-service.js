@@ -12,10 +12,12 @@ let ipfsCliRemote = require('../utils/ipfs-cli-remote').bind(CONFIG_IPFS.host, C
  * 上传申诉
  **/
 async function uploadAppeal (filename, newAppealList, type, dataType, summary) {
-  logger.info(`start to upload ${type} appeal list:${filename},timestamp:${new Date().getTime()}`)
+  logger.info(`start to upload ${type} appeal list:${filename}`)
+
   let appealFileIpfsinfo = await _uploadToIpfs(filename, type, newAppealList)
   // 保存到账本
   await invokeCC('createAppeal', [appealFileIpfsinfo, type, summary, new Date().getTime().toString()])
+
   logger.info(`[${type}] success to upload appeal list:${appealFileIpfsinfo}`)
 }
 
@@ -23,42 +25,44 @@ async function uploadAppeal (filename, newAppealList, type, dataType, summary) {
  * 上传媒体ip
  **/
 async function uploadPublisherIP (type, newPublisherIps) {
+  logger.info(`[${type}] start to upload publisher ip list`)
+
   await invokeCC('uploadPublisherIp', [newPublisherIps, new Date().getTime().toString()])
-  logger.info(`[${type}] success to upload publisher ip list ${new Date().getTime()}`)
+
+  logger.info(`[${type}] success to upload publisher ip list`)
 }
 
 /**
  * 上传黑名单
  **/
 async function uploadBlacklist (filename, newBlacklist, type) {
-  let startTime = new Date().getTime()
-  logger.info(`start to upload ${type} blacklist:${filename},timestamp:${startTime}`)
+  logger.info(`start to upload ${type} blacklist:${filename}`)
 
   // 链码查询该组织该类型的列表的全量数据的路径
-  logger.info(`[${type}]:start to download full list`)
-  let fulllistIpfsInfo = await queryCC('getOrgList', [type])
+  let fullBlacklistIpfsInfo = await queryCC('getOrgList', [type])
 
-  submitBlacklistToJobHistory(filename, newBlacklist, type, fulllistIpfsInfo)
+  // 提交给java任务服务器
+  submitBlacklistToJobHistory(type, filename, newBlacklist, fullBlacklistIpfsInfo)
+
+  logger.info(`success to upload ${type} blacklist:${filename}`)
 }
 
 /**
  * TODO:提交给java任务服务器
  **/
-function submitBlacklistToJobHistory (filename, newBlacklist, type, fulllistIpfsInfo) {
+function submitBlacklistToJobHistory (type, filename, newBlacklist, fullBlacklistIpfsInfo) {
 
 }
 
 /**
  * 确认提交黑名单
  **/
-async function commitBlacklist (filename, newBlacklist, type, newBlacklistIpfs, mergedBlacklistIpfs) {
-  await invokeCC('deltaUpload', [newBlacklistIpfs, type, new Date().getTime().toString()])
+async function commitBlacklist (type, filename, newBlacklistIpfsInfo, mergedBlacklistIpfsInfo) {
+  await invokeCC('deltaUpload', [newBlacklistIpfsInfo, type, new Date().getTime().toString()])
   logger.info(`success to upload ${type} blacklist:${filename}`)
 
-  await invokeCC('fullUpload', [mergedBlacklistIpfs, type])
+  await invokeCC('fullUpload', [mergedBlacklistIpfsInfo, type])
   logger.info(`success to upload ${type} fulllist`)
-
-  logger.info(`end to upload ${type} blacklist:${filename}`)
 }
 
 async function merge (type, latestVersion) {
@@ -87,9 +91,8 @@ async function submitMergeToJobHistory (type, latestVersion, allRmListInfo, allO
 /**
  * 确认提交合并
  **/
-async function commitMerge (type, latestVersion, latestMergeIpfsInfo, bloomFilter) {
+async function commitMerge (type, latestVersion, latestMergeIpfsInfo, bloomBuckets) {
   if (type === 'ip') {
-    let bloomBuckets = JSON.stringify([].slice.call(bloomFilter.buckets))
     await invokeCC('uploadMergeList', [latestMergeIpfsInfo, type, latestVersion + '', bloomBuckets])
   } else {
     await invokeCC('uploadMergeList', [latestMergeIpfsInfo, type, latestVersion + ''])
@@ -97,7 +100,8 @@ async function commitMerge (type, latestVersion, latestMergeIpfsInfo, bloomFilte
 
   // 链码中投票合并
   await invokeCC('merge', [type, new Date().getTime().toString()])
-  logger.info(`[${type}] new merge list:${latestMergeIpfsInfo}`)
+
+  logger.info(`[${type}]:success to generate merge list:${latestMergeIpfsInfo}`)
 }
 
 async function getMergedRmList (type) {
@@ -121,7 +125,7 @@ async function getMergedRmList (type) {
 async function _uploadToIpfs (filename, type, dataList) {
   let lenOfdata = strLenInHuman(dataList)
   let startTime = new Date().getTime()
-  logger.info(`start to upload ${type} to ipfs:${filename}(${lenOfdata}),timestamp:${startTime}`)
+  logger.info(`start to upload ${type} to ipfs:${filename}(${lenOfdata})`)
 
   let uploadedIpfsinfo = await ipfsCliRemote.addByStr(dataList, {
     progress: function (uploadedSize) {
@@ -133,7 +137,7 @@ async function _uploadToIpfs (filename, type, dataList) {
   uploadedIpfsinfo = JSON.stringify(uploadedIpfsinfo)
 
   let endTime = new Date().getTime()
-  logger.info(`end to upload ${type}-${filename} to ipfs:timestamp:${endTime - startTime}`)
+  logger.info(`end to upload ${type}-${filename} to ipfs,consuming:${endTime - startTime} ms`)
   return uploadedIpfsinfo
 }
 
