@@ -44,17 +44,19 @@ exports.upload = async function (req, res, next) {
   /* 申诉列表 */
   if (dataType === 'appeal') {
     await blacklistService.uploadAppeal(filename, dataListStr, type, dataType, summary)
+    respUtils.succResponse(res, '上传成功')
+    return
+  }
+
+  /* 媒体ip */
+  if (type === 'publisherIp') { // 媒体ip
+    await blacklistService.uploadPublisherIP(type, dataListStr)
+    respUtils.succResponse(res, '上传成功')
     return
   }
 
   /* 黑名单 */
-  if (type === 'publisherIp') { // 媒体ip
-    await blacklistService.uploadPublisherIP(type, dataListStr)
-    return
-  }
-
   await blacklistService.uploadBlacklist(filename, dataListStr, type)
-
   respUtils.succResponse(res, '上传成功')
 }
 

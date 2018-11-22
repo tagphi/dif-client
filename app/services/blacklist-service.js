@@ -36,24 +36,29 @@ async function uploadPublisherIP (type, newPublisherIps) {
  **/
 async function uploadBlacklist (filename, newBlacklist, type) {
   let startTime = new Date().getTime()
-  logger.info(`start to upload ${type} blacklist:${filename}`)
+  logger.info(`start to upload ${type} blacklist:${filename},timestamp:${startTime}`)
+
   // 链码查询该组织该类型的列表的全量数据的路径
   logger.info(`[${type}]:start to download full list`)
-  let currentListStr = await _getCurrentFullListOfOrg(type)
-  let endTimeOfFulllist = new Date().getTime()
-  logger.info(`time to load ${type} full list ${endTimeOfFulllist - startTime}`)
+  let fulllistIpfsInfo = await queryCC('getOrgList', [type])
 
-  // 合并列表
-  let mergedBlacklist = await _mergeBlackList(type, currentListStr, newBlacklist)
-  let endTimeOfMergeList = new Date().getTime()
-  logger.info(`time to merge delta and full list:${endTimeOfMergeList - endTimeOfFulllist}`)
+  submitBlacklistToJobHistory(filename, newBlacklist, type, fulllistIpfsInfo)
+}
 
-  // 将增量数据和全量数据上传到ipfs
-  let newBlacklistIpfs = await _uploadToIpfs(filename, type, newBlacklist)
+/**
+ * TODO:提交给java任务服务器
+ **/
+function submitBlacklistToJobHistory (filename, newBlacklist, type, fulllistIpfsInfo) {
+
+}
+
+/**
+ * 确认提交黑名单
+ **/
+async function commitBlacklist (filename, newBlacklist, type, newBlacklistIpfs, mergedBlacklistIpfs) {
   await invokeCC('deltaUpload', [newBlacklistIpfs, type, new Date().getTime().toString()])
   logger.info(`success to upload ${type} blacklist:${filename}`)
 
-  let mergedBlacklistIpfs = await _uploadToIpfs(filename, type, mergedBlacklist)
   await invokeCC('fullUpload', [mergedBlacklistIpfs, type])
   logger.info(`success to upload ${type} fulllist`)
 
@@ -162,69 +167,6 @@ async function _uploadToIpfs (filename, type, dataList) {
   let endTime = new Date().getTime()
   logger.info(`end to upload ${type}-${filename} to ipfs:timestamp:${endTime - startTime}`)
   return uploadedIpfsinfo
-}
-
-/**
- * 获取该组织的该类型的当前全量列表
- **/
-async function _getCurrentFullListOfOrg (type) {
-  let curFullListInfo = await queryCC('getOrgList', [type])
-  let curFullListStr = JSON.stringify([])
-
-  if (curFullListInfo) {
-    // 获取到当前的列表
-    curFullListInfo = JSON.parse(curFullListInfo)
-    let size = curFullListInfo.size || 0
-    let sizeInH = sizeInHuman(size)
-    logger.info(`[${type}]:start to download current full list(${sizeInH}): ${curFullListInfo}`)
-
-    let currentListFile = await ipfsCliLocal.get(curFullListInfo.path, curFullListInfo.name)
-
-    if (currentListFile.err) { // 超时
-      return curFullListStr
-    }
-
-    curFullListStr = currentListFile.content.toString()
-  }
-
-  return curFullListStr
-}
-
-async function _mergeBlackList (type, oldListStr, deltaList) {
-  let orgSet = new Set()
-
-  let deltaLines = deltaList.split('\n')
-  // 要删除的记录的集合
-  let toRmSet = new Set()
-
-  // 保存新的
-  deltaLines.forEach((row) => {
-    if (!row) return
-
-    let flagPos = row.lastIndexOf('\t')
-    let record = row.substring(0, flagPos)
-    flagPos++
-    let flag = row.substring(flagPos)
-
-    if (flag === '1') { // 增加
-      orgSet.add(record)
-    } else {
-      toRmSet.add(record)
-    }
-  })
-
-  // 保存旧的
-  if (oldListStr) {
-    let oldList = JSON.parse(oldListStr)
-    oldList.forEach((item, id) => {
-      // 找出新增列表中的对应记录
-      if (!toRmSet.has(item)) { // 不在移除集合中
-        orgSet.add(item)
-      }
-    })
-  }
-
-  return JSON.stringify(Array.from(orgSet))
 }
 
 /**
@@ -438,7 +380,9 @@ function sizeInHuman(len) {
 
 exports.uploadAppeal = uploadAppeal
 exports.uploadPublisherIP = uploadPublisherIP
+
 exports.uploadBlacklist = uploadBlacklist
+exports.commitBlacklist = commitBlacklist
 
 exports.merge = merge
 exports.getMergedRmList = getMergedRmList
