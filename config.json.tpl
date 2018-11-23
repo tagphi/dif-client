@@ -48,7 +48,7 @@
             "port":5001,
             "timeout":900
         },
-        "jobHistoryUrl":"http://localhost:8888",
+        "jobHistoryUrl":"http://localhost:8082",
         "callbackUrl":"http://localhost:8081/blacklist/callback"
     },
     "channel_name": "difchannel"

@@ -34,6 +34,7 @@ exports.upload = async function (req, res, next) {
   let summary = req.body.summary
   let dataListBuf = req.file.buffer
   let filename = req.file.originalname.toString()
+  let size = req.file.size
 
   if (dataType === 'appeal' &&
     (!summary || summary.length === 0)) {
@@ -56,7 +57,7 @@ exports.upload = async function (req, res, next) {
   }
 
   /* 黑名单 */
-  await blacklistService.uploadBlacklist(filename, dataListBuf, type)
+  await blacklistService.uploadBlacklist(filename, size, dataListBuf, type)
   respUtils.succResponse(res, '上传成功')
 }
 
@@ -364,10 +365,10 @@ exports.callback = async function (req, res) {
 
   let result = blacklistService[cmd](args, req.body)
   if (result) {
-    respUtils.succResponse(res, `success to call ${cmd}(${args})`)
-    logger.info(`success to call ${cmd}(${args})`)
+    respUtils.succResponse(res, `success to call ${cmd}(${JSON.stringify(args)})`)
+    logger.info(`success to call  ${cmd}(${JSON.stringify(args)})`)
   } else {
-    respUtils.errResonse(res, `error to call ${cmd}(${args})`)
-    logger.info(`error to call ${cmd}(${args})`)
+    respUtils.errResonse(res, `error to call  ${cmd}(${JSON.stringify(args)})`)
+    logger.info(`error to call  ${cmd}(${JSON.stringify(args)})`)
   }
 }

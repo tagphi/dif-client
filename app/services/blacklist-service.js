@@ -47,15 +47,14 @@ async function commitPublisherIPs (publisherIpsInfo) {
 /**
  * 上传黑名单
  **/
-async function uploadBlacklist (filename, blacklistBuf, type) {
+async function uploadBlacklist (filename, size, blacklistBuf, type) {
   let uploadTime = new Date().getTime().toString()
   logger.info(`start to upload ${type} blacklist:${filename}`)
 
   // 链码查询该组织该类型的列表的全量数据的路径 QmfLr6D4MKd1ZXaZC12TGcxf4oXLWcFzFQ7YEAiRDh7fvz
-  // let fullBlacklistIpfsInfo = await queryCC('getOrgList', [type])
-  let fullBlacklistIpfsInfo
+  let fullBlacklistIpfsInfo = await queryCC('getOrgList', [type]) || null
   // 提交给java任务服务器
-  submitBlacklistToJobHistory(uploadTime, type, filename, blacklistBuf, fullBlacklistIpfsInfo)
+  submitBlacklistToJobHistory(uploadTime, type, filename, size, blacklistBuf, fullBlacklistIpfsInfo)
 
   logger.info(`success to upload ${type} blacklist:${filename}`)
 }
@@ -63,10 +62,10 @@ async function uploadBlacklist (filename, blacklistBuf, type) {
 /**
  * 提交黑名单给java任务服务器
  **/
-async function submitBlacklistToJobHistory (uploadTime, type, filename, blacklistBuf, fullBlacklistIpfsInfo) {
+async function submitBlacklistToJobHistory (uploadTime, type, filename, size, blacklistBuf, fullBlacklistIpfsInfo) {
   let resp = await submitToJobHistory('/deltaUpload', type, blacklistBuf,
     {oldHash: fullBlacklistIpfsInfo},
-    {cmd: 'commitBlacklist', args: {type, filename, uploadTime}})
+    {cmd: 'commitBlacklist', args: {type, filename, uploadTime, size}})
 
   logger.info(`submit blacklist to job history:type-${type},filename:${filename},resp:${resp}`)
   return resp
@@ -92,10 +91,12 @@ async function submitToJobHistory (jobApi, type, dataBuf, extraArgs, callbackArg
  * 确认提交黑名单
  **/
 async function commitBlacklist (callbackArgs, argsFromJobHist) {
-  await invokeCC('deltaUpload', [argsFromJobHist.deltaHash, callbackArgs.type, callbackArgs.uploadTime])
+  let deltaIpfsInfo = makeIpfsinfo(callbackArgs.filename, argsFromJobHist.deltaHash, callbackArgs.size)
+  await invokeCC('deltaUpload', [deltaIpfsInfo, callbackArgs.type, callbackArgs.uploadTime])
   logger.info(`success to upload ${callbackArgs.type} blacklist:${callbackArgs.filename}`)
 
-  await invokeCC('fullUpload', [argsFromJobHist.fullHash, callbackArgs.type])
+  let fullIpfsInfo = makeIpfsinfo(callbackArgs.filename, argsFromJobHist.fullHash, -1)
+  await invokeCC('fullUpload', [fullIpfsInfo, callbackArgs.type])
   logger.info(`success to upload ${callbackArgs.type} fulllist`)
   return true
 }
@@ -258,6 +259,19 @@ function sizeInHuman(len) {
   let lenInKB = len / (UNIT_KB)
   if (lenInKB >= 1) return Math.floor(lenInKB) + 'KB'
   return len + 'B'
+}
+
+/**
+ * 构建ipfsinfo
+ **/
+function makeIpfsinfo (filename, hash, size) {
+  let deltaIpfsInfo = {}
+  deltaIpfsInfo.hash = hash
+  deltaIpfsInfo.path = hash
+  deltaIpfsInfo.name = filename
+  deltaIpfsInfo.size = size
+
+  return JSON.stringify(deltaIpfsInfo)
 }
 
 exports.uploadAppeal = uploadAppeal
