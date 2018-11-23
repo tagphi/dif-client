@@ -32,7 +32,7 @@ exports.upload = async function (req, res, next) {
   let type = req.body.type
   let dataType = req.body.dataType
   let summary = req.body.summary
-  let dataListStr = req.file.buffer.toString()
+  let dataListBuf = req.file.buffer
   let filename = req.file.originalname.toString()
 
   if (dataType === 'appeal' &&
@@ -43,20 +43,20 @@ exports.upload = async function (req, res, next) {
 
   /* 申诉列表 */
   if (dataType === 'appeal') {
-    await blacklistService.uploadAppeal(filename, dataListStr, type, dataType, summary)
+    await blacklistService.uploadAppeal(filename, dataListBuf, type, dataType, summary)
     respUtils.succResponse(res, '上传成功')
     return
   }
 
   /* 媒体ip */
   if (type === 'publisherIp') { // 媒体ip
-    await blacklistService.uploadPublisherIP(type, dataListStr)
+    await blacklistService.uploadPublisherIP(type, dataListBuf)
     respUtils.succResponse(res, '上传成功')
     return
   }
 
   /* 黑名单 */
-  await blacklistService.uploadBlacklist(filename, dataListStr, type)
+  await blacklistService.uploadBlacklist(filename, dataListBuf, type)
   respUtils.succResponse(res, '上传成功')
 }
 
@@ -359,7 +359,7 @@ exports.voteAppeal = async function (req, res, next) {
 exports.callback = async function (req, res) {
   let cmd = req.body.cmd
   let args = req.body.args
-  let result = blacklistService[cmd](args)
+  let result = blacklistService[cmd](args, req.body)
   if (result) {
     respUtils.succResponse(res, `success to call ${cmd}(${args})`)
     logger.info(`success to call ${cmd}(${args})`)

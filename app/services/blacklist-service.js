@@ -2,11 +2,15 @@
 
 let queryCC = require('../cc/query')
 let invokeCC = require('../cc/invoke')
-var CONFIG_IPFS = require('../../config.json').site.ipfs
+let CONFIG = require('../../config.json')
+var CONFIG_IPFS = CONFIG.site.ipfs
+var jobHistoryUrl = CONFIG.site.jobHistoryUrl
+var callbackUrl = CONFIG.site.callbackUrl
 let logger = require('../utils/logger-utils').logger()
 
 let ipfsCliLocal = require('../utils/ipfs-cli')
 let ipfsCliRemote = require('../utils/ipfs-cli-remote').bind(CONFIG_IPFS.host, CONFIG_IPFS.port)
+var superagent = require('superagent-promise')(require('superagent'), Promise)
 
 /**
  * 上传申诉
@@ -43,34 +47,46 @@ async function commitPublisherIPs (publisherIpsInfo) {
 /**
  * 上传黑名单
  **/
-async function uploadBlacklist (filename, newBlacklist, type) {
+async function uploadBlacklist (filename, blacklistBuf, type) {
+  let uploadTime = new Date().getTime().toString()
   logger.info(`start to upload ${type} blacklist:${filename}`)
 
-  // 链码查询该组织该类型的列表的全量数据的路径
-  let fullBlacklistIpfsInfo = await queryCC('getOrgList', [type])
-
+  // 链码查询该组织该类型的列表的全量数据的路径 QmfLr6D4MKd1ZXaZC12TGcxf4oXLWcFzFQ7YEAiRDh7fvz
+  // let fullBlacklistIpfsInfo = await queryCC('getOrgList', [type])
+  let fullBlacklistIpfsInfo
   // 提交给java任务服务器
-  submitBlacklistToJobHistory(type, filename, newBlacklist, fullBlacklistIpfsInfo)
+  submitBlacklistToJobHistory(uploadTime, type, filename, blacklistBuf, fullBlacklistIpfsInfo)
 
   logger.info(`success to upload ${type} blacklist:${filename}`)
 }
 
 /**
- * TODO:提交给java任务服务器
+ * 提交黑名单给java任务服务器
  **/
-function submitBlacklistToJobHistory (type, filename, newBlacklist, fullBlacklistIpfsInfo) {
-
+async function submitBlacklistToJobHistory (uploadTime, type, filename, blacklistBuf, fullBlacklistIpfsInfo) {
+  let resp = await superagent
+    .post(`${jobHistoryUrl}/deltaUpload`)
+    .attach('file', blacklistBuf, 'file')
+    .field('type', type)
+    .field('extraArgs', fullBlacklistIpfsInfo ? JSON.stringify({oldHash: fullBlacklistIpfsInfo}) : '{}')
+    .field('callbackUrl', callbackUrl)
+    .field('callbackArgs', JSON.stringify({cmd: 'commitBlacklist',
+      args: {type, filename, uploadTime}}))
+    .buffer()
+  resp = resp.text
+  logger.info(`submit blacklist to job history:type-${type},filename:${filename}`)
+  return resp
 }
 
 /**
  * 确认提交黑名单
  **/
-async function commitBlacklist (type, filename, newBlacklistIpfsInfo, mergedBlacklistIpfsInfo) {
-  await invokeCC('deltaUpload', [newBlacklistIpfsInfo, type, new Date().getTime().toString()])
-  logger.info(`success to upload ${type} blacklist:${filename}`)
+async function commitBlacklist (callbackArgs, argsFromJobHist) {
+  await invokeCC('deltaUpload', [argsFromJobHist.deltaHash, callbackArgs.type, callbackArgs.uploadTime])
+  logger.info(`success to upload ${callbackArgs.type} blacklist:${callbackArgs.filename}`)
 
-  await invokeCC('fullUpload', [mergedBlacklistIpfsInfo, type])
-  logger.info(`success to upload ${type} fulllist`)
+  await invokeCC('fullUpload', [argsFromJobHist.fullHash, callbackArgs.type])
+  logger.info(`success to upload ${callbackArgs.type} fulllist`)
   return true
 }
 
