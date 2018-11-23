@@ -9,20 +9,37 @@ var callbackUrl = CONFIG.site.callbackUrl
 let logger = require('../utils/logger-utils').logger()
 
 let ipfsCliLocal = require('../utils/ipfs-cli')
-let ipfsCliRemote = require('../utils/ipfs-cli-remote').bind(CONFIG_IPFS.host, CONFIG_IPFS.port)
 var superagent = require('superagent-promise')(require('superagent'), Promise)
 
 /**
  * 上传申诉
  **/
-async function uploadAppeal (filename, newAppealList, type, dataType, summary) {
-  logger.info(`start to upload ${type} appeal list:${filename}`)
+async function uploadAppeal (filename, size, appealsBuf, type, summary) {
+  // 提交申诉给java任务服务器
+  let uploadTime = new Date().getTime().toString()
+  submitAppealToJobHistory(uploadTime, type, filename, size, appealsBuf, summary)
+}
 
-  let appealFileIpfsinfo = await _uploadToIpfs(filename, type, newAppealList)
-  // 保存到账本
-  await invokeCC('createAppeal', [appealFileIpfsinfo, type, summary, new Date().getTime().toString()])
+/**
+ * 提交申诉给java任务服务器
+ **/
+async function submitAppealToJobHistory (uploadTime, type, filename, size, appealsBuf, summary) {
+  let resp = await submitToJobHistory('/appeal', type, appealsBuf,
+    undefined,
+    {cmd: 'commitAppeal', args: {type, filename, uploadTime, size, summary}})
 
-  logger.info(`[${type}] success to upload appeal list:${appealFileIpfsinfo}`)
+  logger.info(`submit appeal to job history:type-${type},filename:${filename},resp:${resp}`)
+  return resp
+}
+
+/**
+ * 确认提交申诉列表
+ **/
+async function commitAppeal (callbackArgs, argsFromJobHist) {
+  let appealFileIpfsinfo = makeIpfsinfo(callbackArgs.filename, argsFromJobHist.hash, callbackArgs.size)
+  await invokeCC('createAppeal', [appealFileIpfsinfo, callbackArgs.type, callbackArgs.summary, callbackArgs.uploadTime])
+  logger.info(`success to upload ${callbackArgs.type} appeal:${callbackArgs.filename}`)
+  return true
 }
 
 /**
@@ -157,28 +174,6 @@ async function getMergedRmList (type) {
 }
 
 /**
- * 上传数据到ipfs
- **/
-async function _uploadToIpfs (filename, type, dataList) {
-  let lenOfdata = strLenInHuman(dataList)
-  let startTime = new Date().getTime()
-  logger.info(`start to upload ${type} to ipfs:${filename}(${lenOfdata})`)
-
-  let uploadedIpfsinfo = await ipfsCliRemote.addByStr(dataList, {
-    progress: function (uploadedSize) {
-      uploadedSize = Math.floor(uploadedSize / (1024 * 1024))
-      logger.info(`progress of uploading ${type}-${filename} to ipfs:${uploadedSize}`)
-    }
-  })
-  uploadedIpfsinfo.name = filename
-  uploadedIpfsinfo = JSON.stringify(uploadedIpfsinfo)
-
-  let endTime = new Date().getTime()
-  logger.info(`end to upload ${type}-${filename} to ipfs,consuming:${endTime - startTime} ms`)
-  return uploadedIpfsinfo
-}
-
-/**
  * 下载数据文件
  **/
 async function _downloadDataFromIPFS (listOfOrgs) {
@@ -241,15 +236,6 @@ function _groupVoterByRecord (listFileInfos) {
 }
 
 /**
- * 计算字符串大小
- **/
-function strLenInHuman(str) {
-  str = str || ''
-  let len = str.length
-  return sizeInHuman(len)
-}
-
-/**
  * size转换为友好单位
  **/
 function sizeInHuman(len) {
@@ -275,6 +261,7 @@ function makeIpfsinfo (filename, hash, size) {
 }
 
 exports.uploadAppeal = uploadAppeal
+exports.commitAppeal = commitAppeal
 exports.uploadPublisherIP = uploadPublisherIP
 exports.commitPublisherIPs = commitPublisherIPs
 
@@ -284,7 +271,3 @@ exports.commitBlacklist = commitBlacklist
 exports.merge = merge
 exports.commitMerge = commitMerge
 exports.getMergedRmList = getMergedRmList
-exports.cbtest = function (args) {
-  console.log('cbtest————>', args)
-  return true
-}

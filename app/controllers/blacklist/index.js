@@ -44,7 +44,7 @@ exports.upload = async function (req, res, next) {
 
   /* 申诉列表 */
   if (dataType === 'appeal') {
-    await blacklistService.uploadAppeal(filename, dataListBuf, type, dataType, summary)
+    await blacklistService.uploadAppeal(filename, size, dataListBuf, type, summary)
     respUtils.succResponse(res, '上传成功')
     return
   }
