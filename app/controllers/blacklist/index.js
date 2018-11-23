@@ -186,8 +186,12 @@ exports.downloadPublishIPs = async function (req, res, next) {
   try {
     // 查询最新的合并版本信息
     // "127.0.0.1\n127.0.0.2"
-    let publisherIPs = await queryChaincode('getPublisherIpByMspId', [mspId])
-    respUtils.download(res, filename, publisherIPs)
+    let publisherIPsRecord = await queryChaincode('getPublisherIpByMspId', [mspId])
+    if (!publisherIPsRecord) return respUtils.download(res, filename, '暂无数据')
+
+    publisherIPsRecord = JSON.parse(publisherIPsRecord)
+    let ipsFile = await ipfsCli.get(publisherIPsRecord.ipfsInfo.path, publisherIPsRecord.mspid)
+    respUtils.download(res, filename, ipsFile.content.toString())
   } catch (e) {
     logger.error(e)
     respUtils.download(res, filename, '下载合并版本出错')
