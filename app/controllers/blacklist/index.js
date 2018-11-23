@@ -359,6 +359,9 @@ exports.voteAppeal = async function (req, res, next) {
 exports.callback = async function (req, res) {
   let cmd = req.body.cmd
   let args = req.body.args
+
+  if (!blacklistService[cmd]) return respUtils.succResponse(res)
+
   let result = blacklistService[cmd](args, req.body)
   if (result) {
     respUtils.succResponse(res, `success to call ${cmd}(${args})`)

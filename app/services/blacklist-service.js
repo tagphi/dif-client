@@ -64,18 +64,28 @@ async function uploadBlacklist (filename, blacklistBuf, type) {
  * 提交黑名单给java任务服务器
  **/
 async function submitBlacklistToJobHistory (uploadTime, type, filename, blacklistBuf, fullBlacklistIpfsInfo) {
-  let resp = await superagent
-    .post(`${jobHistoryUrl}/deltaUpload`)
-    .attach('file', blacklistBuf, 'file')
-    .field('type', type)
-    .field('extraArgs', fullBlacklistIpfsInfo ? JSON.stringify({oldHash: fullBlacklistIpfsInfo}) : '{}')
-    .field('callbackUrl', callbackUrl)
-    .field('callbackArgs', JSON.stringify({cmd: 'commitBlacklist',
-      args: {type, filename, uploadTime}}))
-    .buffer()
-  resp = resp.text
-  logger.info(`submit blacklist to job history:type-${type},filename:${filename}`)
+  let resp = await submitToJobHistory('/deltaUpload', type, blacklistBuf,
+    {oldHash: fullBlacklistIpfsInfo},
+    {cmd: 'commitBlacklist', args: {type, filename, uploadTime}})
+
+  logger.info(`submit blacklist to job history:type-${type},filename:${filename},resp:${resp}`)
   return resp
+}
+
+/**
+ * 提交任务给job服务器
+ **/
+async function submitToJobHistory (jobApi, type, dataBuf, extraArgs, callbackArgs) {
+  let resp = await superagent
+    .post(`${jobHistoryUrl}${jobApi}`)
+    .attach('file', dataBuf, 'file')
+    .field('type', type)
+    .field('extraArgs', extraArgs ? JSON.stringify(extraArgs) : '{}')
+    .field('callbackUrl', callbackUrl)
+    .field('callbackArgs', callbackArgs ? JSON.stringify(callbackArgs) : '{}')
+    .buffer()
+
+  return resp.text
 }
 
 /**
