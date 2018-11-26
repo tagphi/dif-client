@@ -3,22 +3,12 @@
 let queryCC = require('../cc/query')
 let invokeCC = require('../cc/invoke')
 let CONFIG = require('../../config.json')
-var CONFIG_IPFS = CONFIG.site.ipfs
 var jobHistoryUrl = CONFIG.site.jobHistoryUrl
 var callbackUrl = CONFIG.site.callbackUrl
 let logger = require('../utils/logger-utils').logger()
 
 let ipfsCliLocal = require('../utils/ipfs-cli')
 var superagent = require('superagent-promise')(require('superagent'), Promise)
-
-/**
- * 上传申诉
- **/
-async function uploadAppeal (filename, size, appealsBuf, type, summary) {
-  // 提交申诉给java任务服务器
-  let uploadTime = new Date().getTime().toString()
-  submitAppealToJobHistory(uploadTime, type, filename, size, appealsBuf, summary)
-}
 
 /**
  * 提交申诉给java任务服务器
@@ -43,21 +33,25 @@ async function commitAppeal (callbackArgs, argsFromJobHist) {
 }
 
 /**
- * 上传媒体ip
+ * 提交媒体ip给java任务服务器
  **/
-async function uploadPublisherIP (type, publisherIps) {
-  // TODO:提交到历史服务器
+async function submitPublishIPsToJobHistory (uploadTime, filename, size, publishIpsBuf) {
+  let resp = await submitToJobHistory('/publisherIp', 'publisher-ip', publishIpsBuf,
+    undefined,
+    {cmd: 'commitPublisherIPs', args: {filename, uploadTime, size}})
 
-  logger.info(`[${type}] submit job:upload publisher ip list`)
+  logger.info(`submit publisherips to job history:filename:${filename},resp:${resp}`)
+  return resp
 }
 
 /**
- * 确认提交媒体ip
+ * 确认提交申诉列表
  **/
-async function commitPublisherIPs (publisherIpsInfo) {
-  await invokeCC('uploadPublisherIp', [publisherIpsInfo, new Date().getTime().toString()])
+async function commitPublisherIPs (callbackArgs, argsFromJobHist) {
+  let publisherIpsFileIpfsinfo = makeIpfsinfo(callbackArgs.filename, argsFromJobHist.hash, callbackArgs.size)
+  await invokeCC('uploadPublisherIp', [publisherIpsFileIpfsinfo, callbackArgs.uploadTime])
 
-  logger.info(`commit job:upload publisher ip list:${publisherIpsInfo}`)
+  logger.info(`success to upload ${callbackArgs.type} publisher ips:${callbackArgs.filename}`)
   return true
 }
 
@@ -92,16 +86,20 @@ async function submitBlacklistToJobHistory (uploadTime, type, filename, size, bl
  * 提交任务给job服务器
  **/
 async function submitToJobHistory (jobApi, type, dataBuf, extraArgs, callbackArgs) {
-  let resp = await superagent
-    .post(`${jobHistoryUrl}${jobApi}`)
-    .attach('file', dataBuf, 'file')
-    .field('type', type)
-    .field('extraArgs', extraArgs ? JSON.stringify(extraArgs) : '{}')
-    .field('callbackUrl', callbackUrl)
-    .field('callbackArgs', callbackArgs ? JSON.stringify(callbackArgs) : '{}')
-    .buffer()
-
-  return resp.text
+  try {
+    let resp = await superagent
+      .post(`${jobHistoryUrl}${jobApi}`)
+      .attach('file', dataBuf, 'file')
+      .field('type', type)
+      .field('extraArgs', extraArgs ? JSON.stringify(extraArgs) : '{}')
+      .field('callbackUrl', callbackUrl)
+      .field('callbackArgs', callbackArgs ? JSON.stringify(callbackArgs) : '{}')
+      .buffer()
+    return resp.text
+  } catch (e) {
+    logger.error(`submit err:${JSON.stringify(e)}`)
+    return e.message
+  }
 }
 
 /**
@@ -260,9 +258,10 @@ function makeIpfsinfo (filename, hash, size) {
   return JSON.stringify(deltaIpfsInfo)
 }
 
-exports.uploadAppeal = uploadAppeal
+exports.submitAppealToJobHistory = submitAppealToJobHistory
 exports.commitAppeal = commitAppeal
-exports.uploadPublisherIP = uploadPublisherIP
+
+exports.submitPublishIPsToJobHistory = submitPublishIPsToJobHistory
 exports.commitPublisherIPs = commitPublisherIPs
 
 exports.uploadBlacklist = uploadBlacklist

@@ -42,16 +42,17 @@ exports.upload = async function (req, res, next) {
     return
   }
 
+  let uploadTime = new Date().getTime().toString()
   /* 申诉列表 */
   if (dataType === 'appeal') {
-    await blacklistService.uploadAppeal(filename, size, dataListBuf, type, summary)
+    await blacklistService.submitAppealToJobHistory(uploadTime, type, filename, size, dataListBuf, summary)
     respUtils.succResponse(res, '上传成功')
     return
   }
 
   /* 媒体ip */
   if (type === 'publisherIp') { // 媒体ip
-    await blacklistService.uploadPublisherIP(type, dataListBuf)
+    await blacklistService.submitPublishIPsToJobHistory(uploadTime, filename, size, dataListBuf)
     respUtils.succResponse(res, '上传成功')
     return
   }
