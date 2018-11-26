@@ -20,7 +20,7 @@
                         <tr>
                             <th>任务</th>
                             <th>文件</th>
-                            <th>类型</th>
+                            <!--<th>类型</th>-->
                             <th>操作</th>
                             <th>步骤</th>
                             <th>状态</th>
@@ -30,13 +30,13 @@
                         <tbody>
 
                         <tr ng-repeat="hist in histories">
-                            <td>{{hist.jobID}}</td>
-                            <td>{{hist.file}}</td>
-                            <td>{{hist.type}}</td>
-                            <td>{{hist.opt}}</td>
-                            <td>{{hist.steps}}</td>
+                            <td>{{hist.id}}</td>
+                            <td>{{hist.callbackArgs.args.filename || '-'}}</td>
+                            <!--<td>{{hist.callbackArgs.type || 'unknown'}}</td>-->
+                            <td>{{hist.action}}</td>
+                            <td>{{hist.step}}</td>
                             <td>{{hist.status}}</td>
-                            <td>{{hist.latestTime}}</td>
+                            <td>{{hist.modifiedTime}}</td>
                         </tr>
                         </tbody>
                     </table>

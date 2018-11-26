@@ -3,10 +3,10 @@
  * 合并版本历史页面控制器
  **/
 app.controller('JobHistoryController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $filter, HttpService, ngDialog, alertMsgService, Upload) {
-  $scope.histories = mock.jobHistories
+  $scope.histories = []
   $scope.type = 'device'
   $scope.page = {
-    total: 11, // 总历史记录数
+    total: 0, // 总历史记录数
     pageSize: 10,
     currentPage: 1 // 页面指针
   }
@@ -21,24 +21,22 @@ app.controller('JobHistoryController', function ($q, $scope, $http, $rootScope, 
   /**
    * 查询合并历史
    **/
-  $scope.queryHists = function (type) {
-    HttpService.post('/blacklist/mergedHistories', {type})
+  $scope.queryHists = function (page) {
+    let start = (page - 1) * 10
+    let end = start + $scope.page.size
+    HttpService.post('/blacklist/jobs', {start, end})
       .then(function (respData) {
         if (respData.success) {
-          respData.data.forEach(function (row, id) {
-            row.id = id + 1
-            row.type = $scope.type
-
-            // 转换时间戳
-            let date = new Date()
-            date.setTime(row.timestamp)
-            row.date = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss')
+          $scope.page.total = respData.data.total
+          respData.data.jobs.forEach(function (job) {
+            job.callbackArgs = JSON.parse(job.callbackArgs)
+            job.modifiedTime = job.modifiedTime.split('.')[0].replace('T', ' ')
           })
-
-          $scope.histories = respData.data
+          $scope.histories = respData.data.jobs
         } else {
           alertMsgService.alert('获取失败', false)
           $scope.histories = []
+          $scope.page.total = 0
         }
       })
       .catch(function (err) {
