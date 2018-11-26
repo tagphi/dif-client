@@ -1,10 +1,15 @@
 /* eslint-disable no-trailing-spaces,node/no-deprecated-api */
+
+let CONFIG = require('../../../config')
+const CONFIG__SITE = CONFIG.site
+const CONFIG__MSP = CONFIG.msp
+const CONFIG_IPFS = CONFIG__SITE.ipfs
+const ADMIN_ADDR = CONFIG__SITE.adminAddr
+var jobHistoryUrl = CONFIG__SITE.jobHistoryUrl
+
 var respUtils = require('../../utils/resp-utils')
 var logger = require('../../utils/logger-utils').logger()
-const CONFIG__SITE = require('../../../config').site
-const CONFIG__MSP = require('../../../config').msp
-const CONFIG_IPFS = require('../../../config').site.ipfs
-const ADMIN_ADDR = require('../../../config').site.adminAddr
+
 var {check} = require('express-validator/check')
 var agent = require('superagent-promise')(require('superagent'), Promise)
 let ipfsCliRemote = require('../../utils/ipfs-cli-remote').bind(CONFIG_IPFS.host, CONFIG_IPFS.port)
@@ -372,4 +377,19 @@ exports.callback = async function (req, res) {
     respUtils.errResonse(res, `error to call  ${cmd}(${JSON.stringify(args)})`)
     logger.info(`error to call  ${cmd}(${JSON.stringify(args)})`)
   }
+}
+
+/**
+ * 任务历史接口
+ **/
+exports.jobs = async function (req, res) {
+  let start = req.body.start || 0
+  let end = req.body.end || 10
+
+  let jobsResults = await agent
+    .get(`${jobHistoryUrl}/jobs?start=${start}&end=${end}`)
+    .buffer()
+  jobsResults = JSON.parse(jobsResults.text)
+
+  respUtils.succResponse(res, undefined, jobsResults)
 }
