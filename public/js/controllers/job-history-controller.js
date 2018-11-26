@@ -30,7 +30,7 @@ app.controller('JobHistoryController', function ($q, $scope, $http, $rootScope, 
           $scope.page.total = respData.data.total
           respData.data.jobs.forEach(function (job) {
             job.callbackArgs = JSON.parse(job.callbackArgs)
-            job.modifiedTime = job.modifiedTime.split('.')[0].replace('T', ' ')
+            job.modifiedTime = new Date(job.modifiedTime).toLocaleString()
           })
           $scope.histories = respData.data.jobs
         } else {

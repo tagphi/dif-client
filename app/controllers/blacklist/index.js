@@ -115,9 +115,12 @@ exports.download = async function (req, res, next) {
   let name = req.query.name
 
   try {
-    let result = await ipfsCli.get(path)
-    let content = result.content.toString()
-    respUtils.download(res, name, content)
+    res.set({
+      'Content-Type': 'application/octet-stream',
+      'Content-Disposition': 'attachment; filename=' + name
+    })
+    agent.get(`${jobHistoryUrl}/download/${path}`).pipe(res)
+    logger.info('downloading file:' + name)
   } catch (e) {
     logger.error(e)
     respUtils.download(res, name, '下载出错')
