@@ -364,7 +364,7 @@ exports.callback = async function (req, res) {
 
   if (!blacklistService[cmd]) return respUtils.succResponse(res)
 
-  let result = blacklistService[cmd](args, req.body)
+  let result = await blacklistService[cmd](args, req.body)
   if (result) {
     respUtils.succResponse(res, `success to call ${cmd}(${JSON.stringify(args)})`)
     logger.info(`success to call  ${cmd}(${JSON.stringify(args)})`)

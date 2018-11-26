@@ -8,10 +8,13 @@ let logger = require('../utils/logger-utils').logger()
 let blacklistService = require('../services/blacklist-service')
 let queryCC = require('../cc/query')
 
+// const DATA_TYPES = [
+//   {type: 'device', merging: false},
+//   {type: 'ip', merging: false},
+//   {type: 'default', merging: false}]
+
 const DATA_TYPES = [
-  {type: 'device', merging: false},
-  {type: 'ip', merging: false},
-  {type: 'default', merging: false}]
+  {type: 'ip', merging: false}]
 
 let isRunning = false
 

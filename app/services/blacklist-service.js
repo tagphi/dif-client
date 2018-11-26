@@ -120,41 +120,61 @@ async function commitBlacklist (callbackArgs, argsFromJobHist) {
 
 async function merge (type, latestVersion) {
   // 查询所有组织的移除列表信息
-  let allRmListInfo = await queryCC('getRemoveList', [type])
+  let allRmListInfo = await queryCC('getRemoveList', [type]) | '[]'
+  allRmListInfo = allRmListInfo === 0 ? '[]' : allRmListInfo
+  allRmListInfo = extractPaths(allRmListInfo)
+
+  // 剔除媒体ip
+  let publishIpfsInfo = ''
+  if (type === 'ip') {
+    publishIpfsInfo = await queryCC('getPublisherIp', []) || '[]'
+  }
+  publishIpfsInfo = extractPaths(publishIpfsInfo)
+  allRmListInfo = allRmListInfo.concat(publishIpfsInfo)
 
   // 获取合并的全量列表
-  let allOrgsFulllists = await queryCC('getAllOrgsList', [type])
+  let allOrgsFulllists = await queryCC('getAllOrgsList', [type]) || '[]'
+  allOrgsFulllists = concatHashAndMspid(allOrgsFulllists)
 
-  // 提交合并任务
-  submitMergeToJobHistory(type, latestVersion, allRmListInfo, allOrgsFulllists)
+  submitToJobHistory('/merge', type, undefined,
+    {blacklist: allOrgsFulllists, removelist: allRmListInfo},
+    {cmd: 'commitMerge', args: {type, latestVersion}})
 }
 
 /**
- * // TODO:提交合并任务
+ * 拼接组织mspid和文件路径hash
  **/
-async function submitMergeToJobHistory (type, latestVersion, allRmListInfo, allOrgsFulllists) {
-  // 剔除媒体ip
-  let publishIps = ''
-  if (type === 'ip') {
-    publishIps = await queryCC('getPublisherIp', [])
-  }
-  console.log('————>', publishIps)
+function concatHashAndMspid (ipfsinfosListStr) {
+  let ipfsinfosList = JSON.parse(ipfsinfosListStr)
+  return ipfsinfosList.map(ipfsinfo => `${ipfsinfo.mspId}:${ipfsinfo.ipfsInfo.hash}`)
+}
+
+/**
+ * 提取path
+ **/
+function extractPaths (records) {
+  records = JSON.parse(records)
+
+  return records.map(function (rec) {
+    if (typeof rec.ipfsInfo === 'string') {
+      return JSON.parse(rec.ipfsInfo).hash
+    }
+    return rec.ipfsInfo.hash
+  })
 }
 
 /**
  * 确认提交合并
  **/
-async function commitMerge (type, latestVersion, latestMergeIpfsInfo, bloomBuckets) {
-  if (type === 'ip') {
-    await invokeCC('uploadMergeList', [latestMergeIpfsInfo, type, latestVersion + '', bloomBuckets])
-  } else {
-    await invokeCC('uploadMergeList', [latestMergeIpfsInfo, type, latestVersion + ''])
-  }
+async function commitMerge (callbackArgs, argsFromJobHist) {
+  let now = new Date().getTime().toString()
+  let mergedListIpfsinfo = makeIpfsinfo(`${callbackArgs.type}-${now}.log`, argsFromJobHist.hash, -1)
 
+  await invokeCC('uploadMergeList', [mergedListIpfsinfo, callbackArgs.type, callbackArgs.latestVersion + ''])
   // 链码中投票合并
-  await invokeCC('merge', [type, new Date().getTime().toString()])
+  await invokeCC('merge', [callbackArgs.type, now])
 
-  logger.info(`[${type}]:success to generate merge list:${latestMergeIpfsInfo}`)
+  logger.info(`[${callbackArgs.type}]:success to generate merge list:${callbackArgs.latestMergeIpfsInfo}`)
   return true
 }
 
@@ -238,7 +258,7 @@ function _groupVoterByRecord (listFileInfos) {
 /**
  * size转换为友好单位
  **/
-function sizeInHuman(len) {
+function sizeInHuman (len) {
   let UNIT_KB = 1024
   let lenInMB = len / (UNIT_KB * UNIT_KB)
   if (lenInMB >= 1) return Math.floor(lenInMB) + 'MB'
