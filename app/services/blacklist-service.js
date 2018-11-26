@@ -63,9 +63,11 @@ async function uploadBlacklist (filename, size, blacklistBuf, type) {
   logger.info(`start to upload ${type} blacklist:${filename}`)
 
   // 链码查询该组织该类型的列表的全量数据的路径 QmfLr6D4MKd1ZXaZC12TGcxf4oXLWcFzFQ7YEAiRDh7fvz
-  let fullBlacklistIpfsInfo = await queryCC('getOrgList', [type]) || null
+  let fullBlacklistIpfsInfo = await queryCC('getOrgList', [type]) || '{}'
+  fullBlacklistIpfsInfo = JSON.parse(fullBlacklistIpfsInfo)
+
   // 提交给java任务服务器
-  submitBlacklistToJobHistory(uploadTime, type, filename, size, blacklistBuf, fullBlacklistIpfsInfo)
+  submitBlacklistToJobHistory(uploadTime, type, filename, size, blacklistBuf, fullBlacklistIpfsInfo.path)
 
   logger.info(`success to upload ${type} blacklist:${filename}`)
 }
