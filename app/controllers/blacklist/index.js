@@ -1,10 +1,15 @@
 /* eslint-disable no-trailing-spaces,node/no-deprecated-api */
+
+let CONFIG = require('../../../config')
+const CONFIG__SITE = CONFIG.site
+const CONFIG__MSP = CONFIG.msp
+const CONFIG_IPFS = CONFIG__SITE.ipfs
+const ADMIN_ADDR = CONFIG__SITE.adminAddr
+var MERGE_SERVICE_URL = CONFIG__SITE.mergeServiceUrl
+
 var respUtils = require('../../utils/resp-utils')
 var logger = require('../../utils/logger-utils').logger()
-const CONFIG__SITE = require('../../../config').site
-const CONFIG__MSP = require('../../../config').msp
-const CONFIG_IPFS = require('../../../config').site.ipfs
-const ADMIN_ADDR = require('../../../config').site.adminAddr
+
 var {check} = require('express-validator/check')
 var agent = require('superagent-promise')(require('superagent'), Promise)
 let ipfsCliRemote = require('../../utils/ipfs-cli-remote').bind(CONFIG_IPFS.host, CONFIG_IPFS.port)
@@ -12,11 +17,7 @@ let ipfsCliRemote = require('../../utils/ipfs-cli-remote').bind(CONFIG_IPFS.host
 var queryChaincode = require('../../cc/query')
 var invokeCC = require('../../cc/invoke')
 
-let ipfsCli = require('../../utils/ipfs-cli')
-
 let blacklistService = require('../../services/blacklist-service')
-
-let blacklistValidator = require('../../validators/blacklist-validator')
 let mergeCron = require('../../cron/merge-cron')
 
 exports.url = '/blacklist'
@@ -34,7 +35,9 @@ exports.upload = async function (req, res, next) {
   let type = req.body.type
   let dataType = req.body.dataType
   let summary = req.body.summary
-  let dataListStr = req.file.buffer.toString()
+  let dataListBuf = req.file.buffer
+  let filename = req.file.originalname.toString()
+  let size = req.file.size
 
   if (dataType === 'appeal' &&
     (!summary || summary.length === 0)) {
@@ -42,12 +45,23 @@ exports.upload = async function (req, res, next) {
     return
   }
 
-  // 校验
-  blacklistValidator.validateUpload(dataType, type, dataListStr)
+  let uploadTime = new Date().getTime().toString()
+  /* 申诉列表 */
+  if (dataType === 'appeal') {
+    await blacklistService.submitAppeal(uploadTime, type, filename, size, dataListBuf, summary)
+    respUtils.succResponse(res, '上传成功')
+    return
+  }
 
-  // 上传
-  await blacklistService.upload(dataListStr, type, dataType, summary)
+  /* 媒体ip */
+  if (type === 'publisherIp') { // 媒体ip
+    await blacklistService.submitPublishIPs(uploadTime, filename, size, dataListBuf)
+    respUtils.succResponse(res, '上传成功')
+    return
+  }
 
+  /* 黑名单 */
+  await blacklistService.uploadBlacklist(filename, size, dataListBuf, type)
   respUtils.succResponse(res, '上传成功')
 }
 
@@ -99,13 +113,24 @@ exports.download = async function (req, res, next) {
   let name = req.query.name
 
   try {
-    let result = await ipfsCli.get(path)
-    let content = result.content.toString()
-    respUtils.download(res, name, content)
+    downloadIpfsFile(res, name, path)
   } catch (e) {
     logger.error(e)
     respUtils.download(res, name, '下载出错')
   }
+}
+
+/**
+ * 从job服务器下载ipfs并返回给客户端
+ **/
+function downloadIpfsFile (res, name, path) {
+  res.set({
+    'Content-Type': 'application/octet-stream',
+    'Content-Disposition': 'attachment; filename=' + name
+  })
+  agent.get(`${MERGE_SERVICE_URL}/download/${path}`)
+    .pipe(res)
+  logger.info('downloading file:' + name)
 }
 
 /**
@@ -141,10 +166,7 @@ exports.downloadMergedlist = async function (req, res, next) {
 
     // 从ipfs上下载
     mergedListIpfsInfo = JSON.parse(mergedListIpfsInfo)
-    let downloadedMergedList = await ipfsCli.get(mergedListIpfsInfo.ipfsInfo.path)
-    let content = downloadedMergedList.content.toString()
-
-    respUtils.download(res, filename, content)
+    downloadIpfsFile(res, filename, mergedListIpfsInfo.ipfsInfo.path)
   } catch (e) {
     logger.error(e)
     respUtils.download(res, filename, '下载合并版本出错')
@@ -171,17 +193,19 @@ exports.validateDownloadPublishIPs = [
 ]
 
 exports.downloadPublishIPs = async function (req, res, next) {
-  let mspId = req.query.mspId
+  let mspId = req.body.mspId
   let filename = mspId + '-publisher-ips-' + new Date().getTime() + '.txt'
 
   try {
-    // 查询最新的合并版本信息
-    // "127.0.0.1\n127.0.0.2"
-    let publisherIPs = await queryChaincode('getPublisherIpByMspId', [mspId])
-    respUtils.download(res, filename, publisherIPs)
+    let publisherIPsRecord = await queryChaincode('getPublisherIpByMspId', [mspId])
+    if (!publisherIPsRecord) return respUtils.download(res, filename, '暂无数据')
+
+    publisherIPsRecord = JSON.parse(publisherIPsRecord)
+    publisherIPsRecord.ipfsInfo = JSON.parse(publisherIPsRecord.ipfsInfo)
+    downloadIpfsFile(res, filename, publisherIPsRecord.ipfsInfo.path)
   } catch (e) {
     logger.error(e)
-    respUtils.download(res, filename, '下载合并版本出错')
+    respUtils.download(res, filename, '下载媒体IP出错')
   }
 }
 
@@ -307,6 +331,9 @@ exports.publisherIPs = async function (req, res, next) {
   if (result.indexOf('Err') !== -1) return next(result)
 
   result = JSON.parse(result)
+  result.forEach(function (record) {
+    record.ipfsInfo = JSON.parse(record.ipfsInfo)
+  })
   // 时间逆序
   result.sort(function (item1, item2) {
     return parseInt(item2.timestamp) - parseInt(item1.timestamp)
@@ -338,4 +365,38 @@ exports.voteAppeal = async function (req, res, next) {
   if (result && result.indexOf('Err') !== -1) return next(result)
 
   respUtils.succResponse(res, '投票成功')
+}
+
+/**
+ * 回调接口
+ **/
+exports.callback = async function (req, res) {
+  let cmd = req.body.cmd
+  let args = req.body.args
+
+  if (!blacklistService[cmd]) return respUtils.succResponse(res)
+
+  let result = await blacklistService[cmd](args, req.body)
+  if (result) {
+    respUtils.succResponse(res, `success to call ${cmd}(${JSON.stringify(args)})`)
+    logger.info(`success to call  ${cmd}(${JSON.stringify(args)})`)
+  } else {
+    respUtils.errResonse(res, `error to call  ${cmd}(${JSON.stringify(args)})`)
+    logger.info(`error to call  ${cmd}(${JSON.stringify(args)})`)
+  }
+}
+
+/**
+ * 任务历史接口
+ **/
+exports.jobs = async function (req, res) {
+  let start = req.body.start || 0
+  let end = req.body.end || 10
+
+  let jobsResults = await agent
+    .get(`${MERGE_SERVICE_URL}/jobs?start=${start}&end=${end}`)
+    .buffer()
+  jobsResults = JSON.parse(jobsResults.text)
+
+  respUtils.succResponse(res, undefined, jobsResults)
 }

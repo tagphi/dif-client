@@ -17,6 +17,8 @@
             <a ng-click="openAppealDlg()" class="link-normal"><i class="iconfont">&#xe637;</i> 申诉</a>
             <a ng-click="openDownloadDlg()" class="link-default"><i class="icon-download"></i> 下载合并版本</a>
             <a ng-click="jumpToMergesPage()" class="link-default"><i class="iconfont">&#xe60c;</i> 合并历史</a>
+            <a ng-click="jumpToJobsPage()" class="link-default">
+                <i class="iconfont" style="position: relative;top: 1px;font-size: 20px;">&#xe653;</i> 任务</a>
         </h2>
         <section class="mainarea tab-ctn-minh">
             <div class="htitle">
@@ -67,7 +69,7 @@
                         <td>{{hist.mspid || hist.mspId}}</td>
                         <td>{{hist.date}}</td>
                         <td ng-if="showingTab.type!='publisherIP'">{{hist.type}}</td>
-                        <td ng-if="showingTab.type=='publisherIP'">{{hist.lines}}</td>
+                        <td ng-if="showingTab.type=='publisherIP'">{{hist.ipfsInfo.lines}}</td>
                         <td>
                             <a ng-if="showingTab.type=='delta'"
                                href="/blacklist/download?path={{hist.ipfsInfo.path}}&name={{hist.ipfsInfo.name}}">下载</a>
