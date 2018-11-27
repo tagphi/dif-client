@@ -135,9 +135,9 @@ async function merge (type, latestVersion) {
   let publishIpfsInfo = ''
   if (type === 'ip') {
     publishIpfsInfo = await queryCC('getPublisherIp', []) || '[]'
+    publishIpfsInfo = extractPaths(publishIpfsInfo)
+    allRmListInfo = allRmListInfo.concat(publishIpfsInfo)
   }
-  publishIpfsInfo = extractPaths(publishIpfsInfo)
-  allRmListInfo = allRmListInfo.concat(publishIpfsInfo)
 
   // 获取合并的全量列表
   let allOrgsFulllists = await queryCC('getAllOrgsList', [type]) || '[]'

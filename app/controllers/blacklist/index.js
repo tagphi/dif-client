@@ -168,10 +168,7 @@ exports.downloadMergedlist = async function (req, res, next) {
 
     // 从ipfs上下载
     mergedListIpfsInfo = JSON.parse(mergedListIpfsInfo)
-    let downloadedMergedList = await ipfsCli.get(mergedListIpfsInfo.ipfsInfo.path)
-    let content = downloadedMergedList.content.toString()
-
-    respUtils.download(res, filename, content)
+    pipeFromJobHistory(res, filename, mergedListIpfsInfo.ipfsInfo.path)
   } catch (e) {
     logger.error(e)
     respUtils.download(res, filename, '下载合并版本出错')
