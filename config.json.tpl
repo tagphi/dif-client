@@ -47,7 +47,9 @@
             "host":"175.6.228.227",
             "port":5001,
             "timeout":900
-        }
+        },
+        "mergeServiceUrl":"http://localhost:8082",
+        "callbackUrl":"http://localhost:8081/blacklist/callback"
     },
     "channel_name": "difchannel"
 }

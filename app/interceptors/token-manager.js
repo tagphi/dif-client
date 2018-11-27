@@ -34,7 +34,7 @@ var isInWhiteList = function (req) {
   let remoteIp = req.ip
   let isWhiteIP = false
   whitelist.forEach(function (whiteIP) {
-    if (whiteIP === remoteIp) {
+    if (remoteIp.indexOf(whiteIP) !== -1) {
       isWhiteIP = true
     }
   })

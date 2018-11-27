@@ -1,0 +1,64 @@
+<!--任务页面-->
+
+<div>
+    <header class="header">
+        <span ng-click="back()" class="iconfont"
+              style="color: white;font-size: 32px;margin-top: 14px;margin-bottom: 14px;">&#xe66c;</span>
+    </header>
+    <section class="main">
+        <alert-msg alert-messages="alertMessages"></alert-msg>
+        <h2 class="history-head">
+            <span class="iconfont title-icon">&#xe710;</span>
+            <strong class="title-label">任务追踪器</strong>
+        </h2>
+        <section class="mainarea tab-ctn-minh">
+            <!--黑名单表-->
+            <div class="text-center">
+                <div class="empty-container">
+                    <table class="table tc">
+                        <thead>
+                        <tr>
+                            <th>任务ID</th>
+                            <th>文件</th>
+                            <th>类型</th>
+                            <th>操作</th>
+                            <th>步骤</th>
+                            <th>状态</th>
+                            <th>修改时间</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        <tr ng-repeat="hist in histories">
+                            <td>{{hist.id}}</td>
+                            <td>{{hist.callbackArgs.args.filename || '-'}}</td>
+                            <td>{{hist.callbackArgs.type || '-'}}</td>
+                            <td>{{hist.action}}</td>
+                            <td>{{hist.step}}</td>
+                            <td>{{hist.status}}</td>
+                            <td>{{hist.modifiedTime}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="empty-content animated rotateIn" ng-show="histories.length==0">
+                        <span class="iconfont  empty-icon">&#xe60b;</span><br>
+                        <div class="empty-label">暂无数据</div>
+                    </div>
+
+                    <nav ng-if="total!=0" aria-label="Page navigation" class="tr"
+                         style="line-height: normal;margin-top: 18px;">
+                        <common-pagination
+                                total="page.total"
+                                page-size="page.pageSize"
+                                current-page="page.currentPage"></common-pagination>
+                    </nav>
+                </div>
+            </div>
+        </section>
+    </section>
+    <footer class="footer" style="position: static;bottom: auto">
+        <p>Powered by Hyperledger Fabric</p>
+        <p>© 2018-2028 RTBAsia</p>
+    </footer>
+</div>

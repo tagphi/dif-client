@@ -194,6 +194,9 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     $location.path('/merges')
   }
 
+  $scope.jumpToJobsPage = function () {
+    $location.path('/job-history')
+  }
   /**
    * 投票图标被点击
    **/
