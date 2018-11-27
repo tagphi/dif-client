@@ -9,6 +9,6 @@ angular.module('dif').service('alertMsgService', ['$rootScope', '$timeout', func
 
     $timeout(function () {
       $rootScope.alertMessages.shift()
-    }, 3000 * $rootScope.alertMessages.length)
+    }, 5000 * $rootScope.alertMessages.length)
   }
 }])
