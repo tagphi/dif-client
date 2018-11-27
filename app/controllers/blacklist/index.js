@@ -193,7 +193,7 @@ exports.validateDownloadPublishIPs = [
 ]
 
 exports.downloadPublishIPs = async function (req, res, next) {
-  let mspId = req.body.mspId
+  let mspId = req.query.mspId
   let filename = mspId + '-publisher-ips-' + new Date().getTime() + '.txt'
 
   try {
