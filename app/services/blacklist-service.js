@@ -71,7 +71,7 @@ async function uploadBlacklist (filename, size, blacklistBuf, type) {
   fullBlacklistIpfsInfo = JSON.parse(fullBlacklistIpfsInfo)
 
   // 提交给java任务服务器
-  submitBlacklistToJobHistory(uploadTime, type, filename, size, blacklistBuf, fullBlacklistIpfsInfo.path)
+  await submitBlacklistToJobHistory(uploadTime, type, filename, size, blacklistBuf, fullBlacklistIpfsInfo.path)
 
   logger.info(`success to upload ${type} blacklist:${filename}`)
 }
@@ -95,7 +95,7 @@ async function submitToJobHistory (jobApi, type, dataBuf, extraArgs, callbackArg
   let resp = await superagent
     .post(`${MERGE_SERVICE_URL}${jobApi}`)
     .attach('file', dataBuf, 'file')
-    .field('type', type)
+    .field('type', type.toUpperCase())
     .field('extraArgs', extraArgs ? JSON.stringify(extraArgs) : '{}')
     .field('callbackUrl', callbackUrl)
     .field('callbackArgs', callbackArgs ? JSON.stringify(callbackArgs) : '{}')
@@ -105,7 +105,7 @@ async function submitToJobHistory (jobApi, type, dataBuf, extraArgs, callbackArg
 
   if (respJson.statusCode === 'BAD_REQUEST') {
     logger.error(`error to submit to job history:type-${type},filename:,resp:${resp}`)
-    throw new Error(resp)
+    throw new Error(`格式错误：${respJson.message}`)
   } else {
     return resp
   }
@@ -143,7 +143,7 @@ async function merge (type, latestVersion) {
   let allOrgsFulllists = await queryCC('getAllOrgsList', [type]) || '[]'
   allOrgsFulllists = concatHashAndMspid(allOrgsFulllists)
 
-  submitToJobHistory('/merge', type, undefined,
+  await submitToJobHistory('/merge', type, undefined,
     {blacklist: allOrgsFulllists, removelist: allRmListInfo},
     {cmd: 'commitMerge', args: {type, latestVersion}})
 }
