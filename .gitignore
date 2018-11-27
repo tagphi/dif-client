@@ -20,3 +20,4 @@ crypto-config/peerOrganizations/*
 prod-backups
 mgo-backups
 dev
+config.json
