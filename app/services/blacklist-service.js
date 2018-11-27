@@ -36,9 +36,10 @@ async function commitAppeal (callbackArgs, argsFromJobHist) {
  * 提交媒体ip给java任务服务器
  **/
 async function submitPublishIPsToJobHistory (uploadTime, filename, size, publishIpsBuf) {
+  let recordsCount = publishIpsBuf.toString().split('\n').length
   let resp = await submitToJobHistory('/publisherIp', 'publisher-ip', publishIpsBuf,
     undefined,
-    {cmd: 'commitPublisherIPs', args: {filename, uploadTime, size}})
+    {cmd: 'commitPublisherIPs', args: {filename, uploadTime, size, lines: recordsCount}})
 
   logger.info(`submit publisherips to job history:filename:${filename},resp:${resp}`)
   return resp
@@ -49,6 +50,9 @@ async function submitPublishIPsToJobHistory (uploadTime, filename, size, publish
  **/
 async function commitPublisherIPs (callbackArgs, argsFromJobHist) {
   let publisherIpsFileIpfsinfo = makeIpfsinfo(callbackArgs.filename, argsFromJobHist.hash, callbackArgs.size)
+  publisherIpsFileIpfsinfo = JSON.parse(publisherIpsFileIpfsinfo)
+  publisherIpsFileIpfsinfo.lines = callbackArgs.lines
+  publisherIpsFileIpfsinfo = JSON.stringify(publisherIpsFileIpfsinfo)
   await invokeCC('uploadPublisherIp', [publisherIpsFileIpfsinfo, callbackArgs.uploadTime])
 
   logger.info(`success to upload ${callbackArgs.type} publisher ips:${callbackArgs.filename}`)
@@ -88,19 +92,22 @@ async function submitBlacklistToJobHistory (uploadTime, type, filename, size, bl
  * 提交任务给job服务器
  **/
 async function submitToJobHistory (jobApi, type, dataBuf, extraArgs, callbackArgs) {
-  try {
-    let resp = await superagent
-      .post(`${jobHistoryUrl}${jobApi}`)
-      .attach('file', dataBuf, 'file')
-      .field('type', type)
-      .field('extraArgs', extraArgs ? JSON.stringify(extraArgs) : '{}')
-      .field('callbackUrl', callbackUrl)
-      .field('callbackArgs', callbackArgs ? JSON.stringify(callbackArgs) : '{}')
-      .buffer()
-    return resp.text
-  } catch (e) {
-    logger.error(`submit err:${JSON.stringify(e)}`)
-    return e.message
+  let resp = await superagent
+    .post(`${jobHistoryUrl}${jobApi}`)
+    .attach('file', dataBuf, 'file')
+    .field('type', type)
+    .field('extraArgs', extraArgs ? JSON.stringify(extraArgs) : '{}')
+    .field('callbackUrl', callbackUrl)
+    .field('callbackArgs', callbackArgs ? JSON.stringify(callbackArgs) : '{}')
+    .buffer()
+  resp = resp.text
+  let respJson = JSON.parse(resp)
+
+  if (respJson.statusCode === 'BAD_REQUEST') {
+    logger.error(`error to submit to job history:type-${type},filename:,resp:${resp}`)
+    throw new Error(resp)
+  } else {
+    return resp
   }
 }
 

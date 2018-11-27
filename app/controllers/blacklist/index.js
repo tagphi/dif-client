@@ -115,16 +115,24 @@ exports.download = async function (req, res, next) {
   let name = req.query.name
 
   try {
-    res.set({
-      'Content-Type': 'application/octet-stream',
-      'Content-Disposition': 'attachment; filename=' + name
-    })
-    agent.get(`${jobHistoryUrl}/download/${path}`).pipe(res)
-    logger.info('downloading file:' + name)
+    pipeFromJobHistory(res, name, path)
   } catch (e) {
     logger.error(e)
     respUtils.download(res, name, '下载出错')
   }
+}
+
+/**
+ * 从job服务器下载ipfs并返回给客户端
+ **/
+function pipeFromJobHistory (res, name, path) {
+  res.set({
+    'Content-Type': 'application/octet-stream',
+    'Content-Disposition': 'attachment; filename=' + name
+  })
+  agent.get(`${jobHistoryUrl}/download/${path}`)
+    .pipe(res)
+  logger.info('downloading file:' + name)
 }
 
 /**
@@ -190,21 +198,19 @@ exports.validateDownloadPublishIPs = [
 ]
 
 exports.downloadPublishIPs = async function (req, res, next) {
-  let mspId = req.query.mspId
+  let mspId = req.body.mspId
   let filename = mspId + '-publisher-ips-' + new Date().getTime() + '.txt'
 
   try {
-    // 查询最新的合并版本信息
-    // "127.0.0.1\n127.0.0.2"
     let publisherIPsRecord = await queryChaincode('getPublisherIpByMspId', [mspId])
     if (!publisherIPsRecord) return respUtils.download(res, filename, '暂无数据')
 
     publisherIPsRecord = JSON.parse(publisherIPsRecord)
-    let ipsFile = await ipfsCli.get(publisherIPsRecord.ipfsInfo.path, publisherIPsRecord.mspid)
-    respUtils.download(res, filename, ipsFile.content.toString())
+    publisherIPsRecord.ipfsInfo = JSON.parse(publisherIPsRecord.ipfsInfo)
+    pipeFromJobHistory(res, filename, publisherIPsRecord.ipfsInfo.path)
   } catch (e) {
     logger.error(e)
-    respUtils.download(res, filename, '下载合并版本出错')
+    respUtils.download(res, filename, '下载媒体IP出错')
   }
 }
 
@@ -330,6 +336,9 @@ exports.publisherIPs = async function (req, res, next) {
   if (result.indexOf('Err') !== -1) return next(result)
 
   result = JSON.parse(result)
+  result.forEach(function (record) {
+    record.ipfsInfo = JSON.parse(record.ipfsInfo)
+  })
   // 时间逆序
   result.sort(function (item1, item2) {
     return parseInt(item2.timestamp) - parseInt(item1.timestamp)

@@ -69,7 +69,7 @@
                         <td>{{hist.mspid || hist.mspId}}</td>
                         <td>{{hist.date}}</td>
                         <td ng-if="showingTab.type!='publisherIP'">{{hist.type}}</td>
-                        <td ng-if="showingTab.type=='publisherIP'">{{hist.lines}}</td>
+                        <td ng-if="showingTab.type=='publisherIP'">{{hist.ipfsInfo.lines}}</td>
                         <td>
                             <a ng-if="showingTab.type=='delta'"
                                href="/blacklist/download?path={{hist.ipfsInfo.path}}&name={{hist.ipfsInfo.name}}">下载</a>
