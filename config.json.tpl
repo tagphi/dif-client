@@ -25,7 +25,7 @@
         "key_value_store": "/tmp/dif-kvs/",
         "port": 8081,
         "username": "admin",
-        "password": "dajfaO0ej838fdh",
+        "password": "password",
         "jwt_expiretime": "36000",
         "jwt_secret": "thisismysecret",
         "pageSize": 10,
@@ -48,7 +48,7 @@
             "port":5001,
             "timeout":900
         },
-        "jobHistoryUrl":"http://localhost:8082",
+        "mergeServiceUrl":"http://localhost:8082",
         "callbackUrl":"http://localhost:8081/blacklist/callback"
     },
     "channel_name": "difchannel"

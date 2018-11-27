@@ -3,7 +3,7 @@
 let queryCC = require('../cc/query')
 let invokeCC = require('../cc/invoke')
 let CONFIG = require('../../config.json')
-var jobHistoryUrl = CONFIG.site.jobHistoryUrl
+var MERGE_SERVICE_URL = CONFIG.site.mergeServiceUrl
 var callbackUrl = CONFIG.site.callbackUrl
 let logger = require('../utils/logger-utils').logger()
 
@@ -13,7 +13,7 @@ var superagent = require('superagent-promise')(require('superagent'), Promise)
 /**
  * 提交申诉给java任务服务器
  **/
-async function submitAppealToJobHistory (uploadTime, type, filename, size, appealsBuf, summary) {
+async function submitAppeal (uploadTime, type, filename, size, appealsBuf, summary) {
   let resp = await submitToJobHistory('/appeal', type, appealsBuf,
     undefined,
     {cmd: 'commitAppeal', args: {type, filename, uploadTime, size, summary}})
@@ -35,7 +35,7 @@ async function commitAppeal (callbackArgs, argsFromJobHist) {
 /**
  * 提交媒体ip给java任务服务器
  **/
-async function submitPublishIPsToJobHistory (uploadTime, filename, size, publishIpsBuf) {
+async function submitPublishIPs (uploadTime, filename, size, publishIpsBuf) {
   let recordsCount = publishIpsBuf.toString().split('\n').length
   let resp = await submitToJobHistory('/publisherIp', 'publisher-ip', publishIpsBuf,
     undefined,
@@ -93,7 +93,7 @@ async function submitBlacklistToJobHistory (uploadTime, type, filename, size, bl
  **/
 async function submitToJobHistory (jobApi, type, dataBuf, extraArgs, callbackArgs) {
   let resp = await superagent
-    .post(`${jobHistoryUrl}${jobApi}`)
+    .post(`${MERGE_SERVICE_URL}${jobApi}`)
     .attach('file', dataBuf, 'file')
     .field('type', type)
     .field('extraArgs', extraArgs ? JSON.stringify(extraArgs) : '{}')
@@ -287,10 +287,10 @@ function makeIpfsinfo (filename, hash, size) {
   return JSON.stringify(deltaIpfsInfo)
 }
 
-exports.submitAppealToJobHistory = submitAppealToJobHistory
+exports.submitAppeal = submitAppeal
 exports.commitAppeal = commitAppeal
 
-exports.submitPublishIPsToJobHistory = submitPublishIPsToJobHistory
+exports.submitPublishIPs = submitPublishIPs
 exports.commitPublisherIPs = commitPublisherIPs
 
 exports.uploadBlacklist = uploadBlacklist

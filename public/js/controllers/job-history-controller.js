@@ -40,7 +40,7 @@ app.controller('JobHistoryController', function ($q, $scope, $http, $rootScope, 
         }
       })
       .catch(function (err) {
-        alertMsgService.alert('投票失败', false)
+        alertMsgService.alert('获取失败', false)
       })
   }
 

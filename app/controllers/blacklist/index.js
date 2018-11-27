@@ -5,7 +5,7 @@ const CONFIG__SITE = CONFIG.site
 const CONFIG__MSP = CONFIG.msp
 const CONFIG_IPFS = CONFIG__SITE.ipfs
 const ADMIN_ADDR = CONFIG__SITE.adminAddr
-var jobHistoryUrl = CONFIG__SITE.jobHistoryUrl
+var MERGE_SERVICE_URL = CONFIG__SITE.mergeServiceUrl
 
 var respUtils = require('../../utils/resp-utils')
 var logger = require('../../utils/logger-utils').logger()
@@ -16,8 +16,6 @@ let ipfsCliRemote = require('../../utils/ipfs-cli-remote').bind(CONFIG_IPFS.host
 
 var queryChaincode = require('../../cc/query')
 var invokeCC = require('../../cc/invoke')
-
-let ipfsCli = require('../../utils/ipfs-cli')
 
 let blacklistService = require('../../services/blacklist-service')
 let mergeCron = require('../../cron/merge-cron')
@@ -50,14 +48,14 @@ exports.upload = async function (req, res, next) {
   let uploadTime = new Date().getTime().toString()
   /* 申诉列表 */
   if (dataType === 'appeal') {
-    await blacklistService.submitAppealToJobHistory(uploadTime, type, filename, size, dataListBuf, summary)
+    await blacklistService.submitAppeal(uploadTime, type, filename, size, dataListBuf, summary)
     respUtils.succResponse(res, '上传成功')
     return
   }
 
   /* 媒体ip */
   if (type === 'publisherIp') { // 媒体ip
-    await blacklistService.submitPublishIPsToJobHistory(uploadTime, filename, size, dataListBuf)
+    await blacklistService.submitPublishIPs(uploadTime, filename, size, dataListBuf)
     respUtils.succResponse(res, '上传成功')
     return
   }
@@ -115,7 +113,7 @@ exports.download = async function (req, res, next) {
   let name = req.query.name
 
   try {
-    pipeFromJobHistory(res, name, path)
+    downloadIpfsFile(res, name, path)
   } catch (e) {
     logger.error(e)
     respUtils.download(res, name, '下载出错')
@@ -125,12 +123,12 @@ exports.download = async function (req, res, next) {
 /**
  * 从job服务器下载ipfs并返回给客户端
  **/
-function pipeFromJobHistory (res, name, path) {
+function downloadIpfsFile (res, name, path) {
   res.set({
     'Content-Type': 'application/octet-stream',
     'Content-Disposition': 'attachment; filename=' + name
   })
-  agent.get(`${jobHistoryUrl}/download/${path}`)
+  agent.get(`${MERGE_SERVICE_URL}/download/${path}`)
     .pipe(res)
   logger.info('downloading file:' + name)
 }
@@ -168,7 +166,7 @@ exports.downloadMergedlist = async function (req, res, next) {
 
     // 从ipfs上下载
     mergedListIpfsInfo = JSON.parse(mergedListIpfsInfo)
-    pipeFromJobHistory(res, filename, mergedListIpfsInfo.ipfsInfo.path)
+    downloadIpfsFile(res, filename, mergedListIpfsInfo.ipfsInfo.path)
   } catch (e) {
     logger.error(e)
     respUtils.download(res, filename, '下载合并版本出错')
@@ -204,7 +202,7 @@ exports.downloadPublishIPs = async function (req, res, next) {
 
     publisherIPsRecord = JSON.parse(publisherIPsRecord)
     publisherIPsRecord.ipfsInfo = JSON.parse(publisherIPsRecord.ipfsInfo)
-    pipeFromJobHistory(res, filename, publisherIPsRecord.ipfsInfo.path)
+    downloadIpfsFile(res, filename, publisherIPsRecord.ipfsInfo.path)
   } catch (e) {
     logger.error(e)
     respUtils.download(res, filename, '下载媒体IP出错')
@@ -396,7 +394,7 @@ exports.jobs = async function (req, res) {
   let end = req.body.end || 10
 
   let jobsResults = await agent
-    .get(`${jobHistoryUrl}/jobs?start=${start}&end=${end}`)
+    .get(`${MERGE_SERVICE_URL}/jobs?start=${start}&end=${end}`)
     .buffer()
   jobsResults = JSON.parse(jobsResults.text)
 
