@@ -95,7 +95,7 @@ async function submitToJobHistory (jobApi, type, dataBuf, extraArgs, callbackArg
   let resp = await superagent
     .post(`${MERGE_SERVICE_URL}${jobApi}`)
     .attach('file', dataBuf, 'file')
-    .field('type', type.toUpperCase())
+    .field('type', type === 'default' ? 'DEFAULTDEVICE' : type.toUpperCase())
     .field('extraArgs', extraArgs ? JSON.stringify(extraArgs) : '{}')
     .field('callbackUrl', callbackUrl)
     .field('callbackArgs', callbackArgs ? JSON.stringify(callbackArgs) : '{}')
