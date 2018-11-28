@@ -127,20 +127,22 @@ async function commitBlacklist (callbackArgs, argsFromJobHist) {
 
 async function merge (type, latestVersion) {
   // 查询所有组织的移除列表信息
-  let allRmListInfo = await queryCC('getRemoveList', [type]) | '[]'
-  allRmListInfo = allRmListInfo === 0 ? '[]' : allRmListInfo
+  let allRmListInfo = await queryCC('getRemoveList', [type])
+  allRmListInfo = allRmListInfo || '[]'
   allRmListInfo = extractPaths(allRmListInfo)
 
   // 剔除媒体ip
   let publishIpfsInfo = ''
   if (type === 'ip') {
-    publishIpfsInfo = await queryCC('getPublisherIp', []) || '[]'
+    publishIpfsInfo = await queryCC('getPublisherIp', [])
+    publishIpfsInfo = publishIpfsInfo || '[]'
     publishIpfsInfo = extractPaths(publishIpfsInfo)
     allRmListInfo = allRmListInfo.concat(publishIpfsInfo)
   }
 
   // 获取合并的全量列表
-  let allOrgsFulllists = await queryCC('getAllOrgsList', [type]) || '[]'
+  let allOrgsFulllists = await queryCC('getAllOrgsList', [type])
+  allOrgsFulllists = allOrgsFulllists || '[]'
   allOrgsFulllists = concatHashAndMspid(allOrgsFulllists)
 
   await submitToJobHistory('/merge', type, undefined,
