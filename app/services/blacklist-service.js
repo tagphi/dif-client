@@ -92,6 +92,7 @@ async function submitBlacklistToJobHistory (uploadTime, type, filename, size, bl
  * 提交任务给job服务器
  **/
 async function submitToJobHistory (jobApi, type, dataBuf, extraArgs, callbackArgs) {
+  logger.info(`jobApi=${jobApi}, \n type=${type}, \n extraArgs=${JSON.stringify(extraArgs)}, \n callbackArgs=${JSON.stringify(callbackArgs)}`)
   let resp = await superagent
     .post(`${MERGE_SERVICE_URL}${jobApi}`)
     .attach('file', dataBuf, 'file')
