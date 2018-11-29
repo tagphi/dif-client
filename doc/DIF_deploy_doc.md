@@ -3,15 +3,16 @@
 ## 前置条件
 
 ```
-1. 配置2核2GHz 4G内存 500G硬盘
+1. 配置2核2GHz 8G内存 500G硬盘（推荐1T硬盘）
 2. docker-compose version > 1.20.1
 3. Docker version > 1.13
 4. Node version > 8.11
 5. npm version > 5.6.0
 6. go version > 1.10.3 (仅Admin节点)
-7. 开放端口7050-7053和8081
-8. 准备一个peer0.[公司Domain]的域名指向部署peer的机器
-9. 定一个组织的MSPID作为在Fabric网络的标识，可以为无空格和特殊字符的大小写组合。比如RTBAsia, hdtMEDIA等
+7. JRE 或 JDK > 1.8.0
+8. 开放端口7050-7053和8081
+9. 准备一个peer0.[公司Domain]的域名指向部署peer的机器
+10. 定一个组织的MSPID作为在Fabric网络的标识，可以为无空格和特殊字符的大小写组合。比如RTBAsia, hdtMEDIA等
 ```
 
 ## 部署Client Site
@@ -30,7 +31,7 @@
 ```shell
 # 在 dif-client 目录下运行
 sudo npm install forever -g
-./install-everything.sh [MSPID]
+./install-everything.sh MSPID # 将MSPID替换为组织名称
 ```
 
 ### 启动Peer Docker容器
@@ -50,6 +51,7 @@ node join-channel.js
 ### 安装IPFS
 
 ```shell
+# 联系RTBAsia的Craig获得ipfs包
 # 解压ipfs.tar.gz
 # 在解压出的目录运行run.sh,如果看不到控制台输出可能要再运行一遍
 ./run.sh
@@ -63,4 +65,12 @@ forever start app.js
 
 #使用http://域名:8081 访问客户端，默认用户名密码为admin/password
  ```
+
+### 启动Merge Service
+
+```shell
+# 下载merge service并解压 https://github.com/tagphi/dif-merge/blob/master/release/dif-merge-0.0.1.tar.gz
+# 在解压出的dif-merge文件夹执行
+./bin/start.sh
+```
 
