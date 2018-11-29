@@ -91,12 +91,13 @@ async function submitBlacklistToJobHistory (uploadTime, type, filename, size, bl
 /**
  * 提交任务给job服务器
  **/
-async function submitToJobHistory (jobApi, type, dataBuf, extraArgs, callbackArgs) {
-  logger.info(`jobApi=${jobApi}, \n type=${type}, \n extraArgs=${JSON.stringify(extraArgs)}, \n callbackArgs=${JSON.stringify(callbackArgs)}`)
+async function submitToJobHistory (jobApi, type, dataBuf, extraArgs, callbackArgs, version) {
+  logger.info(`jobApi=${jobApi}, \n type=${type}, \n extraArgs=${JSON.stringify(extraArgs)}, \n callbackArgs=${JSON.stringify(callbackArgs)},\n version:${version}`)
   let resp = await superagent
     .post(`${MERGE_SERVICE_URL}${jobApi}`)
     .attach('file', dataBuf, 'file')
     .field('type', type === 'default' ? 'DEFAULTDEVICE' : type.toUpperCase())
+    .field('version', version || 0)
     .field('extraArgs', extraArgs ? JSON.stringify(extraArgs) : '{}')
     .field('callbackUrl', callbackUrl)
     .field('callbackArgs', callbackArgs ? JSON.stringify(callbackArgs) : '{}')
@@ -148,7 +149,7 @@ async function merge (type, latestVersion) {
 
   await submitToJobHistory('/merge', type, undefined,
     {blacklist: allOrgsFulllists, removelist: allRmListInfo},
-    {cmd: 'commitMerge', args: {type, latestVersion}})
+    {cmd: 'commitMerge', args: {type, latestVersion}}, latestVersion)
 }
 
 /**
