@@ -3,9 +3,11 @@
 var helper = require('../../common/helper.js')
 var CONFIG = require('../../config')
 var chaincodeUtil = require('../../common/chaincode-util')
+// let logger = require('../utils/logger-utils').logger()
 
 var invoke = async function (fcn, args) {
   let client = await helper.getClient(CONFIG.msp.id, true)
+  client.setConfigSetting('discovery-protocol', 'grpc')
   let channel = await helper.getChannel(client)
   let txId = client.newTransactionID(true)
 
@@ -17,7 +19,11 @@ var invoke = async function (fcn, args) {
     chainId: CONFIG.channel_name
   }
 
-  request.targets = await helper.getEndorsers(client)
+  let discoverPeers = await helper.getOwnPeers(client)
+
+  channel.addPeer(discoverPeers[0])
+
+  await channel.initialize({discover: true, target: discoverPeers[0]})
 
   await chaincodeUtil.sendNConfirm(txId, channel,
     async function () {

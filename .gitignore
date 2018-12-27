@@ -21,3 +21,5 @@ prod-backups
 mgo-backups
 dev
 config.json
+discover-test.js
+blacklist-service-test.js

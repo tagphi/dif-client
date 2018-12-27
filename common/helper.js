@@ -150,7 +150,6 @@ var getOwnPeers = async function (client) {
 
   for (let key in allPeersJson) {
     let orgPeersJson = allPeersJson[key]
-
     // 这是本组织Peer
     if (orgPeersJson.MSPID === CONFIG.msp.id) {
       let data = fs.readFileSync(path.join(__dirname, CONFIG.peer.tls_cert_path))
@@ -159,6 +158,7 @@ var getOwnPeers = async function (client) {
         let peerConfig = orgPeersJson.peers[key]
 
         let connOptions = {
+          name: peerConfig['ssl-target-name-override'],
           pem: Buffer.from(data).toString(), // TODO: tls证书是必须的，但是我们不一定开启了tls验证
           'request-timeout': CONFIG.peer['request_timeout'] // TODO: 从配置中读取
         }
