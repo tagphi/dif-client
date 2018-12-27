@@ -9,6 +9,7 @@ var CONFIG = require('../../config')
 var query = async function (fcn, args) {
   try {
     let client = await helper.getClient(CONFIG.msp.id, true)
+    client.setConfigSetting('discovery-protocol', 'grpc')
     let channel = await helper.getChannel(client)
 
     // send query
@@ -19,12 +20,11 @@ var query = async function (fcn, args) {
       chainId: CONFIG.channel_name
     }
 
-    let endorsers = await helper.getEndorsers(client)
+    let discoverPeers = await helper.getOwnPeers(client)
 
-    // 随机使用一个背书节点，TODO: 当某个背书节点查询失败应该查询其他节点
-    let rdIdx = Math.floor(Math.random() * endorsers.length)
+    channel.addPeer(discoverPeers[0])
 
-    request.targets = [endorsers[rdIdx]]
+    await channel.initialize({discover: true, target: discoverPeers[0]})
 
     let responsePayloads = await channel.queryByChaincode(request)
 
