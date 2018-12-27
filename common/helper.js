@@ -95,92 +95,28 @@ var __setUserContext = async function (client, useAdmin) {
   return user
 }
 
-var __getPeersConfig = async function () {
-  let resp = await agent.post(ADMIN_ADDR + '/peer/peers2').buffer()
-  let peers = JSON.parse(resp.text)
-  return peers
-}
-
-// var __getPeersConfig = function () {
-//   let allPeersJsonStr = fs.readFileSync(path.join(__dirname, '../peers.json'))
-//   let allPeersJson = JSON.parse(Buffer.from(allPeersJsonStr).toString())
-//
-//   return allPeersJson
-// }
-
-var getEndorsers = async function (client) {
-  let allPeersJson = await __getPeersConfig()
-  let endorsers = []
-
-  let data = fs.readFileSync(path.join(__dirname, CONFIG.peer.tls_cert_path))
-
-  for (let key in allPeersJson) {
-    let orgPeersJson = allPeersJson[key]
-
-    for (let key in orgPeersJson.peers) {
-      let peerConfig = orgPeersJson.peers[key]
-
-      if (peerConfig.endorser) {
-        let connOptions = {
-          pem: Buffer.from(data).toString(), // TODO: tls证书是必须的，但是我们不一定开启了tls验证
-          'request-timeout': CONFIG.peer['request_timeout'] // TODO: 从配置中读取
-        }
-
-        if ('ssl-target-name-override' in peerConfig) {
-          connOptions['ssl-target-name-override'] = peerConfig['ssl-target-name-override']
-        }
-
-        let peer = client.newPeer(
-          orgPeersJson.peers[key].url,
-          connOptions
-        )
-
-        endorsers.push(peer)
-      }
-    }
-  }
-
-  return endorsers
-}
-
 var getOwnPeers = async function (client) {
-  let allPeersJson = await __getPeersConfig()
-
   let peers = []
 
-  for (let key in allPeersJson) {
-    let orgPeersJson = allPeersJson[key]
-    // 这是本组织Peer
-    if (orgPeersJson.MSPID === CONFIG.msp.id) {
-      let data = fs.readFileSync(path.join(__dirname, CONFIG.peer.tls_cert_path))
+  let data = fs.readFileSync(path.join(__dirname, CONFIG.peer['tls_cert_path']))
 
-      for (let key in orgPeersJson.peers) {
-        let peerConfig = orgPeersJson.peers[key]
-
-        let connOptions = {
-          name: peerConfig['ssl-target-name-override'],
-          pem: Buffer.from(data).toString(), // TODO: tls证书是必须的，但是我们不一定开启了tls验证
-          'request-timeout': CONFIG.peer['request_timeout'] // TODO: 从配置中读取
-        }
-
-        if ('ssl-target-name-override' in peerConfig) {
-          connOptions['ssl-target-name-override'] = peerConfig['ssl-target-name-override']
-        }
-
-        let peer = client.newPeer(
-          orgPeersJson.peers[key].url,
-          connOptions
-        )
-
-        peers.push(peer)
-      }
-    }
+  let connOptions = {
+    name: CONFIG.peer['ssl_target_name_override'],
+    pem: Buffer.from(data).toString(), // TODO: tls证书是必须的，但是我们不一定开启了tls验证
+    'request-timeout': CONFIG.peer['request_timeout'] // TODO: 从配置中读取
   }
 
+  connOptions['ssl-target-name-override'] = CONFIG.peer['ssl_target_name_override']
+  let url = CONFIG.peer['event_url'].replace('7053', '7051')
+  let peer = client.newPeer(
+    url,
+    connOptions
+  )
+
+  peers.push(peer)
   return peers
 }
 
 exports.getClient = getClient
 exports.getChannel = getChannel
 exports.getOwnPeers = getOwnPeers
-exports.getEndorsers = getEndorsers
