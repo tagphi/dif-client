@@ -27,10 +27,8 @@ var query = async function (fcn, args) {
     await channel.initialize({discover: true, target: discoverPeers[0]})
 
     let responsePayloads = await channel.queryByChaincode(request)
-
     if (responsePayloads) {
-      // return response_payloads.toString('utf8')
-      return responsePayloads.toString()
+      return responsePayloads[0].toString()
     } else {
       logger.error('responsePayloads is null')
       return 'responsePayloads is null'

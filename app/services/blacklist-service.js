@@ -102,6 +102,8 @@ async function submitToJobHistory (jobApi, type, dataBuf, extraArgs, callbackArg
     .field('callbackUrl', callbackUrl)
     .field('callbackArgs', callbackArgs ? JSON.stringify(callbackArgs) : '{}')
     .buffer()
+
+  logger.info(`submit resp:${MERGE_SERVICE_URL}${jobApi} \n ${JSON.stringify(resp)}`)
   resp = resp.text
   let respJson = JSON.parse(resp)
 

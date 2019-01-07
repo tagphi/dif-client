@@ -270,6 +270,8 @@ exports.histories = async function (req, res, next) {
     throw new Error('未知的数据类型:' + dataType)
   }
 
+  logger.debug(`listDeltaUploadHistory -dataType:${dataType} result:${result}`)
+
   if (result.indexOf('Err') !== -1) return next(result)
 
   result = JSON.parse(result)
