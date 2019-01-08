@@ -263,7 +263,7 @@ exports.histories = async function (req, res, next) {
   let result
 
   if (dataType === 'delta') {
-    result = await queryChaincode('listDeltaUploadHistory', [startTimestamp, endTimestamp])
+    result = await queryChaincode('listDeltaUploadHistory', [startTimestamp, endTimestamp]) || '[]'
   } else if (dataType === 'appeal') {
     result = await queryChaincode('listAppeals', [startTimestamp, endTimestamp])
   } else {

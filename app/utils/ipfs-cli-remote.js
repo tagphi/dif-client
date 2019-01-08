@@ -6,6 +6,7 @@
 let ipfs = require('ipfs-api')('localhost', 5001)
 let fs = require('fs-extra')
 const CONFIG_IPFS = require('../../config').site.ipfs
+const logger = require('./logger-utils').logger()
 
 // 请求超时
 let requestTimeout = CONFIG_IPFS.timeout * 1000
@@ -78,6 +79,8 @@ async function addMulti (filePaths) {
     content: <Buffer 49 20 61 6d 20 75 70 6c 6f 61 64 65 64> }
  **/
 function get (path, id, timeout) {
+  logger.info(`downloading from ipfs[${CONFIG_IPFS.host}:path=${path}]`)
+
   let getPromise = new Promise((resolve, reject) => {
     setTimeout(() => {
       let err = new Error('request timeout:[id]-' + id + '\t[path]-' + path)

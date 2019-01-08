@@ -83,18 +83,21 @@
                                   ng-mouseenter="mouseMoveAgainVote(hist,'agree','enter')"
                                   ng-mouseleave="mouseMoveAgainVote(hist,'agree','leave')"
                                   ng-class="{iconfont:true,'d-inline-block':true,'icon-vote':true,
-                                  'color-green-agree':hist.selfVoted}">&#xe63b;</span>
-                            <span class="color-green-agree" ng-show="hist.selfVoted">
+                                  'color-green-agree':hist.selfVoted || hist.details.status}">&#xe63b;</span>
+                            <span class="color-green-agree">
                                 {{hist.details.agree.length}}</span>
                             <ul ng-show="hist.showAgree" class="pop-votes">
                                 <li ng-repeat="agreeOrg in hist.details.agree" ng-class="{'blue-light':$index%2==1}">{{agreeOrg}}</li>
                             </ul>
+
                             <span>/</span>
+
                             <span ng-click="clickVoteHand(hist,'disagree')"
                                   ng-mouseenter="mouseMoveAgainVote(hist,'disagree','enter')"
                                   ng-mouseleave="mouseMoveAgainVote(hist,'disagree','leave')"
-                                  ng-class="{iconfont:true,'icon-vote':true,'color-red-disagree':hist.selfVoted}">&#xe604;</span>
-                            <span class="color-red-disagree" ng-show="hist.selfVoted">{{hist.details.against.length}}</span>
+                                  ng-class="{iconfont:true,'icon-vote':true,
+                                  'color-red-disagree':hist.selfVoted || hist.details.status}">&#xe604;</span>
+                            <span class="color-red-disagree">{{hist.details.against.length}}</span>
                             <ul ng-show="hist.showDisagree" class="pop-votes align-right">
                                 <li ng-repeat="disagreeOrg in hist.details.against" ng-class="{'blue-light':$index%2==1}">{{disagreeOrg}}</li>
                             </ul>

@@ -37,3 +37,5 @@ cd ~/dif-client/scripts/ipfs
 # 启动app
 cd ~/dif-client/app
 forever start -o out.log -e err.log app.js &
+
+echo "启动app.js————>"
