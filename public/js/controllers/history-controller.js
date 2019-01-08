@@ -51,6 +51,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
       initDateRange = ''
     })
   }
+
   init()
 
   /**
@@ -202,37 +203,39 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
    **/
   var isVoting = false
   $scope.clickVoteHand = function (hist, action) {
-    if (!hist.selfVoted) { // 自己尚未投票过
-      let dlgOpts = {
-        template: 'views/dlgs/vote-dlg.html',
-        scope: $scope,
-        controller: ['$scope', 'HttpService', function ($scope, HttpService) {
-          $scope.vote = function () {
-            action = action === 'agree' ? '1' : '0'
-            let appealKey = hist.details.key
+    // 已经票结束
+    if (hist.details.status || hist.selfVoted) return
 
-            let payload = {key: appealKey, action: action}
-            isVoting = true
-            HttpService.post('/blacklist/voteAppeal', payload)
-              .then(function (respData) {
-                $scope.closeThisDialog()
-                if (!respData.success) return alertMsgService.alert('投票失败', false)
+    // 自己尚未投票过
+    let dlgOpts = {
+      template: 'views/dlgs/vote-dlg.html',
+      scope: $scope,
+      controller: ['$scope', 'HttpService', function ($scope, HttpService) {
+        $scope.vote = function () {
+          action = action === 'agree' ? '1' : '0'
+          let appealKey = hist.details.key
 
-                alertMsgService.alert('投票成功', true)
-                $scope.queryHistories($scope.showingTab.currentPage)
-                isVoting = false
-              })
-              .catch(function (err) {
-                $scope.closeThisDialog()
-                alertMsgService.alert('投票失败', false)
-                isVoting = false
-              })
-          }
-        }]
-      }
+          let payload = {key: appealKey, action: action}
+          isVoting = true
+          HttpService.post('/blacklist/voteAppeal', payload)
+            .then(function (respData) {
+              $scope.closeThisDialog()
+              if (!respData.success) return alertMsgService.alert('投票失败', false)
 
-      ngDialog.open(dlgOpts)
+              alertMsgService.alert('投票成功', true)
+              $scope.queryHistories($scope.showingTab.currentPage)
+              isVoting = false
+            })
+            .catch(function (err) {
+              $scope.closeThisDialog()
+              alertMsgService.alert('投票失败', false)
+              isVoting = false
+            })
+        }
+      }]
     }
+
+    ngDialog.open(dlgOpts)
   }
 
   /**
