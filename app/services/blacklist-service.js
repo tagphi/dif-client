@@ -293,6 +293,14 @@ function makeIpfsinfo (filename, hash, size) {
   return JSON.stringify(deltaIpfsInfo)
 }
 
+/**
+ * 是否锁定
+ **/
+async function isLocked() {
+  const result = await queryCC('isLocked', [])
+  return result
+}
+
 exports.submitAppeal = submitAppeal
 exports.commitAppeal = commitAppeal
 
@@ -305,3 +313,5 @@ exports.commitBlacklist = commitBlacklist
 exports.merge = merge
 exports.commitMerge = commitMerge
 exports.getMergedRmList = getMergedRmList
+
+exports.isLocked = isLocked

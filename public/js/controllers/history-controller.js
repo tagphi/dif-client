@@ -68,6 +68,22 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
         $scope.dataType = 'delta'
 
         /**
+         * 是否锁定
+         **/
+        $scope.isLockedPeriod = function () {
+          const date = new Date()
+
+          // 每月10日1时冻结上传操作，20日1时解除冻结
+          const freezeDate = new Date(date.getFullYear(), date.getMonth(), 10, 1, 0, 0, 0)
+          const releaseDate = new Date(date.getFullYear(), date.getMonth(), 20, 1, 0, 0, 0)
+          return (date >= freezeDate && date < releaseDate)
+        }
+
+        if ($scope.isLockedPeriod()) {
+          $scope.selectType = 'publisherIp'
+        }
+
+        /**
          * 上传黑名单
          */
         $scope.postBlacklist = function () {
@@ -76,7 +92,6 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             alertMsgService.alert('请先选择文件', false)
             return
           }
-
           $scope.selectType = $scope.selectType || 'ip'
 
           let request = {

@@ -61,6 +61,9 @@ exports.upload = async function (req, res, next) {
   }
 
   /* 黑名单 */
+  const locked = await blacklistService.isLocked()
+  if (locked) return respUtils.errResonse(res, '锁定期不能提交黑名单')
+
   await blacklistService.uploadBlacklist(filename, size, dataListBuf, type)
   respUtils.succResponse(res, '上传成功')
 }
