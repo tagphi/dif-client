@@ -23,8 +23,16 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
       .then(function (respData) {
         $scope.locked = respData.data.locked
       })
-      .catch(function (err) {
-        $scope.locked = true
+  }
+
+  /**
+   * 是否是观察者
+   **/
+  $scope.isWatcher = function () {
+    $scope.watcher = false
+    HttpService.post('/auth/watcher')
+      .then(function (respData) {
+        $scope.watcher = respData.data.isWatcher
       })
   }
 
@@ -52,6 +60,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     }, 0.5 * 1000)
 
     $scope.isLockedPeriod()
+    $scope.isWatcher()
 
     // 监听所有面板的选项中页面的变化
     $scope.$watch('showingTab.currentPage', function (newCurPage, old) {

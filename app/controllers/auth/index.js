@@ -9,6 +9,7 @@ var respUtils = require('../../utils/resp-utils')
 var tokenManager = require('../../interceptors/token-manager')
 
 var {check} = require('express-validator/check')
+const CONFIG_SITE = require('../../../config').site
 
 exports.url = '/auth'
 
@@ -46,4 +47,11 @@ exports.logout = async function logout (req, res, next) {
     success: true,
     message: '退出成功'
   })
+}
+
+/**
+ *  是否是观察者
+ **/
+exports.watcher = async function (req, res) {
+  respUtils.succResponse(res, '获取成功', {isWatcher: CONFIG_SITE.watcher})
 }
