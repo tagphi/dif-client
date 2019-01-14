@@ -61,6 +61,12 @@ exports.upload = async function (req, res, next) {
   }
 
   /* 黑名单 */
+  let locked = await blacklistService.isLocked()
+  logger.info(`lock status:${locked}`)
+  if (locked) {
+    return respUtils.errResonse(res, '锁定期不能提交黑名单')
+  }
+
   await blacklistService.uploadBlacklist(filename, size, dataListBuf, type)
   respUtils.succResponse(res, '上传成功')
 }
@@ -214,18 +220,18 @@ exports.downloadPublishIPs = async function (req, res, next) {
  *
  result 示例：
  [
-  {
-    timestamp: '1531269985958',
-    mspid: 'RTBAsia',
-    type: 'device',
-    ipfsInfo:
-     {
-       hash: 'hashhash',
-       path: 'somewhereinipfs/filename.ext',
-       name: 'filename.ext',
-       size: 888
-     }
-  }
+ {
+   timestamp: '1531269985958',
+   mspid: 'RTBAsia',
+   type: 'device',
+   ipfsInfo:
+    {
+      hash: 'hashhash',
+      path: 'somewhereinipfs/filename.ext',
+      name: 'filename.ext',
+      size: 888
+    }
+ }
  ]
  **/
 exports.validateHistories = [
@@ -401,4 +407,14 @@ exports.jobs = async function (req, res) {
   jobsResults = JSON.parse(jobsResults.text)
 
   respUtils.succResponse(res, undefined, jobsResults)
+}
+
+/**
+ * 锁定接口
+ **/
+exports.isLocked = async function (req, res) {
+  const locked = await blacklistService.isLocked()
+  respUtils.succResponse(res, '查询成功', {
+    locked
+  })
 }

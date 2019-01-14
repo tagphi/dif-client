@@ -14,6 +14,28 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
       })
   }
 
+  /**
+   * 是否锁定
+   **/
+  $scope.isLockedPeriod = function () {
+    $scope.locked = true
+    HttpService.post('/blacklist/isLocked')
+      .then(function (respData) {
+        $scope.locked = respData.data.locked
+      })
+  }
+
+  /**
+   * 是否是观察者
+   **/
+  $scope.isWatcher = function () {
+    $scope.watcher = false
+    HttpService.post('/auth/watcher')
+      .then(function (respData) {
+        $scope.watcher = respData.data.isWatcher
+      })
+  }
+
   $scope.selectDataType = 'delta' // 默认选中的标签为
   let initDateRange = ''
 
@@ -36,6 +58,9 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     $timeout(function () {
       $scope.queryHistories()
     }, 0.5 * 1000)
+
+    $scope.isLockedPeriod()
+    $scope.isWatcher()
 
     // 监听所有面板的选项中页面的变化
     $scope.$watch('showingTab.currentPage', function (newCurPage, old) {
@@ -67,6 +92,10 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
         $scope.confirmActionText = '上传'
         $scope.dataType = 'delta'
 
+        if ($scope.locked) {
+          $scope.selectType = 'publisherIp'
+        }
+
         /**
          * 上传黑名单
          */
@@ -76,7 +105,6 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             alertMsgService.alert('请先选择文件', false)
             return
           }
-
           $scope.selectType = $scope.selectType || 'ip'
 
           let request = {
