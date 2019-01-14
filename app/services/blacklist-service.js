@@ -298,7 +298,7 @@ function makeIpfsinfo (filename, hash, size) {
  **/
 async function isLocked() {
   const result = await queryCC('isLocked', [])
-  return result
+  return result === 'true'
 }
 
 exports.submitAppeal = submitAppeal

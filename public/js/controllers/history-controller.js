@@ -14,6 +14,20 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
       })
   }
 
+  /**
+   * 是否锁定
+   **/
+  $scope.isLockedPeriod = function () {
+    $scope.locked = true
+    HttpService.post('/blacklist/isLocked')
+      .then(function (respData) {
+        $scope.locked = respData.data.locked
+      })
+      .catch(function (err) {
+        $scope.locked = true
+      })
+  }
+
   $scope.selectDataType = 'delta' // 默认选中的标签为
   let initDateRange = ''
 
@@ -36,6 +50,8 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     $timeout(function () {
       $scope.queryHistories()
     }, 0.5 * 1000)
+
+    $scope.isLockedPeriod()
 
     // 监听所有面板的选项中页面的变化
     $scope.$watch('showingTab.currentPage', function (newCurPage, old) {
@@ -67,19 +83,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
         $scope.confirmActionText = '上传'
         $scope.dataType = 'delta'
 
-        /**
-         * 是否锁定
-         **/
-        $scope.isLockedPeriod = function () {
-          const date = new Date()
-
-          // 每月10日1时冻结上传操作，20日1时解除冻结
-          const freezeDate = new Date(date.getFullYear(), date.getMonth(), 10, 1, 0, 0, 0)
-          const releaseDate = new Date(date.getFullYear(), date.getMonth(), 20, 1, 0, 0, 0)
-          return (date >= freezeDate && date < releaseDate)
-        }
-
-        if ($scope.isLockedPeriod()) {
+        if ($scope.locked) {
           $scope.selectType = 'publisherIp'
         }
 

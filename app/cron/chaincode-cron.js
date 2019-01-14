@@ -81,21 +81,5 @@ async function downloadAndInstallCC (remoteLatestCC) {
   logger.info(msg)
 }
 
-async function isEndorer () {
-  let resp = await agent.post(ADMIN_ADDR + '/peer/peers2').buffer()
-  let orgs = JSON.parse(resp.text)
-  let orgMspId = CONFIG.msp.id
-  for (let i in orgs) {
-    let org = orgs[i]
-    if (org.MSPID === orgMspId) {
-      let localPeer = org.peers[0]
-      return localPeer.endorser
-    }
-  }
-
-  return false
-}
-
 exports.startCron = startCron
-exports.isEndorer = isEndorer
 exports.onTick = onTick

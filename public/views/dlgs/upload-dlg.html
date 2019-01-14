@@ -12,22 +12,22 @@
                     <div class="upload-dlg-types">
                         <input id="type_ip" ng-model="selectType" value="ip" type="radio" class="magic-radio"
                                ng-checked="true"
-                                ng-show="!isLockedPeriod()">
+                                ng-show="!locked">
                         <label for="type_ip"
                                ng-class="{'d-inline':true,'color-lightslategray':selectType!='ip','color-blue-raido':selectType=='ip'}"
-                               ng-show="!isLockedPeriod()">IP</label>
+                               ng-show="!locked">IP</label>
 
                         <input id="type_device" ng-model="selectType" value="device" type="radio" class="magic-radio"
-                               ng-show="!isLockedPeriod()">
+                               ng-show="!locked">
                         <label for="type_device"
                                ng-class="{'d-inline':true,'color-lightslategray':selectType!='device','color-blue-raido':selectType=='device'}"
-                               ng-show="!isLockedPeriod()">设备ID</label>
+                               ng-show="!locked">设备ID</label>
 
                         <input id="type_default" ng-model="selectType" value="default" type="radio" class="magic-radio"
-                               ng-show="!isLockedPeriod()">
+                               ng-show="!locked">
                         <label for="type_default"
                                ng-class="{'d-inline':true,'color-lightslategray':selectType!='default','color-blue-raido':selectType=='default'}"
-                               ng-show="!isLockedPeriod()">默认设备ID</label>
+                               ng-show="!locked">默认设备ID</label>
 
                         <input id="type_publisherIp" ng-model="selectType" value="publisherIp" type="radio" class="magic-radio">
                         <label for="type_publisherIp"

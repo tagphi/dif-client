@@ -4,8 +4,6 @@ var Client = require('fabric-client')
 var CONFIG = require('../config.json')
 var path = require('path')
 var fs = require('fs-extra')
-var agent = require('superagent-promise')(require('superagent'), Promise)
-let ADMIN_ADDR = CONFIG.site.adminAddr
 
 var getChannel = async function (client) {
   let channel = client.newChannel(CONFIG.channel_name)

@@ -62,9 +62,7 @@ var router = require('./router')
 
 function _startCrons () {
   // 背书节点，启动链码同步定时器
-  if (chaincodeCron.isEndorer()) {
-    chaincodeCron.startCron()
-  }
+  chaincodeCron.startCron()
 
   setTimeout(function () {
     mergeCron.startCron()
