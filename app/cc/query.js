@@ -25,6 +25,7 @@ var query = async function (fcn, args) {
     channel.addPeer(discoverPeers[0])
 
     await channel.initialize({discover: true, target: discoverPeers[0]})
+    logger.info(`_discovery_results-->${JSON.stringify(channel._discovery_results)}`)
 
     let responsePayloads = await channel.queryByChaincode(request)
     if (responsePayloads) {

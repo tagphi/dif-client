@@ -16,7 +16,12 @@ function startCron () {
   new CronJob(cronTime, onTick, null, true, CONFIG.site.cron.timezone)
 }
 
+let isProcessing = false
+
 async function onTick () {
+  if (isProcessing) return
+
+  isProcessing = true
   try {
     // 查询服务端的最新链码
     let apiNewestCC = ADMIN_ADDR + '/static/cc_config.json'
@@ -28,18 +33,25 @@ async function onTick () {
     let localInstalledCCs = await queryCC.queryInstalledCC()
     if (!localInstalledCCs || localInstalledCCs.length === 0) { // 本地尚未安装链码
       await downloadAndInstallCC(remoteLatestCC)
+      isProcessing = false
       return
     }
 
     let localLatestCCInt = _findLatestVersionOfInstalledCC(localInstalledCCs)
 
-    if (remoteLatestCCVersionInt <= localLatestCCInt) return
+    if (remoteLatestCCVersionInt <= localLatestCCInt) {
+      isProcessing = false
+      return
+    }
 
     // 有较新的版本，下载并安装
     await downloadAndInstallCC(remoteLatestCC)
   } catch (e) {
+    isProcessing = false
     logger.error(`chaincode sync err：${e}`)
   }
+
+  isProcessing = false
 }
 
 /**
