@@ -24,6 +24,7 @@ function startCron () {
 
 async function onTick () {
   try {
+    logger.info('merge cron ticking...')
     // 取的最新版本
     let latestVersion = await queryCC('version', [])
     latestVersion = parseInt(latestVersion)
@@ -61,10 +62,12 @@ function _tryToMergeTypedList (latestVersion) {
   async function _asyncTryToMergeTypedList (typeItem) {
     try {
       let typedMergedVersion = await _getMergedListVersionByType(typeItem.type)
+      logger.info(`[${typeItem.type}] latestVersion-${latestVersion},typedMergedVersion-${typedMergedVersion}`)
 
       if (latestVersion !== 0 && // 初始版本1，没有任何的上传和移除操作
         latestVersion > typedMergedVersion) { // 有新的版本时候，触发合并
         if (typeItem.merging) return
+
         typeItem.merging = true
         logger.info(`[${typeItem.type}] start merge:currentVersion-${typedMergedVersion},latestVersion-${latestVersion}`)
 

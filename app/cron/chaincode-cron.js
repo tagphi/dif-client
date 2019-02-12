@@ -22,6 +22,8 @@ async function onTick () {
   if (isProcessing) return
 
   isProcessing = true
+
+  logger.info('chaincode sync ticking...')
   try {
     // 查询服务端的最新链码
     let apiNewestCC = ADMIN_ADDR + '/static/cc_config.json'
