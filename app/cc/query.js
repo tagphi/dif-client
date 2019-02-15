@@ -5,6 +5,7 @@ var logger = utils.getLogger('cc/query')
 
 var helper = require('../../common/helper.js')
 var CONFIG = require('../../config')
+let ccUtil = require('./cc-utils')
 
 var query = async function (fcn, args) {
   try {
@@ -12,7 +13,6 @@ var query = async function (fcn, args) {
     client.setConfigSetting('discovery-protocol', 'grpc')
     let channel = await helper.getChannel(client)
 
-    // send query
     var request = {
       chaincodeId: 'dif', // TODO: 配置中读取
       fcn: fcn,
@@ -25,6 +25,8 @@ var query = async function (fcn, args) {
     channel.addPeer(discoverPeers[0])
 
     await channel.initialize({discover: true, target: discoverPeers[0]})
+
+    request.targets = ccUtil.extractTargetsFromDiscover(client, channel._discovery_results, CONFIG)
 
     let responsePayloads = await channel.queryByChaincode(request)
     if (responsePayloads) {
