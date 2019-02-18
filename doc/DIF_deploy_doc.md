@@ -6,8 +6,8 @@
 1. 配置2核2GHz 8G内存 500G硬盘（推荐1T硬盘）
 2. docker-compose version > 1.20.1
 3. Docker version > 1.13
-4. Node version > 8.11
-5. npm version > 5.6.0
+4. Node version > 8.11+(9.0及更高版本暂不支持)
+5. npm version > 5.6.0+(6.0及以上更高版本暂不支持)
 6. go version > 1.10.3 (仅Admin节点)
 7. JRE 或 JDK > 1.8.0
 8. 开放端口7050-7053和8081
