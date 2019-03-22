@@ -6,14 +6,19 @@
 1. 配置2核2GHz 8G内存 500G硬盘（推荐1T硬盘）
 2. docker-compose version > 1.20.1
 3. Docker version > 1.13
-4. Node version > 8.11+(9.0及更高版本暂不支持)
-5. npm version > 5.6.0+(6.0及以上更高版本暂不支持)
+4. Node version = 8.11
+5. npm version = 5.6.0
 6. go version > 1.10.3 (仅Admin节点)
 7. JRE 或 JDK > 1.8.0
 8. 开放端口7050-7053和8081
 9. 准备一个peer0.[公司Domain]的域名指向部署peer的机器
 10. 定一个组织的MSPID作为在Fabric网络的标识，可以为无空格和特殊字符的大小写组合。比如RTBAsia, hdtMEDIA等
 ```
+
+**Note**
+
+- 建议创建docker:docker用户/用户组，并使用docker用户启动docker守护服务，直接使用root用户启动docker守护服务在安装dif的过程中可能会遇到权限问题导致失败
+- 建议使用非root用户操作，并将当前用户加入docker用户组，避免不必要权限问题导致的异常
 
 ## 部署Client Site
 
