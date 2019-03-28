@@ -9,50 +9,6 @@ if (process.argv.length !== 3) {
   process.exit(1)
 }
 
-console.log('检查依赖的一些程序以及版本....')
-
-// 检查依赖的一些程序已经存在
-// node, npm, bower
-let stdout = execFileSync('npm', ['-v']).toString()
-
-let pos = stdout.indexOf('\n')
-
-let npmVersion = pos == -1 ? parstFloat(stdout) : parseFloat(stdout.substring(0, pos))
-
-if (isNaN(npmVersion)) {
-  console.log('npm未安装!')
-  process.exit(1)
-}
-
-if (npmVersion < 5.6) {
-  console.log('npm版本需要5.6以上!')
-  process.exit(1)
-}
-
-stdout = execFileSync('node', ['-v']).toString()
-
-let nodeVersion = parseFloat(stdout.substring(1))
-
-if (nodeVersion < 8.11) {
-  console.log('node版本需要8.11以上')
-  process.exit(1)
-}
-
-// 检查docker 环境
-stdout = execFileSync('docker', ['-v']).toString()
-
-if (!stdout.startsWith('Docker version')) {
-  console.log('docker 未安装')
-  process.exit(1)
-}
-
-stdout = execFileSync('docker-compose', ['-v']).toString()
-
-if (!stdout.startsWith('docker-compose version')) {
-  console.log('docker-compose 未安装')
-  process.exit(1)
-}
-
 let subFoldersContains = function (parentDir, subfolders) {
   let files = fs.readdirSync(parentDir)
 
