@@ -17,6 +17,10 @@ cd $basedir
 
 docker build -t rtbasia/dif-client .
 
+docker tag rtbasia/dif-client:latest dockerhub.rtbasia.com/dif/dif-client:latest
+
+docker push dockerhub.rtbasia.com/dif/dif-client:latest
+
 docker rmi -f $(docker images | grep "^<none>" | grep -v "hours" | awk "{print $3}")
 
 cd $current_dir
