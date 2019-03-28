@@ -3,7 +3,9 @@ current_dir=`pwd`
 basedir=`cd $(dirname $0); pwd -P`
 zip_file="${basedir}/dif_client.zip"
 
+echo "清理不必要的目录和文件————>"
 test $zip_file && rm $zip_file
+rm -rf node_modules tmp ops package-lock.json mockups
 
 cd "${basedir}/.."
 
