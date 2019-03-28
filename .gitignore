@@ -25,3 +25,4 @@ config.json
 discover-test.js
 blacklist-service-test.js
 *-test.js
+swarm.key
