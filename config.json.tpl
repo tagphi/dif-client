@@ -22,7 +22,7 @@
     "site": {
         "dev":true,
         "watcher":false,
-        "adminAddr":"http://orderer2.dif.rtbasia.com:8080",
+        "adminAddr":"http://admin.dif.rtbasia.com:8080",
         "key_value_store": "/tmp/dif-kvs/",
         "port": 8081,
         "username": "admin",
