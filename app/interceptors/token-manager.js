@@ -5,6 +5,7 @@ var jwtConfig = require('../../config.json').site
 var secretOrPrivateKey = jwtConfig.jwt_secret
 
 var globalTokens = {}
+var logger = require('../utils/logger-utils').logger()
 
 // 这些url不需要登录即可访问
 const bypassList = ['/auth/login', '/static', '/blacklist/download',
@@ -32,6 +33,12 @@ var isInWhiteList = function (req) {
   if (!whitelist || whitelist.length === 0) return false
 
   let remoteIp = req.ip
+  logger.info('remoteIp-->' + remoteIp)
+
+  if (remoteIp.startsWith('::ffff:172.')) {
+    return true
+  }
+
   let isWhiteIP = false
   whitelist.forEach(function (whiteIP) {
     if (remoteIp.indexOf(whiteIP) !== -1) {
