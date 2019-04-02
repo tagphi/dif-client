@@ -49,8 +49,8 @@
             "port":5001,
             "timeout":900
         },
-        "mergeServiceUrl":"http://localhost:8082",
-        "callbackUrl":"http://localhost:8081/blacklist/callback"
+        "mergeServiceUrl":"http://dif-merge:8082",
+        "callbackUrl":"http://dif-client:8081/blacklist/callback"
     },
     "channel_name": "difchannel"
 }
