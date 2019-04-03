@@ -9,7 +9,11 @@ rm -rf node_modules tmp ops package-lock.json mockups
 
 cd "${basedir}/.."
 
-zip -r -q dif_client.zip dif-client
+zip -r -q dif_client.zip dif-client \
+    -x "dif-client/.git/*" \
+    -x "dif-client/.idea/*" \
+    -x "dif-client/chaincode/build/*" \
+    -x "dif-client/test/*"
 
 mv dif_client.zip ${basedir}/dif_client.zip
 
@@ -19,8 +23,8 @@ docker build -t rtbasia/dif-client .
 
 docker tag rtbasia/dif-client:latest dockerhub.rtbasia.com/dif/dif-client:latest
 
-docker push dockerhub.rtbasia.com/dif/dif-client:latest
+#docker push dockerhub.rtbasia.com/dif/dif-client:latest
 
-docker rmi -f $(docker images | grep "^<none>" | grep -v "hours" | awk "{print $3}")
+docker images | grep "^<none>"| awk '{print $3}' | xargs docker rmi -f
 
 cd $current_dir
