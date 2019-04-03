@@ -7,6 +7,8 @@ COPY dif_client.zip /home/dif/
 WORKDIR /home/dif
 RUN unzip -o dif_client.zip
 
+RUN mv /home/dif/node_modules /home/dif/dif-client/node_modules
+
 WORKDIR /home/dif/dif-client
 RUN npm install
 

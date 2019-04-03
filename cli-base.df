@@ -25,5 +25,8 @@ RUN npm install forever -g
 RUN ln -s /home/dif/node-v8.15.1-linux-x64/bin/forever /usr/bin/forever
 
 USER dif
+COPY package.json /home/dif/
+RUN mkdir -p /home/dif/node_modules
+RUN npm install
 
 EXPOSE 8081
