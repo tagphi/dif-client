@@ -1,4 +1,5 @@
 node_modules/**
+dif_client.zip
 **/.DS_Store
 package-lock.json
 **/node_modules
@@ -24,3 +25,4 @@ config.json
 discover-test.js
 blacklist-service-test.js
 *-test.js
+swarm.key
