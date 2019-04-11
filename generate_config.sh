@@ -16,6 +16,12 @@ credential_dir="${base_dir}/crypto-config/peerOrganizations"
 org_domain=`ls ${credential_dir} | head -n 1`
 peer_host=`ls ${credential_dir}/${org_domain}/peers | head -n 1`
 
+if [ ! -f 'swarm.key' ]; then
+    echo -e 'error: lack of swarm.key!
+    please contact our marketer or developer for it'
+    exit 1
+fi
+
 if [ -z "$org_domain" ]; then
     echo "证书不存在, 需要把证书放入crypto-config/peerOrganizations"
     exit 1
@@ -38,7 +44,7 @@ sslTargetNameOverride=$peer_host
 mspDir="crypto-config/peerOrganizations/${org_domain}/peers/${peer_host}/msp"
 tlsDir="crypto-config/peerOrganizations/${org_domain}/peers/${peer_host}/tls"
 
-declare -a tokens=("prvKeyPath" $prvKeyPath "sgnCertPath" $sgnCertPath "adminKeyPath" $adminKeyPath "adminCertPath" $adminCertPath "tlsCertPath" $tlsCertPath "eventUrl" $eventUrl "sslTargetNameOverride" $sslTargetNameOverride "mspDir" $mspDir "tlsDir" $tlsDir "peerHost" $peer_host "mspId" $msp_id)
+declare -a tokens=("org_domain" ${org_domain} "prvKeyPath" $prvKeyPath "sgnCertPath" $sgnCertPath "adminKeyPath" $adminKeyPath "adminCertPath" $adminCertPath "tlsCertPath" $tlsCertPath "eventUrl" $eventUrl "sslTargetNameOverride" $sslTargetNameOverride "mspDir" $mspDir "tlsDir" $tlsDir "peerHost" $peer_host "mspId" $msp_id)
 
 function searchNReplace() {
     file_name=$1
