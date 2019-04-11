@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ######
-# 清空 peer cli 节点
+# 清空 客户端 节点
 ######
 ######
 # 倒计时
@@ -18,17 +18,12 @@ function countDown(){
     done
 }
 
+echo "清理临时文件————>"
+rm -rf /tmp/dif-kvs/
 
-echo "清理ipfs————>"
-docker rm -f  `docker ps -a | grep ipfs | cut -c 1-10`
-sudo rm -rf scripts/ipfs/data
+echo "清理容器————>"
+docker-compose -f docker-compose-peer.yaml down --volumes
+docker ps -a | grep -v 'CONTAINER' |awk '{print $1}' | xargs -r docker rm -fv
 
 echo "关闭app————>"
-ps -efww|grep -w 'app.js'|grep -v grep|awk '{print $2}' | xargs kill -9
-
-echo "清理dif容器和网络————>"
-cd scripts/docker
-bash docker-utils.sh
-countDown 5
-cd ../..
-
+ps -efww |grep -w 'app.js' |grep -v grep |awk '{print $2}' | xargs -r kill -9

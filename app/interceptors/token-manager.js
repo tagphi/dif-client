@@ -12,6 +12,7 @@ const bypassList = ['/auth/login', '/static', '/blacklist/download',
   '/blacklist/downloadMergedlist',
   '/blacklist/downloadRealIPs',
   '/blacklist/downloadPublishIPs',
+  '/blacklist/callback',
   '/blacklist/upload']
 let whitelist = require('../../config').site.whitelist
 
