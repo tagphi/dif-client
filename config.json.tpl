@@ -22,7 +22,7 @@
     "site": {
         "dev":true,
         "watcher":false,
-        "adminAddr":"http://orderer2.dif.rtbasia.com:8080",
+        "adminAddr":"http://admin.dif.rtbasia.com:8080",
         "key_value_store": "/tmp/dif-kvs/",
         "port": 8081,
         "username": "admin",
@@ -49,8 +49,8 @@
             "port":5001,
             "timeout":900
         },
-        "mergeServiceUrl":"http://localhost:8082",
-        "callbackUrl":"http://localhost:8081/blacklist/callback"
+        "mergeServiceUrl":"http://dif-merge:8082",
+        "callbackUrl":"http://dif-client:8081/blacklist/callback"
     },
     "channel_name": "difchannel"
 }

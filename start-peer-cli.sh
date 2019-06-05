@@ -15,27 +15,14 @@ function countDown(){
     done
 }
 
-######
-# 启动 peer 节点和客户端
-######
-echo "启动peer节点————>" 
-cd ~/dif-client
+echo "启动容器————>"
 docker-compose -f docker-compose-peer.yaml up -d
+
+countDown 15
+
+echo "加入difchannel通道————>"
+docker exec dif-client node /home/dif/dif-client/join-channel.js
 countDown 5
 
-echo "加入dif通道————>" 
-node join-channel.js
-countDown 5
-
-echo "安装链码————>" 
-node install-chaincode-manually.js
-
-echo "启动ipfs容器————>" 
-cd ~/dif-client/scripts/ipfs
-. ~/dif-client/scripts/ipfs/run.sh
-
-# 启动app
-cd ~/dif-client/app
-forever start -o out.log -e err.log app.js &
-
-echo "启动app.js————>"
+echo "安装链码————>"
+docker exec dif-client node /home/dif/dif-client/install-chaincode-manually.js
