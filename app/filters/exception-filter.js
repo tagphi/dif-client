@@ -13,6 +13,11 @@ function exceptionFilter (err, req, res, next) {
     return
   }
 
+  if (err.code === 'ECONNREFUSED') {
+    respUtils.errResonse(res, '没有连接到Merge服务')
+    return
+  }
+
   if (typeof err === 'string') {
     return respUtils.errResonse(res, err)
   }

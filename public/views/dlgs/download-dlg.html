@@ -15,6 +15,10 @@
                         <label for="type_ip"
                                ng-class="{'d-inline':true,'color-lightslategray':dataType!='ip','color-blue-raido':dataType=='ip'}">ip</label>
 
+                        <input id="type_domain" ng-model="dataType" value="domain" type="radio" class="magic-radio">
+                        <label for="type_domain"
+                               ng-class="{'d-inline':true,'color-lightslategray':dataType!='domain','color-blue-raido':dataType=='domain'}">域名</label>
+
                         <input id="type_device" ng-model="dataType" value="device" type="radio" class="magic-radio">
                         <label for="type_device"
                                ng-class="{'d-inline':true,'color-lightslategray':dataType!='device','color-blue-raido':dataType=='device'}">设备ID</label>
@@ -22,6 +26,9 @@
                         <input id="type_default" ng-model="dataType" value="default" type="radio" class="magic-radio">
                         <label for="type_default"
                                ng-class="{'d-inline':true,'color-lightslategray':dataType!='default','color-blue-raido':dataType=='default'}">默认设备ID</label>
+
+                        <div style="height: 10px;"></div>
+
                         <input id="type_realip" ng-model="dataType" value="realip" type="radio" class="magic-radio">
                         <label for="type_realip"
                                ng-class="{'d-inline':true,
