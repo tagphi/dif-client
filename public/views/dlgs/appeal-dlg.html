@@ -15,6 +15,10 @@
                         <label for="type_ip"
                                ng-class="{'d-inline':true,'color-lightslategray':selectType!='ip','color-blue-raido':selectType=='ip'}">ip</label>
 
+                        <input id="type_domain" ng-model="selectType" value="domain" type="radio" class="magic-radio">
+                        <label for="type_domain"
+                               ng-class="{'d-inline':true,'color-lightslategray':selectType!='domain','color-blue-raido':selectType=='domain'}">域名</label>
+
                         <input id="type_device" ng-model="selectType" value="device" type="radio" class="magic-radio">
                         <label for="type_device"
                                ng-class="{'d-inline':true,'color-lightslategray':selectType!='device','color-blue-raido':selectType=='device'}">设备ID</label>

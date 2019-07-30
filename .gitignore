@@ -26,3 +26,5 @@ discover-test.js
 blacklist-service-test.js
 *-test.js
 swarm.key
+dif-client-v*
+msp_id.conf

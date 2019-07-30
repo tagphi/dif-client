@@ -1,14 +1,18 @@
 FROM dockerhub.rtbasia.com/dif/dif-client-base
 
-USER dif
-
-COPY dif_client.zip /home/dif/
 
 WORKDIR /home/dif
-RUN unzip -o dif_client.zip
 
+USER dif
+
+RUN mkdir dif-client
+COPY ./  /home/dif/dif-client
 RUN mv /home/dif/node_modules /home/dif/dif-client/node_modules
 
+USER root
+RUN chown -R dif:dif .
+
+USER dif
 WORKDIR /home/dif/dif-client
 RUN npm install
 
