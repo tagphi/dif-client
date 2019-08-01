@@ -37,7 +37,13 @@ var query = async function (fcn, args) {
     }
   } catch (error) {
     logger.error('Failed to query due to error: ' + error.stack ? error.stack : error)
-    return error.toString()
+
+    if (error.message.indexOf('Failed to connect before the deadline') !== -1) {
+      throw new Error('无法连接peer')
+    }
+
+    throw error
+    // return error.toString()
   }
 }
 

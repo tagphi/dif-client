@@ -11,7 +11,9 @@ let queryCC = require('../cc/query')
 const DATA_TYPES = [
   {type: 'device', merging: false},
   {type: 'ip', merging: false},
-  {type: 'default', merging: false}]
+  {type: 'domain', merging: false},
+  {type: 'default', merging: false}
+]
 
 let isRunning = false
 
