@@ -39,7 +39,7 @@
     - 4001、4002、5001
     - 8080、8081
 
-- 下载安装包 [https://github.com/tagphi/dif-client/release/dif-client-v2.0.0.tar.gz](https://github.com/tagphi/dif-client/release/dif-client-v2.0.0.tar.gz) 并解压
+- 下载安装包 [https://github.com/tagphi/dif-client/releases/download/2.0.0/dif-client-v2.0.0.tar.gz](https://github.com/tagphi/dif-client/releases/download/2.0.0/dif-client-v2.0.0.tar.gz) 并解压
 
 - 配置组织的msp id到文件 `msp_id.conf`
 
