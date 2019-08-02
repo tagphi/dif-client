@@ -8,11 +8,10 @@ dif_client.zip
 dif-client.zip
 
 app/logs
-crypto-config
 config.json
 docker-compose-peer.yaml
-crypto-config
-chaincode
+
+crypto-config/peerOrganizations
 
 msp_id.conf
 swarm.key

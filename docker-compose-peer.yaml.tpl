@@ -62,6 +62,5 @@ services:
     ports:
       - 8081:8081
     volumes:
-      - ./crypto-config/order-tls:/home/dif/dif-client/crypto-config/order-tls
       - ./crypto-config/peerOrganizations/%org_domain%:/home/dif/dif-client/crypto-config/peerOrganizations/%org_domain%
       - ./config.json:/home/dif/dif-client/config.json
