@@ -44,7 +44,7 @@
 - 配置组织的msp id到文件 `msp_id.conf`
 
     ```shell
-    cat 成员MSPID > msp_id.conf
+    echo 成员MSPID > msp_id.conf
     ```
 
 - 将组织证书拷贝到`crypto-config/peerOrganizations`目录下，最终正确的证书结构如下
