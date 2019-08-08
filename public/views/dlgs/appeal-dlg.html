@@ -9,11 +9,15 @@
                 <li>
                     <span class="pname">类型</span>
                     <!--选择类型-->
-                    <div class="upload-dlg-types">
+                    <div class="upload-dlg-types" style="line-height: 30px;">
                         <input id="type_ip" ng-model="selectType" value="ip" type="radio" class="magic-radio"
                                ng-checked="true">
                         <label for="type_ip"
                                ng-class="{'d-inline':true,'color-lightslategray':selectType!='ip','color-blue-raido':selectType=='ip'}">ip</label>
+
+                        <input id="type_ua" ng-model="selectType" value="ua" type="radio" class="magic-radio">
+                        <label for="type_ua"
+                               ng-class="{'d-inline':true,'color-lightslategray':selectType!='ua','color-blue-raido':selectType=='ua'}">UA</label>
 
                         <input id="type_domain" ng-model="selectType" value="domain" type="radio" class="magic-radio">
                         <label for="type_domain"
@@ -23,13 +27,14 @@
                         <label for="type_device"
                                ng-class="{'d-inline':true,'color-lightslategray':selectType!='device','color-blue-raido':selectType=='device'}">设备ID</label>
 
+                        <!--<br>-->
                         <input id="type_default" ng-model="selectType" value="default" type="radio" class="magic-radio">
                         <label for="type_default"
                                ng-class="{'d-inline':true,'color-lightslategray':selectType!='default','color-blue-raido':selectType=='default'}">默认设备ID</label>
                     </div>
                 </li>
                 <li>
-                    <span class="pname">文件</span>
+                    <span class="pname" style="width: 64px;">文件</span>
                     <span class="pcon">
                     <div id="file" name="file" ng-model="uploadFile" type="file"
                          ngf-select
@@ -46,7 +51,7 @@
                     </span>
                 </li>
                 <li style="margin-top: 16px;">
-                    <span class="pname">申诉理由</span>
+                    <span class="pname" style="width: 64px;">理由</span>
                     <textarea ng-model="summary" class="appeal-summary" placeholder="请输入申诉理由" required></textarea>
                 </li>
             </ul>
