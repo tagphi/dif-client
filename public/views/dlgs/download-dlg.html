@@ -15,6 +15,10 @@
                         <label for="type_ip"
                                ng-class="{'d-inline':true,'color-lightslategray':dataType!='ip','color-blue-raido':dataType=='ip'}">ip</label>
 
+                        <input id="type_ua" ng-model="dataType" value="ua" type="radio" class="magic-radio">
+                        <label for="type_ua"
+                               ng-class="{'d-inline':true,'color-lightslategray':dataType!='ua','color-blue-raido':dataType=='ua'}">UA</label>
+
                         <input id="type_domain" ng-model="dataType" value="domain" type="radio" class="magic-radio">
                         <label for="type_domain"
                                ng-class="{'d-inline':true,'color-lightslategray':dataType!='domain','color-blue-raido':dataType=='domain'}">域名</label>
