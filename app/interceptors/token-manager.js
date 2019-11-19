@@ -1,14 +1,14 @@
 var bearerToken = require('express-bearer-token')
-var jwt = require('jsonwebtoken')
 
-var jwtConfig = require('../../config.json').site
-var secretOrPrivateKey = jwtConfig.jwt_secret
-
-var globalTokens = {}
+var globalSession = {}
 var logger = require('../utils/logger-utils').logger()
 
+const TIME_UNIT_30_MIN = 1000 * 60 * 30
+
 // 这些url不需要登录即可访问
-const bypassList = ['/auth/login', '/static', '/blacklist/download',
+const bypassList = [
+  '/auth/login',
+  '/static', '/blacklist/download',
   '/blacklist/downloadMergedlist',
   '/blacklist/downloadRealIPs',
   '/blacklist/downloadPublishIPs',
@@ -50,7 +50,7 @@ var isInWhiteList = function (req) {
   return isWhiteIP
 }
 
-var checkToken = function (app) {
+var checkSession = function (app) {
   app.use(bearerToken())
 
   // 验证指定用户的token
@@ -58,27 +58,28 @@ var checkToken = function (app) {
     // 判断是否属于白名单
     if (__shouldBypass(req.originalUrl) || isInWhiteList(req)) return next()
 
-    var token = req.token || req.body.token || req.query.token
+    var sessionId = req.token || req.body.token || req.query.token
+    var session = globalSession[sessionId]
 
-    jwt.verify(token, secretOrPrivateKey, function (err, decoded) {
-      if (err || globalTokens[decoded.username] == null) {
-        res.send({
-          success: false,
-          message: 'Failed to authenticate token.'
-        })
-      } else {
-        if (globalTokens[decoded.username] !== null && globalTokens[decoded.username] !== token) {
-          res.send({
-            success: false,
-            message: 'token has expired'
-          })
-          return
-        }
+    if (!session) {
+      res.send({
+        success: false,
+        message: 'Failed to authenticate token.'
+      })
+      return
+    }
 
-        req.username = decoded.username
-        return next()
-      }
-    })
+    if (session.expireTime < new Date().getTime()) {
+      res.send({
+        success: false,
+        message: 'token has expired'
+      })
+      return
+    }
+
+    refreshSession(session)
+
+    return next()
   })
 
   // token失效时候错误处理
@@ -99,30 +100,40 @@ var checkToken = function (app) {
 }
 
 /**
- * 更新或设置指定用户的token
- */
-function updateToken (username, password) {
-  var token = jwt.sign({
-    exp: Math.floor(Date.now() / 1000) + parseInt(jwtConfig.jwt_expiretime),
-    username: username,
-    password: password
-  }, jwtConfig.jwt_secret)
+ * 创建
+ **/
+function createSession () {
+  const sesssionId = Math.random().toString(36).slice(-8).toUpperCase()
 
-  try {
-    globalTokens[username] = token
-    return token
-  } catch (err) {
-    return null
+  globalSession[sesssionId] = {
+    id: sesssionId
   }
+
+  refreshSession(globalSession[sesssionId])
+
+  return sesssionId
 }
 
 /**
- * 删除用户的登录token
+ * 刷新
  */
-function deleteToken (username) {
-  delete globalTokens[username]
+function refreshSession (session) {
+  if (!session.expireTime) {
+    session.expireTime = new Date().getTime()
+  }
+
+  session.expireTime = session.expireTime + TIME_UNIT_30_MIN
 }
 
-exports.checkToken = checkToken
-exports.updateToken = updateToken
-exports.deleteToken = deleteToken
+/**
+ * 删除用户的登录会话
+ */
+function deleteSession (sessionId) {
+  delete globalSession[sessionId]
+}
+
+exports.createSession = createSession
+exports.refreshSession = refreshSession
+
+exports.checkSession = checkSession
+exports.deleteSession = deleteSession

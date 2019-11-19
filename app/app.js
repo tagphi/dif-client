@@ -33,7 +33,7 @@ var router = require('./router')
 
   commonFilters.configPreFilters(app)
 
-  tokenManager.checkToken(app)
+  tokenManager.checkSession(app)
 
   // 映射路由
   router.mapRoutes(app)
