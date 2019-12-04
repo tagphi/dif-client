@@ -7,6 +7,14 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
   $scope.type = 'device'
 
   /**
+   * dateCounter
+   {
+    '20191011':2 // 该日合并版本计数器
+   }
+   **/
+  let dateVersionCounter = {}
+
+  /**
    * 返回
    **/
   $scope.back = function () {
@@ -14,23 +22,51 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
   }
 
   /**
+   * 查询该日期的版本计数器
+   *  每次获取当前版本+1，作为最新的版本
+   **/
+  function dateVersion (date) {
+    let curCount = dateVersionCounter[date]
+
+    if (!curCount) {
+      curCount = 0
+    }
+
+    dateVersionCounter[date] = curCount + 1
+
+    return dateVersionCounter[date]
+  }
+
+  /**
+   * 格式化历史数据
+   **/
+  function formatHistories () {
+    $scope.histories.forEach(function (row, id) {
+      row.id = id + 1
+      row.type = $scope.type
+
+      // 转换时间戳
+      let date = new Date()
+      date.setTime(row.timestamp)
+      row.date = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss')
+      row.dateSimp = $filter('date')(date, 'yyyyMMdd')
+
+      row.version = row.dateSimp + '_' + dateVersion(row.dateSimp)
+      row.filename = row.type + '_' + row.version
+    })
+  }
+
+  /**
    * 查询合并历史
+
    **/
   $scope.queryHists = function (type) {
     HttpService.post('/blacklist/mergedHistories', {type})
       .then(function (respData) {
         if (respData.success) {
-          respData.data.forEach(function (row, id) {
-            row.id = id + 1
-            row.type = $scope.type
-
-            // 转换时间戳
-            let date = new Date()
-            date.setTime(row.timestamp)
-            row.date = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss')
-          })
-
           $scope.histories = respData.data
+
+          formatHistories()
         } else {
           alertMsgService.alert('获取失败', false)
           $scope.histories = []

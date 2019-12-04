@@ -1,3 +1,4 @@
+
 <div>
     <header class="header">
         <span ng-click="back()" class="iconfont"
@@ -38,11 +39,12 @@
                     <tbody>
                     <tr ng-repeat="hist in histories">
                         <td>{{hist.id}}</td>
+
                         <td>{{hist.date}}</td>
                         <td>{{hist.type}}</td>
                         <td>{{hist.version}}</td>
                         <td>
-                            <a href="/blacklist/download?path={{hist.ipfsInfo.ipfsInfo.path}}&name={{hist.ipfsInfo.ipfsInfo.name}}">下载</a>
+                            <a href="/blacklist/download?path={{hist.ipfsInfo.ipfsInfo.path}}&name={{hist.filename}}">下载</a>
                         </td>
                     </tr>
                     </tbody>
