@@ -209,7 +209,50 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
       template: 'views/dlgs/download-dlg.html',
       scope: $scope,
       controller: ['$scope', 'HttpService', function ($scope, HttpService) {
-        $scope.dataType = $scope.dataType || 'ip'
+        $scope.downloadDlg = {
+          tab: 'prod',
+          prod: {
+            firstNote: '...',
+            secondNote: '...',
+            all: true,
+            selectedTypes: ['publisher_ip', 'default', 'ip', 'device', 'domain']
+          },
+          dev: {
+            firstNote: '包含了联盟成员最新提交的数据，正在进行审查...',
+            secondNote: '...',
+            all: true,
+            selectedTypes: ['publisher_ip', 'default', 'ip', 'device', 'domain']
+          },
+          onTabClicked: function (clickedTab) {
+            this.tab = clickedTab
+            this.showTab = this[this.tab]
+          },
+          select: function (type) {
+            let selectedTypes = this.showTab.selectedTypes
+
+            let id = selectedTypes.indexOf(type)
+
+            if (id !== -1) {
+              selectedTypes.splice(id, 1)
+            } else {
+              selectedTypes.push(type)
+            }
+
+            this.showTab.all = selectedTypes.length === 5
+          },
+          selectAll: function () {
+            let all = !this.showTab.all
+            this.showTab.all = all
+
+            if (!all) {
+              this.showTab.selectedTypes = []
+            } else {
+              this.showTab.selectedTypes = ['publisher_ip', 'default', 'ip', 'device', 'domain']
+            }
+          }
+        }
+
+        $scope.downloadDlg.showTab = $scope.downloadDlg[$scope.downloadDlg.tab]
       }]
     }
 

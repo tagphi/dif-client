@@ -1,0 +1,100 @@
+{
+  "id": "708600",
+  "name": "dif-client",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "158020",
+      "name": "踩",
+      "font_class": "cai",
+      "unicode": "e604",
+      "unicode_decimal": 58884
+    },
+    {
+      "icon_id": "219576",
+      "name": "task",
+      "font_class": "task",
+      "unicode": "e653",
+      "unicode_decimal": 58963
+    },
+    {
+      "icon_id": "356472",
+      "name": "时钟",
+      "font_class": "shizhong",
+      "unicode": "e629",
+      "unicode_decimal": 58921
+    },
+    {
+      "icon_id": "964300",
+      "name": "返回",
+      "font_class": "gongxiangtubiaozhuangtaileicaozuolei59",
+      "unicode": "e66c",
+      "unicode_decimal": 58988
+    },
+    {
+      "icon_id": "1043808",
+      "name": "historychoose",
+      "font_class": "historychoose",
+      "unicode": "e60c",
+      "unicode_decimal": 58892
+    },
+    {
+      "icon_id": "1365848",
+      "name": "通过",
+      "font_class": "tongguo",
+      "unicode": "e60d",
+      "unicode_decimal": 58893
+    },
+    {
+      "icon_id": "1703514",
+      "name": "点赞",
+      "font_class": "dianzan",
+      "unicode": "e63b",
+      "unicode_decimal": 58939
+    },
+    {
+      "icon_id": "2325917",
+      "name": "客服",
+      "font_class": "kefu",
+      "unicode": "e637",
+      "unicode_decimal": 58935
+    },
+    {
+      "icon_id": "2770900",
+      "name": "倒计时",
+      "font_class": "daojishi",
+      "unicode": "e618",
+      "unicode_decimal": 58904
+    },
+    {
+      "icon_id": "3834483",
+      "name": "日历",
+      "font_class": "rili1",
+      "unicode": "e620",
+      "unicode_decimal": 58912
+    },
+    {
+      "icon_id": "4735972",
+      "name": "暂无数据",
+      "font_class": "zanwushuju",
+      "unicode": "e60b",
+      "unicode_decimal": 58891
+    },
+    {
+      "icon_id": "6145959",
+      "name": "parallel_tasks",
+      "font_class": "parallel_tasks",
+      "unicode": "e710",
+      "unicode_decimal": 59152
+    },
+    {
+      "icon_id": "8348123",
+      "name": "警告",
+      "font_class": "jinggao",
+      "unicode": "e71b",
+      "unicode_decimal": 59163
+    }
+  ]
+}

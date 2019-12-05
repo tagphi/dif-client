@@ -1,56 +1,89 @@
 <!--下载对话框-->
-<div class="modal-dialog" role="document">
+
+<div class="modal-dialog download-dlg" role="document">
+    <div class="modal-header">
+        <span style="position: relative">
+            <span ng-class="{'tab-title':true,'active':downloadDlg.tab=='prod'}"
+                  ng-click="downloadDlg.onTabClicked('prod')">生产版本</span>
+            <span ng-class="{'tab-title':true,'active':downloadDlg.tab=='dev'}"
+                  ng-click="downloadDlg.onTabClicked('dev')">实验版本</span>
+        </span>
+    </div>
     <div class="modal-content">
-        <div class="modal-header">
-            <h3>下载合并版本</h3>
-        </div>
-        <form name="downloadForm" class="modal-body form">
-            <ul class="plist">
-                <li>
-                    <span class="pname" style="width: 44px;">类型</span>
-                    <!--选择类型-->
-                    <div class="pname upload-dlg-types" style="width: 334px !important;">
-                        <input id="type_ip" ng-model="dataType" value="ip" type="radio" class="magic-radio"
-                               ng-checked="true">
-                        <label for="type_ip"
-                               ng-class="{'d-inline':true,'color-lightslategray':dataType!='ip','color-blue-raido':dataType=='ip'}">ip</label>
+        <form name="downloadForm" class="modal-body form container panel-body">
+            <div class="container note-grp">
+                <span >
+                    <span class="iconfont" style="font-size: 18px;">&#xe71b;</span>
+                    <span class="note-label">{{downloadDlg.showTab.firstNote}}</span>
+                </span>
+                <div ng-show="downloadDlg.tab=='dev'"></div>
+                <span ng-class="{'right':downloadDlg.tab!='dev'}">
+                    <span class="iconfont">&#xe629;</span>
+                    <span class="note-label">{{downloadDlg.showTab.secondNote}}</span>
+                </span>
+            </div>
 
-                        <!--<input id="type_ua" ng-model="dataType" value="ua" type="radio" class="magic-radio">-->
-                        <!--<label for="type_ua"-->
-                               <!--ng-class="{'d-inline':true,'color-lightslategray':dataType!='ua','color-blue-raido':dataType=='ua'}">UA</label>-->
+            <div class="row">
+                <div class="col">
+                    <input id="type_ip" value="ip" type="checkbox" class="magic-checkbox"
+                           ng-click="downloadDlg.select('ip')"
+                           ng-checked="downloadDlg.showTab.selectedTypes.indexOf('ip')!=-1">
+                    <label for="type_ip"
+                           ng-class="{'d-inline':true,'color-lightslategray':true,
+                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('ip')!=-1}">IP地址黑名单</label>
+                </div>
+                <div class="col">
+                    <input id="type_publisher_ip" value="publisher_ip" type="checkbox" class="magic-checkbox"
+                           ng-click="downloadDlg.select('publisher_ip')"
+                           ng-checked="downloadDlg.showTab.selectedTypes.indexOf('publisher_ip')!=-1">
+                    <label for="type_publisher_ip"
+                           ng-class="{'d-inline':true,'color-lightslategray':true,
+                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('publisher_ip')!=-1}">IP地址白名单</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <input id="type_device" value="device" type="checkbox" class="magic-checkbox"
+                           ng-click="downloadDlg.select('device')"
+                           ng-checked="downloadDlg.showTab.selectedTypes.indexOf('device')!=-1">
+                    <label for="type_device"
+                           ng-class="{'d-inline':true,'color-lightslategray':true,
+                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('device')!=-1}">移动设备号黑名单</label>
+                </div>
+                <div class="col">
+                    <input id="type_default" value="default" type="checkbox" class="magic-checkbox"
+                           ng-click="downloadDlg.select('default')"
+                           ng-checked="downloadDlg.showTab.selectedTypes.indexOf('default')!=-1">
+                    <label for="type_default"
+                           ng-class="{'d-inline':true,'color-lightslategray':true,
+                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('default')!=-1}">默认设备号黑名单</label>
+                </div>
 
-                        <input id="type_domain" ng-model="dataType" value="domain" type="radio" class="magic-radio">
-                        <label for="type_domain"
-                               ng-class="{'d-inline':true,'color-lightslategray':dataType!='domain','color-blue-raido':dataType=='domain'}">域名</label>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <input id="type_domain" value="domain" type="checkbox" class="magic-checkbox"
+                           ng-click="downloadDlg.select('domain')"
+                           ng-checked="downloadDlg.showTab.selectedTypes.indexOf('domain')!=-1">
 
-                        <input id="type_device" ng-model="dataType" value="device" type="radio" class="magic-radio">
-                        <label for="type_device"
-                               ng-class="{'d-inline':true,'color-lightslategray':dataType!='device','color-blue-raido':dataType=='device'}">设备ID</label>
-
-                        <input id="type_default" ng-model="dataType" value="default" type="radio" class="magic-radio">
-                        <label for="type_default"
-                               ng-class="{'d-inline':true,'color-lightslategray':dataType!='default','color-blue-raido':dataType=='default'}">默认设备ID</label>
-
-                        <div style="height: 10px;"></div>
-
-                        <input id="type_realip" ng-model="dataType" value="realip" type="radio" class="magic-radio">
-                        <label for="type_realip"
-                               ng-class="{'d-inline':true,
-                               'color-lightslategray':dataType!='realip',
-                               'color-blue-raido':dataType=='realip'}">IP(除动态IP)</label>
-                    </div>
-                </li>
-            </ul>
+                    <label for="type_domain"
+                           ng-class="{'d-inline':true,'color-lightslategray':true,
+                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('domain')!=-1}">域名黑名单</label>
+                </div>
+            </div>
         </form>
         <div class="modal-footer">
-            <button ng-click="closeThisDialog()" type="button" class="btn-cancel">取消</button>
-            <a ng-show="dataType!='realip'" ng-click="closeThisDialog()"
-               href="/blacklist/downloadMergedlist?type={{dataType}}" target="_blank"
-               class="link-default btn-up-down-load" style="color: white">下载</a>
+            <span style="float: left">
+                <input id="chx-all" value="domain" type="checkbox" class="magic-checkbox"
+                       ng-click="downloadDlg.selectAll()"
+                       ng-checked="downloadDlg.showTab.all">
 
-            <a ng-show="dataType=='realip'" ng-click="closeThisDialog()" href="/blacklist/downloadRealIPs"
-               target="_blank"
-               class="link-default btn-up-down-load" style="color: white">下载</a>
+            <label for="chx-all"
+                   ng-class="{'d-inline':true,'color-lightslategray':true,
+                           'color-blue':downloadDlg.showTab.all}">全选</label>
+            </span>
+
+            <button ng-click="closeThisDialog()" type="button" class="link-default">下 载</button>
         </div>
     </div>
 </div>

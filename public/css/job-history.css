@@ -33,7 +33,7 @@
     color: lightslategray;
 }
 
-.color-blue-raido {
+.color-blue {
     color: #3e96ec;
 }
 
@@ -238,8 +238,10 @@ button:hover, .link-default:hover, .link-normal:hover {
     transform: scale(1.5);
 }
 
-.scaler{}
-.scaler:hover{
+.scaler {
+}
+
+.scaler:hover {
     display: inline-block;
     transform: scale(1.5);
 }
@@ -265,8 +267,7 @@ button:hover, .link-default:hover, .link-normal:hover {
     color: white;
 }
 
-
-.align-right{
+.align-right {
     /*right: -60px;*/
 }
 
@@ -278,7 +279,7 @@ button:hover, .link-default:hover, .link-normal:hover {
     background: #3bb6ff;
 }
 
-.appeal-summary{
+.appeal-summary {
     width: 242px;
     height: 131px;
     background-color: white;
@@ -287,10 +288,9 @@ button:hover, .link-default:hover, .link-normal:hover {
     color: grey;
 }
 
-.grp-label{
+.grp-label {
     width: 80px !important;
 }
-
 
 .btn-down-crts {
     float: right;
@@ -299,34 +299,105 @@ button:hover, .link-default:hover, .link-normal:hover {
     top: 54px;
 }
 
-.down-ip{
+.down-ip {
     position: relative !important;
     top: 0 !important;
     left: -182px !important;
 }
 
-.down-merge-type{
+.down-merge-type {
     width: 50px;
 }
 
-.title-icon{
+.title-icon {
     font-size: 38px;
     color: #3c8dbc;
     font-weight: lighter;
     margin-right: 4px;
 }
 
-.title-label{
+.title-label {
     color: #3c8dbc;
     font-size: 24px;
 }
 
 .table th {
-   color: #0c63a3;
+    color: #0c63a3;
     background-color: #3e97eb61;
     font-size: 16px;
 }
 
-.table th:hover,.table td:hover{
+.table th:hover, .table td:hover {
     background: #eee;
+}
+
+.form > .row > .col {
+    display: inline-block !important;
+    width: 48%;
+    padding: 4px 0px;
+}
+
+.download-dlg {
+    font-size: 14px;
+}
+
+.download-dlg .tab-title {
+    margin: 4px;
+    padding: 2px;
+    font-size: 17px;
+}
+
+.download-dlg .tab-title.active {
+    border-bottom: 2px solid #1792e5;
+    transition: all 0.5s;
+}
+
+.download-dlg .note {
+
+}
+
+.download-dlg .magic-checkbox + label {
+    position: relative;
+    display: block;
+    padding-left: 23px;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+.download-dlg .magic-checkbox + label:before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    content: '';
+    border: 1px solid #c0c0c0;
+}
+
+.download-dlg .magic-checkbox + label:after {
+    top: 2px;
+    left: 6px;
+    box-sizing: border-box;
+    width: 5px;
+    height: 9px;
+    transform: rotate(45deg);
+    border-width: 2px;
+    border-style: solid;
+    border-color: #fff;
+    border-top: 0;
+    border-left: 0;
+}
+
+.download-dlg .note-grp {
+    margin-bottom: 4px;
+}
+
+.download-dlg .note-grp .right {
+    margin-left: 16px;
+}
+
+.download-dlg .note-grp .note-label {
+    position: relative;
+    top: -1px;
 }
