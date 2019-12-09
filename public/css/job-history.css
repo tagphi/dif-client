@@ -401,3 +401,8 @@ button:hover, .link-default:hover, .link-normal:hover {
     position: relative;
     top: -1px;
 }
+
+.dark-blue{
+    /*color: #4b78aa;*/
+    background-color: #4b78aa;
+}

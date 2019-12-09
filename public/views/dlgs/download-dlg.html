@@ -83,6 +83,7 @@
                            'color-blue':downloadDlg.showTab.all}">全选</label>
             </span>
 
+            <button ng-click="downloadDlg.jumpToMergesPage()"  type="button" class="link-default dark-blue">历史合并版本</button>
             <a ng-click="closeThisDialog()"  target="_blank" href="/blacklist/downloadByEnv?env={{downloadDlg.tab}}&types={{downloadDlg.showTab.selectedTypes.join(',')}}" type="button" class="link-default">立即下载</a>
         </div>
     </div>

@@ -249,6 +249,10 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             } else {
               this.showTab.selectedTypes = ['publisher_ip', 'default', 'ip', 'device', 'domain']
             }
+          },
+          jumpToMergesPage: function () {
+            $scope.closeThisDialog()
+            $location.path('/merges')
           }
         }
 
