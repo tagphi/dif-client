@@ -1,5 +1,5 @@
 /* eslint-disable handle-callback-err */
-app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $filter, HttpService, ngDialog, alertMsgService, Upload) {
+app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $interval, $filter, HttpService, ngDialog, alertMsgService, Upload) {
   /**
    * 退出
    */
@@ -212,14 +212,14 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
         $scope.downloadDlg = {
           tab: 'prod',
           prod: {
-            firstNote: '...',
-            secondNote: '...',
+            firstNote: undefined,
+            secondNote: undefined,
             all: true,
             selectedTypes: ['publisher_ip', 'default', 'ip', 'device', 'domain']
           },
           dev: {
             firstNote: '包含了联盟成员最新提交的数据，正在进行审查...',
-            secondNote: '...',
+            secondNote: undefined,
             all: true,
             selectedTypes: ['publisher_ip', 'default', 'ip', 'device', 'domain']
           },
@@ -253,6 +253,43 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
         }
 
         $scope.downloadDlg.showTab = $scope.downloadDlg[$scope.downloadDlg.tab]
+
+        function handleVersionInfo (versionInfo) {
+          let pubDate = new Date(versionInfo.pubDate)
+          let nextPubDate = new Date(versionInfo.nextPubDate)
+
+          let version = $filter('date')(pubDate, 'yyyyMMdd')
+          let pubDateFormatted = $filter('date')(pubDate, 'yyyy/MM/dd HH:mm:ss')
+          let nextPubDateFormatted = $filter('date')(nextPubDate, 'yyyy/MM/dd HH:mm:ss')
+
+          $scope.downloadDlg.prod.firstNote = '版本号：' + version
+          $scope.downloadDlg.prod.secondNote = '发布于：' + pubDateFormatted
+          $scope.downloadDlg.dev.secondNote = '预计发布时间：' + nextPubDateFormatted
+
+          // 倒计时
+          $interval(function () {
+            let delta = nextPubDate.getTime() - new Date().getTime()
+
+            let UNIT_SECOND = 1000
+            let UNIT_MINUTE = UNIT_SECOND * 60
+            let UNIT_HOUR = UNIT_MINUTE * 60
+
+            let hour = Math.floor(delta / UNIT_HOUR)
+            let minute = Math.floor((delta - hour * UNIT_HOUR) / UNIT_MINUTE)
+            let seconds = Math.floor((delta - hour * UNIT_HOUR - minute * UNIT_MINUTE) / UNIT_SECOND)
+            let countdown = hour + ':' + minute + ':' + seconds
+            $scope.downloadDlg.dev.secondNote = '预计发布时间：' + nextPubDateFormatted + '，倒计时：' + countdown
+          }, 1000)
+        }
+
+        // 获取版本信息
+        HttpService.post('/blacklist/versionInfo', undefined)
+          .then(function (respData) {
+            if (!respData.success) return
+
+            let versionInfo = respData.data
+            handleVersionInfo(versionInfo)
+          })
       }]
     }
 

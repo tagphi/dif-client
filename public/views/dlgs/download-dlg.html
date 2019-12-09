@@ -12,12 +12,12 @@
     <div class="modal-content">
         <form name="downloadForm" class="modal-body form container panel-body">
             <div class="container note-grp">
-                <span >
+                <span ng-show="downloadDlg.showTab.secondNote">
                     <span class="iconfont" style="font-size: 18px;">&#xe71b;</span>
                     <span class="note-label">{{downloadDlg.showTab.firstNote}}</span>
                 </span>
                 <div ng-show="downloadDlg.tab=='dev'"></div>
-                <span ng-class="{'right':downloadDlg.tab!='dev'}">
+                <span ng-show="downloadDlg.showTab.secondNote" ng-class="{'right':downloadDlg.tab!='dev'}">
                     <span class="iconfont">&#xe629;</span>
                     <span class="note-label">{{downloadDlg.showTab.secondNote}}</span>
                 </span>

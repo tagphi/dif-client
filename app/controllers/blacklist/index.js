@@ -180,6 +180,48 @@ exports.downloadMergedlist = async function (req, res, next) {
 }
 
 /**
+ * 版本信息
+ **/
+exports.versionInfo = async function (req, res, next) {
+
+  let versionInfo = {}
+  // 获取最新生产版本信息
+  let mergedListInfo = await queryChaincode('getMergedList', ['device'])
+
+  if (!mergedListInfo) {
+    mergedListInfo = '{}'
+  }
+
+  mergedListInfo = JSON.parse(mergedListInfo)
+
+  if (mergedListInfo.ipfsInfo && mergedListInfo.ipfsInfo.name) {
+    let mergedTimestamp = mergedListInfo.ipfsInfo.name.replace('.log', '').split('-')[1]
+    versionInfo.pubDate = new Date(mergedTimestamp)
+  }
+
+  // 预测下个版本发布日期
+  let nextPubDate = publishDate()
+
+  if (new Date().getTime() > nextPubDate.getTime()) {
+    nextPubDate = publishDate(1)
+  }
+
+  versionInfo.nextPubDate = nextPubDate
+
+  respUtils.succResponse(res,'获取版本',versionInfo)
+}
+
+function publishDate (monthOffset) {
+  monthOffset = monthOffset || 0
+
+  let date = new Date()
+  let year = date.getFullYear()
+  let month = date.getMonth()
+  let curMothDate = new Date(year, month + monthOffset, 20)
+  return curMothDate
+}
+
+/**
  * 下载真实的ip
  **/
 exports.downloadRealIPs = async function (req, res, next) {
@@ -313,6 +355,7 @@ exports.validateMergedHistories = [
 
 exports.mergedHistories = async function (req, res, next) {
   let type = req.body.type
+
   let result = await queryChaincode('getMergedHistoryList', [type])
   if (result.indexOf('Err') !== -1) return next(result)
   result = JSON.parse(result)
