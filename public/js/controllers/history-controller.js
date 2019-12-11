@@ -215,13 +215,13 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             firstNote: undefined,
             secondNote: undefined,
             all: true,
-            selectedTypes: ['publisher_ip', 'default', 'ip', 'device', 'domain']
+            selectedTypes: ['default', 'ip', 'device', 'domain']
           },
           dev: {
             firstNote: '包含了联盟成员最新提交的数据，正在进行审查...',
             secondNote: undefined,
             all: true,
-            selectedTypes: ['publisher_ip', 'default', 'ip', 'device', 'domain']
+            selectedTypes: ['default', 'ip', 'device', 'domain']
           },
           onTabClicked: function (clickedTab) {
             this.tab = clickedTab
@@ -247,7 +247,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             if (!all) {
               this.showTab.selectedTypes = []
             } else {
-              this.showTab.selectedTypes = ['publisher_ip', 'default', 'ip', 'device', 'domain']
+              this.showTab.selectedTypes = ['default', 'ip', 'device', 'domain']
             }
           },
           jumpToMergesPage: function () {

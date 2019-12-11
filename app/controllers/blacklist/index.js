@@ -147,7 +147,7 @@ function downloadZipfile (res, name, files) {
     'Content-Type': 'application/octet-stream',
     'Content-Disposition': 'attachment; filename=' + name
   })
-  agent.post(`${MERGE_SERVICE_URL}/download/zip/`)
+  agent.post(`${MERGE_SERVICE_URL}/batchDownload`)
     .send(files)
     .pipe(res)
 
@@ -210,7 +210,7 @@ exports.versionInfo = async function (req, res, next) {
 
   if (mergedListInfo.ipfsInfo && mergedListInfo.ipfsInfo.name) {
     let mergedTimestamp = mergedListInfo.ipfsInfo.name.replace('.log', '').split('-')[1]
-    versionInfo.pubDate = new Date(mergedTimestamp)
+    versionInfo.pubDate = new Date(parseInt(mergedTimestamp))
   }
 
   // 预测下个版本发布日期
@@ -258,13 +258,14 @@ exports.downloadByEnv = async function (req, res, next) {
   let filesList
 
   if (env === 'prod') {
-    filesList = prodFileinfosForTypes(typesList)
+    filesList = await prodFileinfosForTypes(typesList)
   } else if (env === 'dev') {
-    filesList = devFileinfosForTypes(typesList)
+    filesList = await devFileinfosForTypes(typesList)
   }
 
   if (filesList) {
-    downloadZipfile(res, env + '-' + new Date().getTime() + '.zip', filesList)
+    let versionInDate = filesList[0].fileName.replace('.log', '').split('-')[1]
+    downloadZipfile(res, env + '-' + versionInDate + '.zip', filesList)
   } else {
     return respUtils.errResonse(res, '该版本没有最新的黑名单')
   }
@@ -289,13 +290,27 @@ async function prodFileinfosForTypes (typesList) {
 
     if (ipfsinfo) {
       pathinfoList.push({
-        fileName: ipfsinfo.name,
+        fileName: type + '-' + versionFromName(ipfsinfo.name) + '.log',
         hash: ipfsinfo.hash
       })
     }
   }
 
   return pathinfoList
+}
+
+function versionFromName (filename) {
+  let timestamp = filename.replace('.log', '').split('-')[1]
+  let pubDate = new Date(parseInt(timestamp))
+  let month = pubDate.getMonth() + 1
+
+  if (month < 10) {
+    month = '0' + month
+  }
+
+  let version = pubDate.getFullYear() + '' + month + '' + pubDate.getDate()
+
+  return version
 }
 
 /**
@@ -324,7 +339,7 @@ async function devFileinfosForTypes (typesList) {
     let ipfsinfo = historiesList[0].ipfsInfo
 
     pathinfoList.push({
-      fileName: ipfsinfo.name,
+      fileName: type + '-' + versionFromName(ipfsinfo.name) + '.log',
       hash: ipfsinfo.hash
     })
   }

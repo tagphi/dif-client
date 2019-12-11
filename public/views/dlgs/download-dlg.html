@@ -33,16 +33,6 @@
                            'color-blue':downloadDlg.showTab.selectedTypes.indexOf('ip')!=-1}">IP地址黑名单</label>
                 </div>
                 <div class="col">
-                    <input id="type_publisher_ip" value="publisher_ip" type="checkbox" class="magic-checkbox"
-                           ng-click="downloadDlg.select('publisher_ip')"
-                           ng-checked="downloadDlg.showTab.selectedTypes.indexOf('publisher_ip')!=-1">
-                    <label for="type_publisher_ip"
-                           ng-class="{'d-inline':true,'color-lightslategray':true,
-                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('publisher_ip')!=-1}">IP地址白名单</label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
                     <input id="type_device" value="device" type="checkbox" class="magic-checkbox"
                            ng-click="downloadDlg.select('device')"
                            ng-checked="downloadDlg.showTab.selectedTypes.indexOf('device')!=-1">
@@ -50,6 +40,8 @@
                            ng-class="{'d-inline':true,'color-lightslategray':true,
                            'color-blue':downloadDlg.showTab.selectedTypes.indexOf('device')!=-1}">移动设备号黑名单</label>
                 </div>
+            </div>
+            <div class="row">
                 <div class="col">
                     <input id="type_default" value="default" type="checkbox" class="magic-checkbox"
                            ng-click="downloadDlg.select('default')"
@@ -59,8 +51,6 @@
                            'color-blue':downloadDlg.showTab.selectedTypes.indexOf('default')!=-1}">默认设备号黑名单</label>
                 </div>
 
-            </div>
-            <div class="row">
                 <div class="col">
                     <input id="type_domain" value="domain" type="checkbox" class="magic-checkbox"
                            ng-click="downloadDlg.select('domain')"
@@ -70,6 +60,9 @@
                            ng-class="{'d-inline':true,'color-lightslategray':true,
                            'color-blue':downloadDlg.showTab.selectedTypes.indexOf('domain')!=-1}">域名黑名单</label>
                 </div>
+            </div>
+            <div class="row">
+
             </div>
         </form>
         <div class="modal-footer">
@@ -83,8 +76,13 @@
                            'color-blue':downloadDlg.showTab.all}">全选</label>
             </span>
 
-            <button ng-click="downloadDlg.jumpToMergesPage()"  type="button" class="link-default dark-blue">历史合并版本</button>
-            <a ng-click="closeThisDialog()"  target="_blank" href="/blacklist/downloadByEnv?env={{downloadDlg.tab}}&types={{downloadDlg.showTab.selectedTypes.join(',')}}" type="button" class="link-default">立即下载</a>
+            <button ng-click="downloadDlg.jumpToMergesPage()"
+                    ng-show="downloadDlg.tab=='prod'"
+                    type="button" class="link-default dark-blue">历史合并版本
+            </button>
+            <a ng-click="closeThisDialog()" target="_blank"
+               href="/blacklist/downloadByEnv?env={{downloadDlg.tab}}&types={{downloadDlg.showTab.selectedTypes.join(',')}}"
+               type="button" class="link-default">立即下载</a>
         </div>
     </div>
 </div>
