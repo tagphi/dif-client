@@ -7,14 +7,6 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
   $scope.type = 'device'
 
   /**
-   * dateCounter
-   {
-    '20191011':2 // 该日合并版本计数器
-   }
-   **/
-  let dateVersionCounter = {}
-
-  /**
    * 返回
    **/
   $scope.back = function () {
@@ -22,25 +14,33 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
   }
 
   /**
-   * 查询该日期的版本计数器
-   *  每次获取当前版本+1，作为最新的版本
-   **/
-  function dateVersion (date) {
-    let curCount = dateVersionCounter[date]
-
-    if (!curCount) {
-      curCount = 0
-    }
-
-    dateVersionCounter[date] = curCount + 1
-
-    return dateVersionCounter[date]
-  }
-
-  /**
    * 格式化历史数据
    **/
   function formatHistories () {
+    /**
+     * dateCounter
+     {
+      '20191011':2 // 该日合并版本计数器
+     }
+     **/
+    let dateVersionCounter = {}
+
+    /**
+     * 查询该日期的版本计数器
+     *  每次获取当前版本+1，作为最新的版本
+     **/
+    function dateVersion (date) {
+      let curCount = dateVersionCounter[date]
+
+      if (!curCount) {
+        curCount = 0
+      }
+
+      dateVersionCounter[date] = curCount + 1
+
+      return dateVersionCounter[date]
+    }
+
     $scope.histories.forEach(function (row, id) {
       row.id = id + 1
       row.type = $scope.type

@@ -263,7 +263,7 @@ exports.downloadByEnv = async function (req, res, next) {
     filesList = await devFileinfosForTypes(typesList)
   }
 
-  if (filesList) {
+  if (filesList.length !== 0) {
     let versionInDate = filesList[0].fileName.replace('.log', '').split('-')[1]
     downloadZipfile(res, env + '-' + versionInDate + '.zip', filesList)
   } else {
@@ -300,6 +300,10 @@ async function prodFileinfosForTypes (typesList) {
 }
 
 function versionFromName (filename) {
+  if (!filename) {
+    return new Date().getTime()
+  }
+
   let timestamp = filename.replace('.log', '').split('-')[1]
   let pubDate = new Date(parseInt(timestamp))
   let month = pubDate.getMonth() + 1
@@ -336,7 +340,7 @@ async function devFileinfosForTypes (typesList) {
     })
 
     // 最新的合并历史的ipfs信息
-    let ipfsinfo = historiesList[0].ipfsInfo
+    let ipfsinfo = historiesList[0].ipfsInfo.ipfsInfo
 
     pathinfoList.push({
       fileName: type + '-' + versionFromName(ipfsinfo.name) + '.log',
