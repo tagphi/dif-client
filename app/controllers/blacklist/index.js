@@ -140,6 +140,21 @@ function downloadIpfsFile (res, name, path) {
 }
 
 /**
+ * 从job服务器下载ipfs并返回给客户端
+ **/
+function downloadZipfile (res, name, files) {
+  res.set({
+    'Content-Type': 'application/octet-stream',
+    'Content-Disposition': 'attachment; filename=' + name
+  })
+  agent.post(`${MERGE_SERVICE_URL}/batchDownload`)
+    .send(files)
+    .pipe(res)
+
+  logger.info('downloading file:' + name)
+}
+
+/**
  * 下载合并列表
  *
  * result 示例
@@ -177,6 +192,163 @@ exports.downloadMergedlist = async function (req, res, next) {
     logger.error(e)
     respUtils.download(res, filename, '下载合并版本出错')
   }
+}
+
+/**
+ * 版本信息
+ **/
+exports.versionInfo = async function (req, res, next) {
+  let versionInfo = {}
+  // 获取最新生产版本信息
+  let mergedListInfo = await queryChaincode('getMergedList', ['device'])
+
+  if (!mergedListInfo) {
+    mergedListInfo = '{}'
+  }
+
+  mergedListInfo = JSON.parse(mergedListInfo)
+
+  if (mergedListInfo.ipfsInfo && mergedListInfo.ipfsInfo.name) {
+    let mergedTimestamp = mergedListInfo.ipfsInfo.name.replace('.log', '').split('-')[1]
+    versionInfo.pubDate = new Date(parseInt(mergedTimestamp))
+  }
+
+  // 预测下个版本发布日期
+  let nextPubDate = publishDate()
+
+  if (new Date().getTime() > nextPubDate.getTime()) {
+    nextPubDate = publishDate(1)
+  }
+
+  versionInfo.nextPubDate = nextPubDate
+
+  respUtils.succResponse(res, '获取版本', versionInfo)
+}
+
+function publishDate (monthOffset) {
+  monthOffset = monthOffset || 0
+
+  let date = new Date()
+  let year = date.getFullYear()
+  let month = date.getMonth()
+  let curMothDate = new Date(year, month + monthOffset, 20)
+  return curMothDate
+}
+
+//  env=prod&types=publisher_ip,default,ip,device,domain
+exports.validateDownloadByEnv = [
+  check('env').not().isEmpty().withMessage('env不能为空'),
+  check('types').not().isEmpty().withMessage('types不能为空')
+]
+
+exports.downloadByEnv = async function (req, res, next) {
+  let env = req.query.env
+  let types = req.query.types
+
+  let typesList = types.split(',')
+
+  if (typesList.length === 0) {
+    return respUtils.errResonse(res, '未选择要下载的黑名单类型')
+  }
+
+  if (env !== 'prod' && env !== 'dev') {
+    return respUtils.errResonse(res, '不支持的黑名单版本')
+  }
+
+  let filesList
+
+  if (env === 'prod') {
+    filesList = await prodFileinfosForTypes(typesList)
+  } else if (env === 'dev') {
+    filesList = await devFileinfosForTypes(typesList)
+  }
+
+  if (filesList.length !== 0) {
+    let versionInDate = filesList[0].fileName.replace('.log', '').split('-')[1]
+    downloadZipfile(res, env + '-' + versionInDate + '.zip', filesList)
+  } else {
+    return respUtils.errResonse(res, '该版本没有最新的黑名单')
+  }
+}
+
+/**
+ * 生产环境要下载合并文件列表
+ **/
+async function prodFileinfosForTypes (typesList) {
+  let pathinfoList = []
+
+  for (let i = 0; i < typesList.length; i++) {
+    let type = typesList[i]
+
+    // 获取最新生产版本信息
+    let mergedListInfo = await queryChaincode('getMergedList', [type])
+
+    mergedListInfo = mergedListInfo || '{}'
+    mergedListInfo = JSON.parse(mergedListInfo)
+
+    let ipfsinfo = mergedListInfo.ipfsInfo
+
+    if (ipfsinfo) {
+      pathinfoList.push({
+        fileName: type + '-' + versionFromName(ipfsinfo.name) + '.log',
+        hash: ipfsinfo.hash
+      })
+    }
+  }
+
+  return pathinfoList
+}
+
+function versionFromName (filename) {
+  if (!filename) {
+    return new Date().getTime()
+  }
+
+  let timestamp = filename.replace('.log', '').split('-')[1]
+  let pubDate = new Date(parseInt(timestamp))
+  let month = pubDate.getMonth() + 1
+
+  if (month < 10) {
+    month = '0' + month
+  }
+
+  let version = pubDate.getFullYear() + '' + month + '' + pubDate.getDate()
+
+  return version
+}
+
+/**
+ * 实验环境要下载合并文件列表
+ **/
+async function devFileinfosForTypes (typesList) {
+  let pathinfoList = []
+
+  for (let i = 0; i < typesList.length; i++) {
+    let type = typesList[i]
+
+    let historiesList = await queryChaincode('getMergedHistoryList', [type])
+
+    if (!historiesList || historiesList.toLowerCase().indexOf('error') !== -1) {
+      continue
+    }
+
+    historiesList = JSON.parse(historiesList)
+
+    // 时间逆序
+    historiesList.sort(function (item1, item2) {
+      return parseInt(item2.timestamp) - parseInt(item1.timestamp)
+    })
+
+    // 最新的合并历史的ipfs信息
+    let ipfsinfo = historiesList[0].ipfsInfo.ipfsInfo
+
+    pathinfoList.push({
+      fileName: type + '-' + versionFromName(ipfsinfo.name) + '.log',
+      hash: ipfsinfo.hash
+    })
+  }
+
+  return pathinfoList
 }
 
 /**
@@ -313,6 +485,7 @@ exports.validateMergedHistories = [
 
 exports.mergedHistories = async function (req, res, next) {
   let type = req.body.type
+
   let result = await queryChaincode('getMergedHistoryList', [type])
   if (result.indexOf('Err') !== -1) return next(result)
   result = JSON.parse(result)

@@ -1,5 +1,5 @@
 /* eslint-disable handle-callback-err */
-app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $filter, HttpService, ngDialog, alertMsgService, Upload) {
+app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $interval, $filter, HttpService, ngDialog, alertMsgService, Upload) {
   /**
    * 退出
    */
@@ -209,7 +209,91 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
       template: 'views/dlgs/download-dlg.html',
       scope: $scope,
       controller: ['$scope', 'HttpService', function ($scope, HttpService) {
-        $scope.dataType = $scope.dataType || 'ip'
+        $scope.downloadDlg = {
+          tab: 'prod',
+          prod: {
+            firstNote: undefined,
+            secondNote: undefined,
+            all: true,
+            selectedTypes: ['default', 'ip', 'device', 'domain']
+          },
+          dev: {
+            firstNote: '包含了联盟成员最新提交的数据，正在进行审查...',
+            secondNote: undefined,
+            all: true,
+            selectedTypes: ['default', 'ip', 'device', 'domain']
+          },
+          onTabClicked: function (clickedTab) {
+            this.tab = clickedTab
+            this.showTab = this[this.tab]
+          },
+          select: function (type) {
+            let selectedTypes = this.showTab.selectedTypes
+
+            let id = selectedTypes.indexOf(type)
+
+            if (id !== -1) {
+              selectedTypes.splice(id, 1)
+            } else {
+              selectedTypes.push(type)
+            }
+
+            this.showTab.all = selectedTypes.length === 5
+          },
+          selectAll: function () {
+            let all = !this.showTab.all
+            this.showTab.all = all
+
+            if (!all) {
+              this.showTab.selectedTypes = []
+            } else {
+              this.showTab.selectedTypes = ['default', 'ip', 'device', 'domain']
+            }
+          },
+          jumpToMergesPage: function () {
+            $scope.closeThisDialog()
+            $location.path('/merges')
+          }
+        }
+
+        $scope.downloadDlg.showTab = $scope.downloadDlg[$scope.downloadDlg.tab]
+
+        function handleVersionInfo (versionInfo) {
+          let pubDate = new Date(versionInfo.pubDate)
+          let nextPubDate = new Date(versionInfo.nextPubDate)
+
+          let version = $filter('date')(pubDate, 'yyyyMMdd')
+          let pubDateFormatted = $filter('date')(pubDate, 'yyyy/MM/dd HH:mm:ss')
+          let nextPubDateFormatted = $filter('date')(nextPubDate, 'yyyy/MM/dd HH:mm:ss')
+
+          $scope.downloadDlg.prod.firstNote = '版本号：' + version
+          $scope.downloadDlg.prod.secondNote = '发布于：' + pubDateFormatted
+          $scope.downloadDlg.dev.secondNote = '预计发布时间：' + nextPubDateFormatted
+
+          // 倒计时
+          $interval(function () {
+            let delta = nextPubDate.getTime() - new Date().getTime()
+
+            let UNIT_SECOND = 1000
+            let UNIT_MINUTE = UNIT_SECOND * 60
+            let UNIT_HOUR = UNIT_MINUTE * 60
+
+            let hour = Math.floor(delta / UNIT_HOUR)
+            let minute = Math.floor((delta - hour * UNIT_HOUR) / UNIT_MINUTE)
+            let seconds = Math.floor((delta - hour * UNIT_HOUR - minute * UNIT_MINUTE) / UNIT_SECOND)
+            let countdown = hour + ':' + minute + ':' + seconds
+            $scope.downloadDlg.dev.secondNote = '预计发布时间：' + nextPubDateFormatted + '，倒计时：' + countdown
+          }, 1000)
+        }
+
+        // 获取版本信息
+        HttpService.post('/blacklist/versionInfo', undefined)
+          .then(function (respData) {
+            if (!respData.success) return
+
+            let versionInfo = respData.data
+            handleVersionInfo(versionInfo)
+          })
       }]
     }
 
