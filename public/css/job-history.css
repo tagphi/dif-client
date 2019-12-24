@@ -123,6 +123,8 @@ button:hover, .link-default:hover, .link-normal:hover {
 */
 .upload-dlg-types {
     width: 600px !important;
+    position: relative;
+    left: -12px;
 }
 
 .opt-common {
@@ -342,8 +344,8 @@ button:hover, .link-default:hover, .link-normal:hover {
 }
 
 .download-dlg .tab-title {
-    margin: 4px;
-    padding: 2px;
+    margin: 8px;
+    padding: 6px;
     font-size: 17px;
 }
 
@@ -359,6 +361,7 @@ button:hover, .link-default:hover, .link-normal:hover {
 .download-dlg .magic-checkbox + label {
     position: relative;
     display: block;
+    padding-top: 2px;
     padding-left: 23px;
     cursor: pointer;
     vertical-align: middle;
@@ -400,9 +403,53 @@ button:hover, .link-default:hover, .link-normal:hover {
 .download-dlg .note-grp .note-label {
     position: relative;
     top: -1px;
+    left: 4px;
 }
 
-.dark-blue{
+.download-dlg .all{
+    float: left;
+    position: relative;
+    left: 9px;
+    top: 11px;
+}
+
+.dark-blue {
     /*color: #4b78aa;*/
     background-color: #4b78aa;
+}
+
+.ngdialog.ngdialog-theme-default .ngdialog-content{
+    width:550px;
+}
+
+.download-dlg {
+    font-size: 15px;
+}
+
+.download-dlg .note-grp {
+    margin: 3px 10px 15px 10px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.download-dlg .tab-title {
+    margin: 10px;
+    padding: 6px;
+    font-size: 17px;
+}
+
+.download-dlg .note-grp .right {
+    /* margin-left: 16px; */
+    margin-top: 10px;
+    display: block;
+}
+
+.dark-blue {
+    /* color: #4b78aa; */
+    background-color: #a01111;
+    margin-right: 10px;
+}
+
+.modal span{
+    margin: 10px;
 }

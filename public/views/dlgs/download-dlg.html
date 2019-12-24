@@ -12,12 +12,12 @@
     <div class="modal-content">
         <form name="downloadForm" class="modal-body form container panel-body">
             <div class="container note-grp">
-                <span ng-show="downloadDlg.showTab.secondNote">
+                <span style="position: relative;left: -1px;">
                     <span class="iconfont" style="font-size: 18px;">&#xe71b;</span>
                     <span class="note-label">{{downloadDlg.showTab.firstNote}}</span>
                 </span>
-                <div ng-show="downloadDlg.tab=='dev'"></div>
-                <span ng-show="downloadDlg.showTab.secondNote" ng-class="{'right':downloadDlg.tab!='dev'}">
+                <div style="height: 12px;"></div>
+                <span ng-show="downloadDlg.showTab.secondNote">
                     <span class="iconfont">&#xe629;</span>
                     <span class="note-label">{{downloadDlg.showTab.secondNote}}</span>
                 </span>
@@ -61,7 +61,7 @@
                            'color-blue':downloadDlg.showTab.selectedTypes.indexOf('domain')!=-1}">域名黑名单</label>
                 </div>
 
-                <div class="col">
+                <div class="col" style="margin-top: 15px;">
                     <input id="type_ua" type="checkbox" class="magic-checkbox"
                            ng-click="downloadDlg.select('ua')"
                            ng-checked="downloadDlg.showTab.selectedTypes.indexOf('ua')!=-1">
@@ -76,13 +76,13 @@
             </div>
         </form>
         <div class="modal-footer">
-            <span style="float: left">
+            <span class="all">
                 <input id="chx-all" type="checkbox" class="magic-checkbox"
                        ng-click="downloadDlg.selectAll()"
                        ng-checked="downloadDlg.showTab.all">
 
             <label for="chx-all"
-                   ng-class="{'d-inline':true,'color-lightslategray':true,
+                   ng-class="{'d-inline':true,'color-lightslategray':true
                            'color-blue':downloadDlg.showTab.all}">全选</label>
             </span>
 
