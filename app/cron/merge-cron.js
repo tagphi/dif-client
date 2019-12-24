@@ -11,6 +11,7 @@ let queryCC = require('../cc/query')
 const DATA_TYPES = [
   {type: 'device', merging: false},
   {type: 'ip', merging: false},
+
   {type: 'ua', merging: false},
   {type: 'domain', merging: false},
   {type: 'default', merging: false}
@@ -28,12 +29,9 @@ function startCron () {
 async function onTick () {
   try {
     logger.info('merge cron ticking...')
-    // 取的最新版本
-    let latestVersion = await queryCC('version', [])
-    latestVersion = parseInt(latestVersion)
 
     // 取的各类型的最新合并列表，并根据版本决定是否合并
-    DATA_TYPES.forEach(_tryToMergeTypedList(latestVersion))
+    DATA_TYPES.forEach(_tryToMergeTypedList())
   } catch (e) {
     logger.error('merge cron err', e)
   }
@@ -62,27 +60,31 @@ async function _getMergedListVersionByType (type) {
 }
 
 function _tryToMergeTypedList (latestVersion) {
-  async function _asyncTryToMergeTypedList (typeItem) {
+  async function _asyncTryToMergeTypedList (type) {
+    let isUA = type === 'ua'
+    // 取的最新版本
+    let latestVersion = await queryCC('version', [isUA + '']) // ua查出来ua对应的最新版本，其他名单的提交不受影响
+    latestVersion = parseInt(latestVersion)
     try {
-      let typedMergedVersion = await _getMergedListVersionByType(typeItem.type)
-      logger.info(`[${typeItem.type}] latestVersion-${latestVersion},typedMergedVersion-${typedMergedVersion}`)
+      let typedMergedVersion = await _getMergedListVersionByType(type.type)
+      logger.info(`[${type.type}] latestVersion-${latestVersion},typedMergedVersion-${typedMergedVersion}`)
 
       if (latestVersion !== 0 && // 初始版本1，没有任何的上传和移除操作
         latestVersion > typedMergedVersion) { // 有新的版本时候，触发合并
-        if (typeItem.merging) return
+        if (type.merging) return
 
-        typeItem.merging = true
-        logger.info(`[${typeItem.type}] start merge:currentVersion-${typedMergedVersion},latestVersion-${latestVersion}`)
+        type.merging = true
+        logger.info(`[${type.type}] start merge:currentVersion-${typedMergedVersion},latestVersion-${latestVersion}`)
 
-        await blacklistService.merge(typeItem.type, latestVersion)
-        typeItem.merging = false
+        await blacklistService.merge(type.type, latestVersion)
+        type.merging = false
 
-        logger.info(`[${typeItem.type}] success merge:from ${typedMergedVersion} to ${latestVersion}`)
+        logger.info(`[${type.type}] success merge:from ${typedMergedVersion} to ${latestVersion}`)
       }
 
     } catch (e) {
-      logger.error(`[${typeItem.type}] failed to merge to ${latestVersion}:${e}`)
-      typeItem.merging = false
+      logger.error(`[${type.type}] failed to merge to ${latestVersion}:${e}`)
+      type.merging = false
     }
   }
 

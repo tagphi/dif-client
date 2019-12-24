@@ -135,12 +135,19 @@ async function merge (type, latestVersion) {
   allRmListInfo = allRmListInfo || '[]'
   allRmListInfo = extractPaths(allRmListInfo)
 
+  if (type === 'ua') {
+    await mergeUA(latestVersion)
+    return
+  }
+
   // 剔除媒体ip
   let publishIpfsInfo = ''
+
   if (type === 'ip') {
     publishIpfsInfo = await queryCC('getPublisherIp', [])
     publishIpfsInfo = publishIpfsInfo || '[]'
     publishIpfsInfo = extractPaths(publishIpfsInfo)
+
     allRmListInfo = allRmListInfo.concat(publishIpfsInfo)
   }
 
@@ -151,6 +158,19 @@ async function merge (type, latestVersion) {
 
   await submitToJobHistory('/merge', type, undefined,
     {blacklist: allOrgsFulllists, removelist: allRmListInfo},
+    {cmd: 'commitMerge', args: {type, latestVersion}}, latestVersion)
+}
+
+async function mergeUA (latestVersion) {
+  let type = 'ua'
+
+  // 获取合并的全量列表
+  let allOrgsFulllists = await queryCC('getAllOrgsList', [type])
+  allOrgsFulllists = allOrgsFulllists || '[]'
+  allOrgsFulllists = concatHashAndMspid(allOrgsFulllists)
+
+  await submitToJobHistory('/merge', type, undefined,
+    {blacklist: allOrgsFulllists},
     {cmd: 'commitMerge', args: {type, latestVersion}}, latestVersion)
 }
 
@@ -296,7 +316,7 @@ function makeIpfsinfo (filename, hash, size) {
 /**
  * 是否锁定
  **/
-async function isLocked() {
+async function isLocked () {
   const result = await queryCC('isLocked', [])
   return result === 'true'
 }

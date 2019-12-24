@@ -10,11 +10,12 @@ var app = angular.module('dif', [
   'ngDialog'
 ]).config(function ($routeProvider) {
   $routeProvider
+    // .when('/', {
+    //   controller: 'LoginController',
+    //   templateUrl: 'views/login.html'
+    // })
+    // .when('/history', {
     .when('/', {
-      controller: 'LoginController',
-      templateUrl: 'views/login.html'
-    })
-    .when('/history', {
       controller: 'HistoryController',
       templateUrl: 'views/history.html'
     })
