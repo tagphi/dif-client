@@ -1,4 +1,5 @@
 <script src="../../js/controllers/login-controller.js"></script>
+
 <div class="modal-dialog" role="document">
     <div class="modal-content">
         <div class="modal-header">
@@ -34,6 +35,8 @@
                         <label for="type_device"
                                ng-class="{'d-inline':true,'color-lightslategray':selectType!='device','color-blue':selectType=='device'}"
                                ng-show="!locked">设备ID</label>
+
+                        <div style="height: 10px"></div>
 
                         <div>
                             <input id="type_default" ng-model="selectType" value="default" type="radio" class="magic-radio"
