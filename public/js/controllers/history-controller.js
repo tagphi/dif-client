@@ -215,13 +215,13 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             firstNote: undefined,
             secondNote: undefined,
             all: true,
-            selectedTypes: ['default', 'ip', 'device', 'domain']
+            selectedTypes: ['default', 'ip', 'device', 'domain', 'ua']
           },
           dev: {
             firstNote: '包含了联盟成员最新提交的数据，正在进行审查...',
             secondNote: undefined,
             all: true,
-            selectedTypes: ['default', 'ip', 'device', 'domain']
+            selectedTypes: ['default', 'ip', 'device', 'domain', 'ua']
           },
           onTabClicked: function (clickedTab) {
             this.tab = clickedTab

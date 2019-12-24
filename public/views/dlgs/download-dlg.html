@@ -60,6 +60,16 @@
                            ng-class="{'d-inline':true,'color-lightslategray':true,
                            'color-blue':downloadDlg.showTab.selectedTypes.indexOf('domain')!=-1}">域名黑名单</label>
                 </div>
+
+                <div class="col">
+                    <input id="type_ua" type="checkbox" class="magic-checkbox"
+                           ng-click="downloadDlg.select('ua')"
+                           ng-checked="downloadDlg.showTab.selectedTypes.indexOf('ua')!=-1">
+
+                    <label for="type_ua"
+                           ng-class="{'d-inline':true,'color-lightslategray':true,
+                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('ua')!=-1}">UA</label>
+                </div>
             </div>
             <div class="row">
 
@@ -67,7 +77,7 @@
         </form>
         <div class="modal-footer">
             <span style="float: left">
-                <input id="chx-all" value="domain" type="checkbox" class="magic-checkbox"
+                <input id="chx-all" type="checkbox" class="magic-checkbox"
                        ng-click="downloadDlg.selectAll()"
                        ng-checked="downloadDlg.showTab.all">
 
