@@ -34,35 +34,52 @@ exports.validateUpload = [
 exports.upload = async function (req, res, next) {
   let type = req.body.type
   let dataType = req.body.dataType
+  let dataListBuf = req.file.buffer
+  let filename = req.file.originalname.toString()
+  let size = req.file.size
+
+  let uploadTime = new Date().getTime().toString()
+
+  if (dataType === 'appeal') {
+    await uploadAppeal(req, res)
+  } else {
+    /* 媒体ip */
+    if (type === 'publisherIp') { // 媒体ip
+      await blacklistService.submitPublishIPs(uploadTime, filename, size, dataListBuf)
+      respUtils.succResponse(res, '上传成功')
+      return
+    }
+
+    await uploadBlacklist(req, res)
+  }
+}
+
+async function uploadAppeal (req, res) {
+  let type = req.body.type
   let summary = req.body.summary
   let dataListBuf = req.file.buffer
   let filename = req.file.originalname.toString()
   let size = req.file.size
 
-  if (dataType === 'appeal' &&
-    (!summary || summary.length === 0)) {
-    respUtils.errResonse(res, 'summary not exists')
-    return
-  }
-
   let uploadTime = new Date().getTime().toString()
-  /* 申诉列表 */
-  if (dataType === 'appeal') {
-    await blacklistService.submitAppeal(uploadTime, type, filename, size, dataListBuf, summary)
-    respUtils.succResponse(res, '上传成功')
-    return
+
+  if (!summary || summary.length === 0) {
+    return respUtils.errResonse(res, 'summary not exists')
   }
 
-  /* 媒体ip */
-  if (type === 'publisherIp') { // 媒体ip
-    await blacklistService.submitPublishIPs(uploadTime, filename, size, dataListBuf)
-    respUtils.succResponse(res, '上传成功')
-    return
-  }
+  await blacklistService.submitAppeal(uploadTime, type, filename, size, dataListBuf, summary)
+  respUtils.succResponse(res, '上传成功')
+}
 
-  /* 黑名单 */
+async function uploadBlacklist (req, res) {
+  let type = req.body.type
+  let dataListBuf = req.file.buffer
+  let filename = req.file.originalname.toString()
+  let size = req.file.size
+
   let locked = await blacklistService.isLocked()
   logger.info(`lock status:${locked}`)
+
   if (locked) {
     return respUtils.errResonse(res, '锁定期不能提交黑名单')
   }
