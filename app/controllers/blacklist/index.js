@@ -31,7 +31,7 @@ exports.validateUpload = [
   check('type').not().isEmpty().withMessage('类型type不能为空')
 ]
 
-exports.upload = async function (req, res, next) {
+exports.upload = async function (req, res) {
   let type = req.body.type
   let dataType = req.body.dataType
   let dataListBuf = req.file.buffer

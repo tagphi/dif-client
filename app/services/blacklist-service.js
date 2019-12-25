@@ -59,6 +59,16 @@ async function commitPublisherIPs (callbackArgs, argsFromJobHist) {
   return true
 }
 
+async function commitUA (resp, filename, size, type, uploadTime) {
+  let deltaIpfsInfo = makeIpfsinfo(filename, resp.sampleFileHash, size)
+  await invokeCC('deltaUpload', [deltaIpfsInfo, type, uploadTime])
+  logger.info(`success to upload ${type} blacklist:${filename}`)
+
+  let fullIpfsInfo = makeIpfsinfo(filename, resp.patternHash, -1)
+  await invokeCC('fullUpload', [fullIpfsInfo, type])
+  logger.info(`success to upload ${type} fulllist`)
+}
+
 /**
  * 上传黑名单
  **/
@@ -71,9 +81,14 @@ async function uploadBlacklist (filename, size, blacklistBuf, type) {
   fullBlacklistIpfsInfo = JSON.parse(fullBlacklistIpfsInfo)
 
   // 提交给java任务服务器
-  await submitBlacklistToJobHistory(uploadTime, type, filename, size, blacklistBuf, fullBlacklistIpfsInfo.path)
-
   logger.info(`success to upload ${type} blacklist:${filename}`)
+
+  if (type === 'ua') { // ua同步返回delta ipfs 和full ipfs
+    let resp = await submitUAToJobHistory(uploadTime, type, filename, size, blacklistBuf, fullBlacklistIpfsInfo.path)
+    await commitUA(resp, filename, size, type, uploadTime)
+  } else {
+    await submitBlacklistToJobHistory(uploadTime, type, filename, size, blacklistBuf, fullBlacklistIpfsInfo.path)
+  }
 }
 
 /**
@@ -81,6 +96,18 @@ async function uploadBlacklist (filename, size, blacklistBuf, type) {
  **/
 async function submitBlacklistToJobHistory (uploadTime, type, filename, size, blacklistBuf, fullBlacklistIpfsInfo) {
   let resp = await submitToJobHistory('/deltaUpload', type, blacklistBuf,
+    {oldHash: fullBlacklistIpfsInfo},
+    {cmd: 'commitBlacklist', args: {type, filename, uploadTime, size}})
+
+  logger.info(`submit blacklist to job history:type-${type},filename:${filename},resp:${resp}`)
+  return resp
+}
+
+/**
+ * 提交UA黑名单给java任务服务器
+ **/
+async function submitUAToJobHistory (uploadTime, type, filename, size, blacklistBuf, fullBlacklistIpfsInfo) {
+  let resp = await submitToJobHistory('/uaUpload', type, blacklistBuf,
     {oldHash: fullBlacklistIpfsInfo},
     {cmd: 'commitBlacklist', args: {type, filename, uploadTime, size}})
 
