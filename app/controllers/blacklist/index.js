@@ -340,29 +340,33 @@ function versionFromName (filename) {
 async function devFileinfosForTypes (typesList) {
   let pathinfoList = []
 
-  for (let i = 0; i < typesList.length; i++) {
-    let type = typesList[i]
+  try {
+    for (let i = 0; i < typesList.length; i++) {
+      let type = typesList[i]
 
-    let historiesList = await queryChaincode('getMergedHistoryList', [type])
+      let historiesList = await queryChaincode('getMergedHistoryList', [type])
 
-    if (!historiesList || historiesList.toLowerCase().indexOf('error') !== -1) {
-      continue
+      if (!historiesList || historiesList.toLowerCase().indexOf('error') !== -1) {
+        continue
+      }
+
+      historiesList = JSON.parse(historiesList)
+
+      // 时间逆序
+      historiesList.sort(function (item1, item2) {
+        return parseInt(item2.timestamp) - parseInt(item1.timestamp)
+      })
+
+      // 最新的合并历史的ipfs信息
+      let ipfsinfo = historiesList[0].ipfsInfo.ipfsInfo
+
+      pathinfoList.push({
+        fileName: type + '-' + versionFromName(ipfsinfo.name) + '.log',
+        hash: ipfsinfo.hash
+      })
     }
-
-    historiesList = JSON.parse(historiesList)
-
-    // 时间逆序
-    historiesList.sort(function (item1, item2) {
-      return parseInt(item2.timestamp) - parseInt(item1.timestamp)
-    })
-
-    // 最新的合并历史的ipfs信息
-    let ipfsinfo = historiesList[0].ipfsInfo.ipfsInfo
-
-    pathinfoList.push({
-      fileName: type + '-' + versionFromName(ipfsinfo.name) + '.log',
-      hash: ipfsinfo.hash
-    })
+  } catch (e) {
+    return []
   }
 
   return pathinfoList

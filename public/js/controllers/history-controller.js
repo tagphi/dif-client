@@ -259,15 +259,18 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
         $scope.downloadDlg.showTab = $scope.downloadDlg[$scope.downloadDlg.tab]
 
         function handleVersionInfo (versionInfo) {
-          let pubDate = new Date(versionInfo.pubDate)
+          if (versionInfo.pubDate) {
+            let pubDate = new Date(versionInfo.pubDate)
+            let version = $filter('date')(pubDate, 'yyyyMMdd')
+            let pubDateFormatted = $filter('date')(pubDate, 'yyyy/MM/dd HH:mm:ss')
+            $scope.downloadDlg.prod.firstNote = '版本号：' + version
+            $scope.downloadDlg.prod.secondNote = '发布于：' + pubDateFormatted
+          }
+
           let nextPubDate = new Date(versionInfo.nextPubDate)
 
-          let version = $filter('date')(pubDate, 'yyyyMMdd')
-          let pubDateFormatted = $filter('date')(pubDate, 'yyyy/MM/dd HH:mm:ss')
           let nextPubDateFormatted = $filter('date')(nextPubDate, 'yyyy/MM/dd HH:mm:ss')
 
-          $scope.downloadDlg.prod.firstNote = '版本号：' + version
-          $scope.downloadDlg.prod.secondNote = '发布于：' + pubDateFormatted
           $scope.downloadDlg.dev.secondNote = '预计发布时间：' + nextPubDateFormatted
 
           // 倒计时
@@ -291,7 +294,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
           .then(function (respData) {
             if (!respData.success) return
 
-            let versionInfo = respData.data
+            let versionInfo = respData.data该版本没有最新的黑名单
             handleVersionInfo(versionInfo)
           })
       }]
