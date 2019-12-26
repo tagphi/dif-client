@@ -21,7 +21,9 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     $scope.locked = true
     HttpService.post('/blacklist/isLocked')
       .then(function (respData) {
-        $scope.locked = respData.data.locked
+        if (respData.data) {
+          $scope.locked = respData.data.locked
+        }
       })
   }
 
@@ -32,7 +34,9 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     $scope.watcher = false
     HttpService.post('/auth/watcher')
       .then(function (respData) {
-        $scope.watcher = respData.data.isWatcher
+        if (respData.data) {
+          $scope.watcher = respData.data.isWatcher
+        }
       })
   }
 

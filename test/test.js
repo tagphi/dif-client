@@ -1,6 +1,5 @@
 describe('1', function () {
   it('2', function () {
-    let isUA = false + ''
-    console.log('————>',isUA)
+    console.log('————>',[1,2,3].reverse())
   })
 })

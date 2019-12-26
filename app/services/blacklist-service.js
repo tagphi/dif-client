@@ -112,7 +112,7 @@ async function submitUAToJobHistory (uploadTime, type, filename, size, blacklist
     {cmd: 'commitBlacklist', args: {type, filename, uploadTime, size}})
 
   logger.info(`submit blacklist to job history:type-${type},filename:${filename},resp:${resp}`)
-  return resp
+  return JSON.parse(resp)
 }
 
 /**

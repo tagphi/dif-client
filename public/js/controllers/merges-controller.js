@@ -29,17 +29,19 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
      * 查询该日期的版本计数器
      *  每次获取当前版本+1，作为最新的版本
      **/
-    function dateVersion (date) {
+    function dateVersion (date, num) {
       let curCount = dateVersionCounter[date]
 
       if (!curCount) {
-        curCount = 0
+        curCount = num + 1
       }
 
-      dateVersionCounter[date] = curCount + 1
+      dateVersionCounter[date] = curCount - 1
 
       return dateVersionCounter[date]
     }
+
+    let len = $scope.histories.length
 
     $scope.histories.forEach(function (row, id) {
       row.id = id + 1
@@ -51,7 +53,7 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
       row.date = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss')
       row.dateSimp = $filter('date')(date, 'yyyyMMdd')
 
-      row.version = row.dateSimp + '_' + dateVersion(row.dateSimp)
+      row.version = row.dateSimp + '_' + dateVersion(row.dateSimp, len)
       row.filename = row.type + '_' + row.version
     })
   }
