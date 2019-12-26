@@ -232,7 +232,7 @@ async function commitMerge (callbackArgs, argsFromJobHist) {
 
   await invokeCC('uploadMergeList', [mergedListIpfsinfo, callbackArgs.type, callbackArgs.latestVersion + ''])
   // 链码中投票合并
-  await invokeCC('merge', [callbackArgs.type, now])
+  await invokeCC('merge', [callbackArgs.type])
 
   logger.info(`[${callbackArgs.type}]:success to generate merge list:${callbackArgs.latestMergeIpfsInfo}`)
   return true

@@ -294,7 +294,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
           .then(function (respData) {
             if (!respData.success) return
 
-            let versionInfo = respData.data该版本没有最新的黑名单
+            let versionInfo = respData.data
             handleVersionInfo(versionInfo)
           })
       }]
