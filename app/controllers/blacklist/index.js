@@ -295,21 +295,26 @@ async function prodFileinfosForTypes (typesList) {
   let pathinfoList = []
 
   for (let i = 0; i < typesList.length; i++) {
-    let type = typesList[i]
+    try {
+      let type = typesList[i]
 
-    // 获取最新生产版本信息
-    let mergedListInfo = await queryChaincode('getMergedList', [type])
+      // 获取最新生产版本信息
+      let mergedListInfo = await queryChaincode('getMergedList', [type])
 
-    mergedListInfo = mergedListInfo || '{}'
-    mergedListInfo = JSON.parse(mergedListInfo)
+      mergedListInfo = mergedListInfo || '{}'
+      mergedListInfo = JSON.parse(mergedListInfo)
 
-    let ipfsinfo = mergedListInfo.ipfsInfo
+      let ipfsinfo = mergedListInfo.ipfsInfo
 
-    if (ipfsinfo) {
-      pathinfoList.push({
-        fileName: type + '-' + versionFromName(ipfsinfo.name) + '.log',
-        hash: ipfsinfo.hash
-      })
+      if (ipfsinfo) {
+        pathinfoList.push({
+          fileName: type + '-' + versionFromName(ipfsinfo.name) + '.log',
+          hash: ipfsinfo.hash
+        })
+      }
+    } catch (e) {
+      logger.error(e)
+      continue
     }
   }
 
@@ -340,10 +345,10 @@ function versionFromName (filename) {
 async function devFileinfosForTypes (typesList) {
   let pathinfoList = []
 
-  try {
-    for (let i = 0; i < typesList.length; i++) {
-      let type = typesList[i]
+  for (let i = 0; i < typesList.length; i++) {
+    let type = typesList[i]
 
+    try {
       let historiesList = await queryChaincode('getMergedHistoryList', [type])
 
       if (!historiesList || historiesList.toLowerCase().indexOf('error') !== -1) {
@@ -364,9 +369,10 @@ async function devFileinfosForTypes (typesList) {
         fileName: type + '-' + versionFromName(ipfsinfo.name) + '.log',
         hash: ipfsinfo.hash
       })
+    } catch (e) {
+      logger.error(e)
+      continue
     }
-  } catch (e) {
-    return []
   }
 
   return pathinfoList
