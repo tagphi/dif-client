@@ -251,7 +251,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             if (!all) {
               this.showTab.selectedTypes = []
             } else {
-              this.showTab.selectedTypes = ['default', 'ip', 'device', 'domain']
+              this.showTab.selectedTypes = ['default', 'ip', 'device', 'domain', 'ua']
             }
           },
           jumpToMergesPage: function () {
