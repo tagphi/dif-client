@@ -83,7 +83,7 @@ async function uploadBlacklist (filename, size, blacklistBuf, type) {
   // 提交给java任务服务器
   logger.info(`success to upload ${type} blacklist:${filename}`)
 
-  if (type === 'ua') { // ua同步返回delta ipfs 和full ipfs
+  if (type.indexOf('ua') !== -1) { // ua同步返回delta ipfs 和full ipfs
     let resp = await submitUAToJobHistory(uploadTime, type, filename, size, blacklistBuf, fullBlacklistIpfsInfo.path)
     await commitUA(resp, filename, size, type, uploadTime)
   } else {
@@ -162,8 +162,8 @@ async function merge (type, latestVersion) {
   allRmListInfo = allRmListInfo || '[]'
   allRmListInfo = extractPaths(allRmListInfo)
 
-  if (type === 'ua') {
-    await mergeUA(latestVersion)
+  if (type.indexOf('ua') !== -1) {
+    await mergeUA(latestVersion, type)
     return
   }
 
@@ -188,9 +188,7 @@ async function merge (type, latestVersion) {
     {cmd: 'commitMerge', args: {type, latestVersion}}, latestVersion)
 }
 
-async function mergeUA (latestVersion) {
-  let type = 'ua'
-
+async function mergeUA (latestVersion, type) {
   // 获取合并的全量列表
   let allOrgsFulllists = await queryCC('getAllOrgsList', [type])
   allOrgsFulllists = allOrgsFulllists || '[]'

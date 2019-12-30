@@ -12,7 +12,9 @@ const DATA_TYPES = [
   {type: 'device', merging: false},
   {type: 'ip', merging: false},
 
-  {type: 'ua', merging: false},
+  {type: 'ua_spider', merging: false},
+  {type: 'ua_client', merging: false},
+
   {type: 'domain', merging: false},
   {type: 'default', merging: false}
 ]
@@ -61,7 +63,8 @@ async function getMergedVersionByType (type) {
 
 function _tryToMergeTypedList () {
   async function _asyncTryToMergeTypedList (item) {
-    let isUA = item.type === 'ua'
+    let isUA = item.type.indexOf('ua') !== -1
+
     // 取的最新版本
     let latestVersion = await queryCC('version', [isUA + '']) // ua查出来ua对应的最新版本，其他名单的提交不受影响
     latestVersion = parseInt(latestVersion)
