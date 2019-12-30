@@ -219,13 +219,13 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             firstNote: undefined,
             secondNote: undefined,
             all: true,
-            selectedTypes: ['default', 'ip', 'device', 'domain', 'ua']
+            selectedTypes: ['default', 'ip', 'device', 'domain', 'ua_spider','ua_client']
           },
           dev: {
             firstNote: '包含了联盟成员最新提交的数据，正在进行审查...',
             secondNote: undefined,
             all: true,
-            selectedTypes: ['default', 'ip', 'device', 'domain', 'ua']
+            selectedTypes: ['default', 'ip', 'device', 'domain', 'ua_spider','ua_client']
           },
           onTabClicked: function (clickedTab) {
             this.tab = clickedTab
@@ -242,7 +242,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
               selectedTypes.push(type)
             }
 
-            this.showTab.all = selectedTypes.length === 5
+            this.showTab.all = selectedTypes.length === 6
           },
           selectAll: function () {
             let all = !this.showTab.all
@@ -251,7 +251,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             if (!all) {
               this.showTab.selectedTypes = []
             } else {
-              this.showTab.selectedTypes = ['default', 'ip', 'device', 'domain', 'ua']
+              this.showTab.selectedTypes = ['default', 'ip', 'device', 'domain', 'ua_spider','ua_client']
             }
           },
           jumpToMergesPage: function () {

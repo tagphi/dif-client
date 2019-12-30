@@ -63,13 +63,23 @@
                 </div>
 
                 <div class="col" style="margin-top: 15px;">
-                    <input id="type_ua" type="checkbox" class="magic-checkbox"
-                           ng-click="downloadDlg.select('ua')"
-                           ng-checked="downloadDlg.showTab.selectedTypes.indexOf('ua')!=-1">
+                    <input id="type_ua_spider" type="checkbox" class="magic-checkbox"
+                           ng-click="downloadDlg.select('ua_spider')"
+                           ng-checked="downloadDlg.showTab.selectedTypes.indexOf('ua_spider')!=-1">
 
-                    <label for="type_ua"
+                    <label for="type_ua_spider"
                            ng-class="{'d-inline':true,'color-lightslategray':true,
-                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('ua')!=-1}">UA(已知爬虫)</label>
+                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('ua_spider')!=-1}">UA(已知爬虫)</label>
+                </div>
+
+                <div class="col" style="margin-top: 15px;">
+                    <input id="type_ua_client" type="checkbox" class="magic-checkbox"
+                           ng-click="downloadDlg.select('ua_client')"
+                           ng-checked="downloadDlg.showTab.selectedTypes.indexOf('ua_client')!=-1">
+
+                    <label for="type_ua_client"
+                           ng-class="{'d-inline':true,'color-lightslategray':true,
+                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('ua_client')!=-1}">UA(合规客户端)</label>
                 </div>
             </div>
             <div class="row">

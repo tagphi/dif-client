@@ -361,7 +361,6 @@ button:hover, .link-default:hover, .link-normal:hover {
 .download-dlg .magic-checkbox + label {
     position: relative;
     display: block;
-    padding-top: 2px;
     padding-left: 23px;
     cursor: pointer;
     vertical-align: middle;
