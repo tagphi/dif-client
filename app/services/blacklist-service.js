@@ -194,7 +194,7 @@ async function mergeUA (latestVersion, type) {
   allOrgsFulllists = allOrgsFulllists || '[]'
   allOrgsFulllists = concatHashAndMspid(allOrgsFulllists)
 
-  await submitToJobHistory('/merge', type, undefined,
+  await submitToJobHistory('/merge', 'ua', undefined,
     {blacklist: allOrgsFulllists},
     {cmd: 'commitMerge', args: {type, latestVersion}}, latestVersion)
 }
