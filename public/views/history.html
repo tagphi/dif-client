@@ -15,7 +15,7 @@
         <h2 class="history-head">
             <strong>历史提交记录</strong>
             <a ng-click="openUploadDlg()" class="link-normal"
-            ng-show="!watcher"><i class="icon-upload"></i> 上传</a>
+               ng-show="!watcher"><i class="icon-upload"></i> 上传</a>
             <a ng-click="openAppealDlg()" class="link-normal"
                ng-show="!watcher"><i class="iconfont">&#xe637;</i> 申诉</a>
             <a ng-click="openDownloadDlg()" class="link-default"><i class="icon-download"></i> 数据下载</a>
@@ -89,7 +89,9 @@
                             <span class="color-green-agree">
                                 {{hist.details.agree.length}}</span>
                             <ul ng-show="hist.showAgree" class="pop-votes">
-                                <li ng-repeat="agreeOrg in hist.details.agree" ng-class="{'blue-light':$index%2==1}">{{agreeOrg}}</li>
+                                <li ng-repeat="agreeOrg in hist.details.agree" ng-class="{'blue-light':$index%2==1}">
+                                    {{agreeOrg}}
+                                </li>
                             </ul>
 
                             <span>/</span>
@@ -101,10 +103,19 @@
                                   'color-red-disagree':hist.selfVoted || hist.details.status}">&#xe604;</span>
                             <span class="color-red-disagree">{{hist.details.against.length}}</span>
                             <ul ng-show="hist.showDisagree" class="pop-votes align-right">
-                                <li ng-repeat="disagreeOrg in hist.details.against" ng-class="{'blue-light':$index%2==1}">{{disagreeOrg}}</li>
+                                <li ng-repeat="disagreeOrg in hist.details.against"
+                                    ng-class="{'blue-light':$index%2==1}">{{disagreeOrg}}
+                                </li>
                             </ul>
                         </td>
-                        <td ng-if="showingTab.type=='appeal'">{{hist.details.summary}}</td>
+                        <td ng-if="showingTab.type=='appeal'" style="position: relative"
+                            ng-mouseenter="mouseInSummary(hist)"
+                            ng-mouseleave="mouseOutSummary(hist)">
+                            {{hist.details.summaryShot}}
+                            <div ng-show="hist.showSummary" class="appeal-summary-pop">
+                                {{hist.details.summary}}
+                            </div>
+                        </td>
                         <td ng-if="showingTab.type=='appeal'">
                             <span ng-class="{iconfont:true,scaler:true,
                             'color-green-agree':hist.details.status}">&#xe60d;</span>

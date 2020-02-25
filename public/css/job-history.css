@@ -290,6 +290,18 @@ button:hover, .link-default:hover, .link-normal:hover {
     color: grey;
 }
 
+.appeal-summary-pop{
+    background: #bbd8f7;
+    position: absolute;
+    padding: 16px;
+    line-height: 22px;
+    color: #403939;
+    text-align: left;
+    z-index: 100;
+    border: 2px solid #94c1ea;
+    box-shadow: 4px 4px 2px 1px #c2d4e4;
+}
+
 .grp-label {
     width: 80px !important;
 }
