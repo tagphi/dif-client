@@ -396,6 +396,10 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
           if ($scope.showingTab.type === 'appeal') {
             $scope.showingTab.histories.map(function (hist, id) {
               hist.details.ipfsInfo = JSON.parse(hist.details.ipfsInfo)
+
+              if (hist.details.summary.length > 30) {
+                hist.details.summaryShort = hist.details.summary.substr(0, 30) + '...'
+              }
             })
           }
           $scope.showingTab.total = respData.total
