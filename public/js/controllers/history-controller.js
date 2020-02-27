@@ -366,6 +366,16 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
       hist.showDisagree = (action === 'disagree' && mouseAction === 'enter')
     }
   }
+
+  $scope.mouseInSummary = function (hist) {
+    if (hist.details.summary.length > 30) {
+      hist.showSummary = true
+    }
+  }
+
+  $scope.mouseOutSummary = function (hist) {
+    hist.showSummary = false
+  }
   /**
    * 查询
    */
