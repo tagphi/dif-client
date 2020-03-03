@@ -219,13 +219,13 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             firstNote: undefined,
             secondNote: undefined,
             all: true,
-            selectedTypes: ['default', 'ip', 'device', 'domain', 'ua_spider','ua_client']
+            selectedTypes: ['default', 'ip', 'device', 'domain', 'ua_spider', 'ua_client']
           },
           dev: {
             firstNote: '包含了联盟成员最新提交的数据，正在进行审查...',
             secondNote: undefined,
             all: true,
-            selectedTypes: ['default', 'ip', 'device', 'domain', 'ua_spider','ua_client']
+            selectedTypes: ['default', 'ip', 'device', 'domain', 'ua_spider', 'ua_client']
           },
           onTabClicked: function (clickedTab) {
             this.tab = clickedTab
@@ -251,7 +251,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             if (!all) {
               this.showTab.selectedTypes = []
             } else {
-              this.showTab.selectedTypes = ['default', 'ip', 'device', 'domain', 'ua_spider','ua_client']
+              this.showTab.selectedTypes = ['default', 'ip', 'device', 'domain', 'ua_spider', 'ua_client']
             }
           },
           jumpToMergesPage: function () {
@@ -402,6 +402,46 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
           })
 
           $scope.showingTab.histories = respData.data
+
+          // 转换类型
+          $scope.showingTab.histories.map(function (hist, id) {
+            let type = hist.type
+
+            if (!type) {
+              return
+            }
+
+            switch (type) {
+              case 'ip':
+                hist.type = 'IP黑名单'
+                break
+
+              case 'ua_spider':
+                hist.type = 'UA(已知爬虫)'
+                break
+
+              case 'ua_client':
+                hist.type = 'UA(合规客户端)'
+                break
+
+              case 'domain':
+                hist.type = '域名黑名单'
+                break
+
+              case 'device':
+                hist.type = '设备号黑名单'
+                break
+
+              case 'default':
+                hist.type = '设备号白名单'
+                break
+
+              case 'publisher_ip':
+                hist.type = 'IP白名单'
+                break
+            }
+          })
+
           // 转换ipfs信息
           if ($scope.showingTab.type === 'appeal') {
             $scope.showingTab.histories.map(function (hist, id) {

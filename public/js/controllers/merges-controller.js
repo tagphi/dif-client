@@ -68,6 +68,45 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
         if (respData.success) {
           $scope.histories = respData.data
 
+          // 转换类型
+          $scope.histories.map(function (hist, id) {
+            let type = hist.type
+
+            if (!type) {
+              return
+            }
+
+            switch (type) {
+              case 'ip':
+                hist.type = 'IP黑名单'
+                break
+
+              case 'ua_spider':
+                hist.type = 'UA(已知爬虫)'
+                break
+
+              case 'ua_client':
+                hist.type = 'UA(合规客户端)'
+                break
+
+              case 'domain':
+                hist.type = '域名黑名单'
+                break
+
+              case 'device':
+                hist.type = '设备号黑名单'
+                break
+
+              case 'default':
+                hist.type = '设备号白名单'
+                break
+
+              case 'publisher_ip':
+                hist.type = 'IP白名单'
+                break
+            }
+          })
+
           formatHistories()
         } else {
           alertMsgService.alert('获取失败', false)
