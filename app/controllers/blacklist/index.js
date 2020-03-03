@@ -147,10 +147,8 @@ exports.download = async function (req, res, next) {
  * 从job服务器下载ipfs并返回给客户端
  **/
 function downloadIpfsFile (res, name, path) {
-  res.set({
-    'Content-Type': 'application/octet-stream',
-    'Content-Disposition': 'attachment; filename=' + name
-  })
+  res.attachment(name)
+
   agent.get(`${MERGE_SERVICE_URL}/download/${path}`)
     .pipe(res)
   logger.info('downloading file:' + name)

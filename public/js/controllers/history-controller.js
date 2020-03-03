@@ -133,7 +133,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
                   alertMsgService.alert('提交成功', true)
                   $scope.closeThisDialog()
                   $scope.queryHistories(1)
-                },2000)
+                }, 2000)
               } else {
                 $scope.closeThisDialog()
                 alertMsgService.alert(data.message, false)
@@ -153,6 +153,32 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
    * 上传申诉列表对话框
    */
   $scope.openAppealDlg = function () {
+    if (!$scope.selectType) {
+      $scope.selectType = 'ip'
+    }
+
+    labelByType($scope.selectType)
+
+    function labelByType (type) {
+      switch (type) {
+        case 'ip':
+          $scope.selectTypeLabel = 'IP黑名单'
+          break
+
+        case 'domain':
+          $scope.selectTypeLabel = '域名黑名单'
+          break
+
+        case 'device':
+          $scope.selectTypeLabel = '设备号黑名单'
+          break
+
+        case 'default':
+          $scope.selectTypeLabel = '设备号白名单'
+          break
+      }
+    }
+
     let dlgOpts = {
       template: 'views/dlgs/appeal-dlg.html',
       scope: $scope,
@@ -161,6 +187,10 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
         $scope.prog = 0
         $scope.confirmActionText = '上传'
         $scope.dataType = 'appeal'
+
+        $scope.chooseAppealType = function (type) {
+          labelByType(type)
+        }
 
         /**
          * 上传黑名单
@@ -196,7 +226,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
                   alertMsgService.alert('提交成功', true)
                   $scope.closeThisDialog()
                   $scope.queryHistories(1)
-                },2000)
+                }, 2000)
               } else {
                 $scope.closeThisDialog()
                 alertMsgService.alert(data.message, false)
@@ -456,6 +486,8 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
 
               if (hist.details.summary.length > 30) {
                 hist.details.summaryShort = hist.details.summary.substr(0, 30) + '...'
+              } else {
+                hist.details.summaryShort = hist.details.summary
               }
             })
           }
