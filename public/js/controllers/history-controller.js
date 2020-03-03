@@ -90,9 +90,6 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     let dlgOpts = {
       template: 'views/dlgs/upload-dlg.html',
       scope: $scope,
-      preCloseCallback: function () {
-        $scope.queryHistories(1)
-      },
       controller: ['$scope', 'HttpService', function ($scope, HttpService) {
         $scope.selectFileName = '...'
         $scope.prog = 0
@@ -129,12 +126,16 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
               $scope.prog = prog
             })
             .success(function (data, status, headers, config) {
-              $scope.prog = 0
-              $scope.closeThisDialog()
+              // $scope.prog = 0
+
               if (data.success) {
-                alertMsgService.alert('提交成功', true)
-                $scope.queryHistories()
+                $timeout(function () {
+                  alertMsgService.alert('提交成功', true)
+                  $scope.closeThisDialog()
+                  $scope.queryHistories(1)
+                },2000)
               } else {
+                $scope.closeThisDialog()
                 alertMsgService.alert(data.message, false)
               }
             })
@@ -155,9 +156,6 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     let dlgOpts = {
       template: 'views/dlgs/appeal-dlg.html',
       scope: $scope,
-      preCloseCallback: function () {
-        $scope.queryHistories(1)
-      },
       controller: ['$scope', 'HttpService', function ($scope, HttpService) {
         $scope.selectFileName = '...'
         $scope.prog = 0
@@ -193,11 +191,14 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             })
             .success(function (data, status, headers, config) {
               $scope.prog = 0
-              $scope.closeThisDialog()
               if (data.success) {
-                alertMsgService.alert('提交成功', true)
-                $scope.queryHistories()
+                $timeout(function () {
+                  alertMsgService.alert('提交成功', true)
+                  $scope.closeThisDialog()
+                  $scope.queryHistories(1)
+                },2000)
               } else {
+                $scope.closeThisDialog()
                 alertMsgService.alert(data.message, false)
               }
             })
