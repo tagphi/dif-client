@@ -90,6 +90,9 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     let dlgOpts = {
       template: 'views/dlgs/upload-dlg.html',
       scope: $scope,
+      preCloseCallback: function () {
+        $scope.queryHistories(1)
+      },
       controller: ['$scope', 'HttpService', function ($scope, HttpService) {
         $scope.selectFileName = '...'
         $scope.prog = 0
@@ -152,6 +155,9 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     let dlgOpts = {
       template: 'views/dlgs/appeal-dlg.html',
       scope: $scope,
+      preCloseCallback: function () {
+        $scope.queryHistories(1)
+      },
       controller: ['$scope', 'HttpService', function ($scope, HttpService) {
         $scope.selectFileName = '...'
         $scope.prog = 0
