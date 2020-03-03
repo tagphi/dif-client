@@ -1,0 +1,54 @@
+.modal-header{
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #dfe3e8;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 5px 20px 5px 10px;
+}
+
+.modal-body, .modal-footer {
+    padding: 20px 20px 10px 20px;
+}
+
+.modal-footer {
+    border-top: 1px solid #dfe3e8;
+    text-align: right;
+    line-height: 10px;
+}
+
+
+.link-default {
+    display: inline-block;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 36px;
+    height: 36px;
+    font-weight: bold;/*新增*/
+    color: #1792e5;
+    border-radius: 5px;
+    background-color: #1792e5;
+    border: 1px solid #fff;
+    padding: 0 12px;
+    min-width: 56px;
+    color: #fff;
+    text-align: center;
+}
+
+/*在style.css中新增如下样式*/
+.container.note-grp{
+    margin: 6px 10px 15px 10px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.modal-content .row{
+    margin: 10px 10px 15px 10px;
+}
+
+.modal-header h3 {
+    line-height: 64px;
+    flex: 1;
+    padding-left: 11px;
+    font-weight: normal;
+}

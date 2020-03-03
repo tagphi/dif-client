@@ -1,5 +1,4 @@
 <!--下载对话框-->
-
 <div class="modal-dialog download-dlg" role="document">
     <div class="modal-header">
         <span style="position: relative">
@@ -11,20 +10,21 @@
     </div>
     <div class="modal-content">
         <form name="downloadForm" class="modal-body form container panel-body">
-            <div class="container note-grp">
-                <span ng-show="downloadDlg.showTab.secondNote">
+            <div class="container note-grp" ng-show="downloadDlg.showTab.firstNote">
+                <span style="position: relative;left: -1px;">
                     <span class="iconfont" style="font-size: 18px;">&#xe71b;</span>
                     <span class="note-label">{{downloadDlg.showTab.firstNote}}</span>
                 </span>
-                <div ng-show="downloadDlg.tab=='dev'"></div>
-                <span ng-show="downloadDlg.showTab.secondNote" ng-class="{'right':downloadDlg.tab!='dev'}">
+                <div style="height: 12px;"></div>
+
+                <span ng-show="downloadDlg.showTab.secondNote">
                     <span class="iconfont">&#xe629;</span>
                     <span class="note-label">{{downloadDlg.showTab.secondNote}}</span>
                 </span>
             </div>
 
             <div class="row">
-                <div class="col">
+                <div class="col-6">
                     <input id="type_ip" value="ip" type="checkbox" class="magic-checkbox"
                            ng-click="downloadDlg.select('ip')"
                            ng-checked="downloadDlg.showTab.selectedTypes.indexOf('ip')!=-1">
@@ -32,26 +32,26 @@
                            ng-class="{'d-inline':true,'color-lightslategray':true,
                            'color-blue':downloadDlg.showTab.selectedTypes.indexOf('ip')!=-1}">IP地址黑名单</label>
                 </div>
-                <div class="col">
+                <div class="col-6">
                     <input id="type_device" value="device" type="checkbox" class="magic-checkbox"
                            ng-click="downloadDlg.select('device')"
                            ng-checked="downloadDlg.showTab.selectedTypes.indexOf('device')!=-1">
                     <label for="type_device"
                            ng-class="{'d-inline':true,'color-lightslategray':true,
-                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('device')!=-1}">移动设备号黑名单</label>
+                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('device')!=-1}">设备号黑名单</label>
                 </div>
             </div>
             <div class="row">
-                <div class="col">
+                <div class="col-6">
                     <input id="type_default" value="default" type="checkbox" class="magic-checkbox"
                            ng-click="downloadDlg.select('default')"
                            ng-checked="downloadDlg.showTab.selectedTypes.indexOf('default')!=-1">
                     <label for="type_default"
                            ng-class="{'d-inline':true,'color-lightslategray':true,
-                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('default')!=-1}">默认设备号黑名单</label>
+                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('default')!=-1}">设备号白名单</label>
                 </div>
 
-                <div class="col">
+                <div class="col-6">
                     <input id="type_domain" value="domain" type="checkbox" class="magic-checkbox"
                            ng-click="downloadDlg.select('domain')"
                            ng-checked="downloadDlg.showTab.selectedTypes.indexOf('domain')!=-1">
@@ -60,23 +60,32 @@
                            ng-class="{'d-inline':true,'color-lightslategray':true,
                            'color-blue':downloadDlg.showTab.selectedTypes.indexOf('domain')!=-1}">域名黑名单</label>
                 </div>
-
-                <div class="col">
-                    <input id="type_ua" type="checkbox" class="magic-checkbox"
-                           ng-click="downloadDlg.select('ua')"
-                           ng-checked="downloadDlg.showTab.selectedTypes.indexOf('ua')!=-1">
-
-                    <label for="type_ua"
-                           ng-class="{'d-inline':true,'color-lightslategray':true,
-                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('ua')!=-1}">UA</label>
-                </div>
             </div>
-            <div class="row">
 
+            <div class="row">
+                <div class="col-6">
+                    <input id="type_ua_spider" type="checkbox" class="magic-checkbox"
+                           ng-click="downloadDlg.select('ua_spider')"
+                           ng-checked="downloadDlg.showTab.selectedTypes.indexOf('ua_spider')!=-1">
+
+                    <label for="type_ua_spider"
+                           ng-class="{'d-inline':true,'color-lightslategray':true,
+                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('ua_spider')!=-1}">UA(已知爬虫)</label>
+                </div>
+
+                <div class="col-6">
+                    <input id="type_ua_client" type="checkbox" class="magic-checkbox"
+                           ng-click="downloadDlg.select('ua_client')"
+                           ng-checked="downloadDlg.showTab.selectedTypes.indexOf('ua_client')!=-1">
+
+                    <label for="type_ua_client"
+                           ng-class="{'d-inline':true,'color-lightslategray':true,
+                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('ua_client')!=-1}">UA(合规客户端)</label>
+                </div>
             </div>
         </form>
         <div class="modal-footer">
-            <span style="float: left">
+            <span class="all">
                 <input id="chx-all" type="checkbox" class="magic-checkbox"
                        ng-click="downloadDlg.selectAll()"
                        ng-checked="downloadDlg.showTab.all">

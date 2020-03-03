@@ -29,17 +29,19 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
      * 查询该日期的版本计数器
      *  每次获取当前版本+1，作为最新的版本
      **/
-    function dateVersion (date) {
+    function dateVersion (date, num) {
       let curCount = dateVersionCounter[date]
 
       if (!curCount) {
-        curCount = 0
+        curCount = num + 1
       }
 
-      dateVersionCounter[date] = curCount + 1
+      dateVersionCounter[date] = curCount - 1
 
       return dateVersionCounter[date]
     }
+
+    let len = $scope.histories.length
 
     $scope.histories.forEach(function (row, id) {
       row.id = id + 1
@@ -51,7 +53,7 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
       row.date = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss')
       row.dateSimp = $filter('date')(date, 'yyyyMMdd')
 
-      row.version = row.dateSimp + '_' + dateVersion(row.dateSimp)
+      row.version = row.dateSimp + '_' + dateVersion(row.dateSimp, len)
       row.filename = row.type + '_' + row.version
     })
   }
@@ -65,6 +67,45 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
       .then(function (respData) {
         if (respData.success) {
           $scope.histories = respData.data
+
+          // 转换类型
+          $scope.histories.map(function (hist, id) {
+            let type = hist.type
+
+            if (!type) {
+              return
+            }
+
+            switch (type) {
+              case 'ip':
+                hist.type = 'IP黑名单'
+                break
+
+              case 'ua_spider':
+                hist.type = 'UA(已知爬虫)'
+                break
+
+              case 'ua_client':
+                hist.type = 'UA(合规客户端)'
+                break
+
+              case 'domain':
+                hist.type = '域名黑名单'
+                break
+
+              case 'device':
+                hist.type = '设备号黑名单'
+                break
+
+              case 'default':
+                hist.type = '设备号白名单'
+                break
+
+              case 'publisher_ip':
+                hist.type = 'IP白名单'
+                break
+            }
+          })
 
           formatHistories()
         } else {

@@ -12,7 +12,9 @@ const DATA_TYPES = [
   {type: 'device', merging: false},
   {type: 'ip', merging: false},
 
-  {type: 'ua', merging: false},
+  {type: 'ua_spider', merging: false},
+  {type: 'ua_client', merging: false},
+
   {type: 'domain', merging: false},
   {type: 'default', merging: false}
 ]
@@ -50,7 +52,7 @@ async function onTick () {
     }
 }
  **/
-async function _getMergedListVersionByType (type) {
+async function getMergedVersionByType (type) {
   // 查询最新的合并版本信息
   let mergedListIpfsInfo = await queryCC('getOrgMergeList', [type])
   if (!mergedListIpfsInfo) return -1
@@ -59,32 +61,36 @@ async function _getMergedListVersionByType (type) {
   return mergedListIpfsInfo.version
 }
 
-function _tryToMergeTypedList (latestVersion) {
-  async function _asyncTryToMergeTypedList (type) {
-    let isUA = type === 'ua'
+function _tryToMergeTypedList () {
+  async function _asyncTryToMergeTypedList (item) {
+    let isUA = item.type.indexOf('ua') !== -1
+
     // 取的最新版本
     let latestVersion = await queryCC('version', [isUA + '']) // ua查出来ua对应的最新版本，其他名单的提交不受影响
     latestVersion = parseInt(latestVersion)
+
     try {
-      let typedMergedVersion = await _getMergedListVersionByType(type.type)
-      logger.info(`[${type.type}] latestVersion-${latestVersion},typedMergedVersion-${typedMergedVersion}`)
+      let typedMergedVersion = await getMergedVersionByType(item.type)
+      logger.info(`[${item.type}] latestVersion-${latestVersion},typedMergedVersion-${typedMergedVersion}`)
 
-      if (latestVersion !== 0 && // 初始版本1，没有任何的上传和移除操作
-        latestVersion > typedMergedVersion) { // 有新的版本时候，触发合并
-        if (type.merging) return
-
-        type.merging = true
-        logger.info(`[${type.type}] start merge:currentVersion-${typedMergedVersion},latestVersion-${latestVersion}`)
-
-        await blacklistService.merge(type.type, latestVersion)
-        type.merging = false
-
-        logger.info(`[${type.type}] success merge:from ${typedMergedVersion} to ${latestVersion}`)
+      if (latestVersion === 0 || // 初始版本1，没有任何的上传和移除操作
+        latestVersion <= typedMergedVersion) { // 没有新的版本
+        return
       }
 
+      if (item.merging) return
+
+      item.merging = true
+      logger.info(`[${item.type}] start merge:currentVersion-${typedMergedVersion},latestVersion-${latestVersion}`)
+
+      await blacklistService.merge(item.type, latestVersion)
+      item.merging = false
+
+      logger.info(`[${item.type}] success merge:from ${typedMergedVersion} to ${latestVersion}`)
+
     } catch (e) {
-      logger.error(`[${type.type}] failed to merge to ${latestVersion}:${e}`)
-      type.merging = false
+      logger.error(`[${item.type}] failed to merge to ${latestVersion}:${e}`)
+      item.merging = false
     }
   }
 

@@ -15,7 +15,7 @@
         <h2 class="history-head">
             <strong>历史提交记录</strong>
             <a ng-click="openUploadDlg()" class="link-normal"
-            ng-show="!watcher"><i class="icon-upload"></i> 上传</a>
+               ng-show="!watcher"><i class="icon-upload"></i> 上传</a>
             <a ng-click="openAppealDlg()" class="link-normal"
                ng-show="!watcher"><i class="iconfont">&#xe637;</i> 申诉</a>
             <a ng-click="openDownloadDlg()" class="link-default"><i class="icon-download"></i> 数据下载</a>
@@ -28,19 +28,18 @@
                     <p>日期范围</p>
                     <div class="calendar-box">
                         <input ng-date-picker type="text" ng-model="dateRange" id="dateRange" dateType="date"
-                               format="yyyy/MM/dd" range="true" placeholder="时间范围"/>
-                        <i class="icon-calendar"></i>
+                               format="yyyy/MM/dd" range="true" placeholder="时间范围" style="min-width: 170px"/>
+                        <i class="icon-calendar" style="left: 165px"></i>
                     </div>
                 </div>
 
                 <span class="hlink">
 					<a ng-click="queryHistories()" class="link-default"> 查询</a>
-
 				</span>
             </div>
             <nav class="history-tab">
                 <ul>
-                    <li ng-click="selectTab('delta')" ng-class="{on:selectDataType=='delta'}">黑名单</li>
+                    <li ng-click="selectTab('delta')" ng-class="{on:selectDataType=='delta'}">名单</li>
                     <li ng-click="selectTab('appeal')" ng-class="{on:selectDataType=='appeal'}">申诉</li>
                     <li ng-click="selectTab('publisherIP')" ng-class="{on:selectDataType=='publisherIP'}">媒体服务器IP</li>
                 </ul>
@@ -89,7 +88,9 @@
                             <span class="color-green-agree">
                                 {{hist.details.agree.length}}</span>
                             <ul ng-show="hist.showAgree" class="pop-votes">
-                                <li ng-repeat="agreeOrg in hist.details.agree" ng-class="{'blue-light':$index%2==1}">{{agreeOrg}}</li>
+                                <li ng-repeat="agreeOrg in hist.details.agree" ng-class="{'blue-light':$index%2==1}">
+                                    {{agreeOrg}}
+                                </li>
                             </ul>
 
                             <span>/</span>
@@ -101,10 +102,19 @@
                                   'color-red-disagree':hist.selfVoted || hist.details.status}">&#xe604;</span>
                             <span class="color-red-disagree">{{hist.details.against.length}}</span>
                             <ul ng-show="hist.showDisagree" class="pop-votes align-right">
-                                <li ng-repeat="disagreeOrg in hist.details.against" ng-class="{'blue-light':$index%2==1}">{{disagreeOrg}}</li>
+                                <li ng-repeat="disagreeOrg in hist.details.against"
+                                    ng-class="{'blue-light':$index%2==1}">{{disagreeOrg}}
+                                </li>
                             </ul>
                         </td>
-                        <td ng-if="showingTab.type=='appeal'">{{hist.details.summary}}</td>
+                        <td ng-if="showingTab.type=='appeal'" style="position: relative"
+                            ng-mouseenter="mouseInSummary(hist)"
+                            ng-mouseleave="mouseOutSummary(hist)">
+                            {{hist.details.summaryShort}}
+                            <div ng-show="hist.showSummary" class="appeal-summary-pop">
+                                {{hist.details.summary}}
+                            </div>
+                        </td>
                         <td ng-if="showingTab.type=='appeal'">
                             <span ng-class="{iconfont:true,scaler:true,
                             'color-green-agree':hist.details.status}">&#xe60d;</span>
@@ -123,6 +133,6 @@
     </section>
     <footer class="footer" style="position: static;bottom: auto">
         <p>Powered by Hyperledger Fabric</p>
-        <p>© 2018-2028 RTBAsia</p>
+        <p>© 2018-2028 CAA & MMA CHINA</p>
     </footer>
 </div>

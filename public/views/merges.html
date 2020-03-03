@@ -12,10 +12,12 @@
         <section class="mainarea tab-ctn-minh">
             <nav class="history-tab">
                 <ul>
-                    <li ng-click="selectTab('device')" ng-class="{on:type=='device'}">设备ID</li>
-                    <li ng-click="selectTab('ip')" ng-class="{on:type=='ip'}">IP</li>
-                    <li ng-click="selectTab('domain')" ng-class="{on:type=='domain'}">域名</li>
-                    <li ng-click="selectTab('default')" ng-class="{on:type=='default'}">默认设备ID</li>
+                    <li ng-click="selectTab('device')" ng-class="{on:type=='device'}">设备号黑名单</li>
+                    <li ng-click="selectTab('ip')" ng-class="{on:type=='ip'}">IP黑名单</li>
+                    <li ng-click="selectTab('domain')" ng-class="{on:type=='domain'}">域名黑名单</li>
+                    <li ng-click="selectTab('default')" ng-class="{on:type=='default'}">设备号白名单</li>
+                    <li ng-click="selectTab('ua_spider')" ng-class="{on:type=='ua_spider'}">UA(已知爬虫)</li>
+                    <li ng-click="selectTab('ua_client')" ng-class="{on:type=='ua_client'}">UA(合规客户端)</li>
                 </ul>
             </nav>
             <!--黑名单表-->
@@ -54,6 +56,6 @@
     </section>
     <footer class="footer" style="position: static;bottom: auto">
         <p>Powered by Hyperledger Fabric</p>
-        <p>© 2018-2028 RTBAsia</p>
+        <p>© 2018-2028 CAA & MMA CHINA</p>
     </footer>
 </div>

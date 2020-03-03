@@ -11,63 +11,85 @@
                     <span class="pname grp-label">类型</span>
                     <!--选择类型-->
                     <div class="upload-dlg-types">
-                        <input id="type_ip" ng-model="selectType" value="ip" type="radio" class="magic-radio"
-                               ng-checked="true"
-                                ng-show="!locked">
-                        <label for="type_ip"
-                               ng-class="{'d-inline':true,'color-lightslategray':selectType!='ip','color-blue':selectType=='ip'}"
-                               ng-show="!locked">IP</label>
-
-                        <input id="type_ua" ng-model="selectType" value="ua" type="radio" class="magic-radio"
-                               ng-show="!locked">
-                        <label for="type_ua"
-                               ng-class="{'d-inline':true,'color-lightslategray':selectType!='ua','color-blue':selectType=='ua'}"
-                               ng-show="!locked">UA</label>
-
-                        <input id="type_domain" ng-model="selectType" value="domain" type="radio" class="magic-radio"
-                               ng-show="!locked">
-                        <label for="type_domain"
-                               ng-class="{'d-inline':true,'color-lightslategray':selectType!='domain','color-blue':selectType=='domain'}"
-                               ng-show="!locked">域名</label>
-
-                        <input id="type_device" ng-model="selectType" value="device" type="radio" class="magic-radio"
-                               ng-show="!locked">
-                        <label for="type_device"
-                               ng-class="{'d-inline':true,'color-lightslategray':selectType!='device','color-blue':selectType=='device'}"
-                               ng-show="!locked">设备ID</label>
-
-                        <div style="height: 10px"></div>
-
-                        <div>
-                            <input id="type_default" ng-model="selectType" value="default" type="radio" class="magic-radio"
-                                   ng-show="!locked">
-                            <label for="type_default"
-                                   ng-class="{'d-inline':true,'color-lightslategray':selectType!='default','color-blue':selectType=='default'}"
-                                   ng-show="!locked">默认设备ID</label>
-
-                            <input id="type_publisherIp" ng-model="selectType" value="publisherIp" type="radio" class="magic-radio">
-                            <label for="type_publisherIp"
-                                   ng-class="{'d-inline':true,'color-lightslategray':selectType!='publisherIp','color-blue':selectType=='publisherIp'}">媒体服务器IP</label>
+                        <div class="row" ng-show="!locked">
+                            <div class="col-4">
+                                <input id="type_ip" ng-model="selectType" value="ip" type="radio" class="magic-radio"
+                                       ng-checked="true">
+                                <label for="type_ip"
+                                       ng-class="{'d-inline':true,'color-lightslategray':selectType!='ip','color-blue':selectType=='ip'}"
+                                       >IP黑名单</label>
+                            </div>
+                            <div class="col-4">
+                                <input id="type_ua_spider" ng-model="selectType" value="ua_spider" type="radio"
+                                       class="magic-radio"
+                                       >
+                                <label for="type_ua_spider"
+                                       ng-class="{'d-inline':true,'color-lightslategray':selectType!='ua_spider','color-blue':selectType=='ua_spider'}"
+                                       >UA(已知爬虫)</label>
+                            </div>
+                            <div class="col-4">
+                                <input id="type_ua_client" ng-model="selectType" value="ua_client" type="radio"
+                                       class="magic-radio"
+                                       >
+                                <label for="type_ua_client"
+                                       ng-class="{'d-inline':true,'color-lightslategray':selectType!='ua_client','color-blue':selectType=='ua_client'}"
+                                       >UA(合规客户端)</label>
+                            </div>
                         </div>
 
-                        <div style="height: 10px"></div>
+                        <div class="row" ng-show="!locked">
+                            <div class="col-4">
+                                <input id="type_domain" ng-model="selectType" value="domain" type="radio"
+                                       class="magic-radio"
+                                       >
+                                <label for="type_domain"
+                                       ng-class="{'d-inline':true,'color-lightslategray':selectType!='domain','color-blue':selectType=='domain'}"
+                                       >域名黑名单</label>
+                            </div>
+                            <div class="col-4">
+                                <input id="type_device" ng-model="selectType" value="device" type="radio"
+                                       class="magic-radio"
+                                       >
+                                <label for="type_device"
+                                       ng-class="{'d-inline':true,'color-lightslategray':selectType!='device','color-blue':selectType=='device'}"
+                                       >设备号黑名单</label>
+                            </div>
+                            <div class="col-4">
+                                <input id="type_default" ng-model="selectType" value="default" type="radio"
+                                       class="magic-radio"
+                                       >
+                                <label for="type_default"
+                                       ng-class="{'d-inline':true,'color-lightslategray':selectType!='default','color-blue':selectType=='default'}"
+                                       >设备号白名单</label>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-4">
+                                <input id="type_publisherIp" ng-model="selectType" value="publisherIp" type="radio"
+                                       class="magic-radio">
+                                <label for="type_publisherIp"
+                                       ng-class="{'d-inline':true,'color-lightslategray':selectType!='publisherIp','color-blue':selectType=='publisherIp'}">媒体服务器IP</label>
+                            </div>
+                        </div>
+
                     </div>
                 </li>
                 <li>
                     <span class="pname grp-label" style="width: 45px !important;">文件</span>
-                    <span class="pcon">
-                    <div id="file" name="file" ng-model="uploadFile" type="file"
-                         ngf-select
-                         required>
-                        <a ng-show="prog==0" class="link-default" ng-if="uploadFile">{{uploadFile.name}}</a>
-                        <a ng-show="prog==0" class="link-default" ng-if="!uploadFile"><i
-                                class="icon-upload"></i> 请选择</a>
-                        <div ng-show="prog!=0" class="prog-ctn">
-                            <a class="prog-bg">
-                                <a class="prog-front" ng-style="{width:prog+'px'}"></a>
-                            </a>
+                    <span class="pcon" style="margin-left: 10px;">
+                        <div id="file" name="file" ng-model="uploadFile" type="file"
+                             ngf-select
+                             required>
+                            <a ng-show="prog==0" class="link-default" ng-if="uploadFile">{{uploadFile.name}}</a>
+                            <a ng-show="prog==0" class="link-default" ng-if="!uploadFile"><i
+                                    class="icon-upload"></i> 请选择</a>
+                            <div ng-show="prog!=0" class="prog-ctn">
+                                <a class="prog-bg">
+                                    <a class="prog-front" ng-style="{width:prog+'px'}"></a>
+                                </a>
+                            </div>
                         </div>
-                    </div>
                     </span>
                 </li>
             </ul>

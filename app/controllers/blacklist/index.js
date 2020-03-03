@@ -31,38 +31,55 @@ exports.validateUpload = [
   check('type').not().isEmpty().withMessage('类型type不能为空')
 ]
 
-exports.upload = async function (req, res, next) {
+exports.upload = async function (req, res) {
   let type = req.body.type
   let dataType = req.body.dataType
+  let dataListBuf = req.file.buffer
+  let filename = req.file.originalname.toString()
+  let size = req.file.size
+
+  let uploadTime = new Date().getTime().toString()
+
+  if (dataType === 'appeal') {
+    await uploadAppeal(req, res)
+  } else {
+    /* 媒体ip */
+    if (type === 'publisherIp') { // 媒体ip
+      await blacklistService.submitPublishIPs(uploadTime, filename, size, dataListBuf)
+      respUtils.succResponse(res, '上传成功')
+      return
+    }
+
+    await uploadBlacklist(req, res)
+  }
+}
+
+async function uploadAppeal (req, res) {
+  let type = req.body.type
   let summary = req.body.summary
   let dataListBuf = req.file.buffer
   let filename = req.file.originalname.toString()
   let size = req.file.size
 
-  if (dataType === 'appeal' &&
-    (!summary || summary.length === 0)) {
-    respUtils.errResonse(res, 'summary not exists')
-    return
-  }
-
   let uploadTime = new Date().getTime().toString()
-  /* 申诉列表 */
-  if (dataType === 'appeal') {
-    await blacklistService.submitAppeal(uploadTime, type, filename, size, dataListBuf, summary)
-    respUtils.succResponse(res, '上传成功')
-    return
+
+  if (!summary || summary.length === 0) {
+    return respUtils.errResonse(res, 'summary not exists')
   }
 
-  /* 媒体ip */
-  if (type === 'publisherIp') { // 媒体ip
-    await blacklistService.submitPublishIPs(uploadTime, filename, size, dataListBuf)
-    respUtils.succResponse(res, '上传成功')
-    return
-  }
+  await blacklistService.submitAppeal(uploadTime, type, filename, size, dataListBuf, summary)
+  respUtils.succResponse(res, '上传成功')
+}
 
-  /* 黑名单 */
+async function uploadBlacklist (req, res) {
+  let type = req.body.type
+  let dataListBuf = req.file.buffer
+  let filename = req.file.originalname.toString()
+  let size = req.file.size
+
   let locked = await blacklistService.isLocked()
   logger.info(`lock status:${locked}`)
+
   if (locked) {
     return respUtils.errResonse(res, '锁定期不能提交黑名单')
   }
@@ -130,10 +147,8 @@ exports.download = async function (req, res, next) {
  * 从job服务器下载ipfs并返回给客户端
  **/
 function downloadIpfsFile (res, name, path) {
-  res.set({
-    'Content-Type': 'application/octet-stream',
-    'Content-Disposition': 'attachment; filename=' + name
-  })
+  res.attachment(name)
+
   agent.get(`${MERGE_SERVICE_URL}/download/${path}`)
     .pipe(res)
   logger.info('downloading file:' + name)
@@ -278,21 +293,26 @@ async function prodFileinfosForTypes (typesList) {
   let pathinfoList = []
 
   for (let i = 0; i < typesList.length; i++) {
-    let type = typesList[i]
+    try {
+      let type = typesList[i]
 
-    // 获取最新生产版本信息
-    let mergedListInfo = await queryChaincode('getMergedList', [type])
+      // 获取最新生产版本信息
+      let mergedListInfo = await queryChaincode('getMergedList', [type])
 
-    mergedListInfo = mergedListInfo || '{}'
-    mergedListInfo = JSON.parse(mergedListInfo)
+      mergedListInfo = mergedListInfo || '{}'
+      mergedListInfo = JSON.parse(mergedListInfo)
 
-    let ipfsinfo = mergedListInfo.ipfsInfo
+      let ipfsinfo = mergedListInfo.ipfsInfo
 
-    if (ipfsinfo) {
-      pathinfoList.push({
-        fileName: type + '-' + versionFromName(ipfsinfo.name) + '.log',
-        hash: ipfsinfo.hash
-      })
+      if (ipfsinfo) {
+        pathinfoList.push({
+          fileName: type + '-' + versionFromName(ipfsinfo.name) + '.log',
+          hash: ipfsinfo.hash
+        })
+      }
+    } catch (e) {
+      logger.error(e)
+      continue
     }
   }
 
@@ -326,26 +346,31 @@ async function devFileinfosForTypes (typesList) {
   for (let i = 0; i < typesList.length; i++) {
     let type = typesList[i]
 
-    let historiesList = await queryChaincode('getMergedHistoryList', [type])
+    try {
+      let historiesList = await queryChaincode('getMergedHistoryList', [type])
 
-    if (!historiesList || historiesList.toLowerCase().indexOf('error') !== -1) {
+      if (!historiesList || historiesList.toLowerCase().indexOf('error') !== -1) {
+        continue
+      }
+
+      historiesList = JSON.parse(historiesList)
+
+      // 时间逆序
+      historiesList.sort(function (item1, item2) {
+        return parseInt(item2.timestamp) - parseInt(item1.timestamp)
+      })
+
+      // 最新的合并历史的ipfs信息
+      let ipfsinfo = historiesList[0].ipfsInfo.ipfsInfo
+
+      pathinfoList.push({
+        fileName: type + '-' + versionFromName(ipfsinfo.name) + '.log',
+        hash: ipfsinfo.hash
+      })
+    } catch (e) {
+      logger.error(e)
       continue
     }
-
-    historiesList = JSON.parse(historiesList)
-
-    // 时间逆序
-    historiesList.sort(function (item1, item2) {
-      return parseInt(item2.timestamp) - parseInt(item1.timestamp)
-    })
-
-    // 最新的合并历史的ipfs信息
-    let ipfsinfo = historiesList[0].ipfsInfo.ipfsInfo
-
-    pathinfoList.push({
-      fileName: type + '-' + versionFromName(ipfsinfo.name) + '.log',
-      hash: ipfsinfo.hash
-    })
   }
 
   return pathinfoList
