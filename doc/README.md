@@ -1,9 +1,6 @@
-# Release Note 2.0.0
+# DIF - 无效流量名单共识系统
 
-## 优化
-
-- dif-client, dif-merge 打包成镜像，并和ipfs, peer配置于同一docker-compose.yml中
-- 一个命令启动所有组件，启动脚本运行时自动加入网络
+此文档描述如何部署DIF。DIF是一个基于Hyperledger Fabric开发的虚假流量黑名单共识系统。系统共分为两个部分: Admin site和Client site。Admin site用来增加删除通道(Channel)的成员，增删peers地址，以及包含创建成员身份证书以及创建Fabric网络的脚本。Client负责向背书节点发起上传增量黑名单列表，上传移除列表，查看上传历史记录，下载某成员单次上传的列表，以及下载合并后列表的请求。
 
 ## 前置条件
 
@@ -24,7 +21,7 @@
 
 ### 拷贝组织证书到dif-client/crypto-config/ 目录下
 
-参考文档 [cryptogen-doc.md](./cryptogen-doc.md) 生成证书，并将`crypto-config/peerOrgnizations/[组织domain]/msp`目录发给RTBAsia。`crypto-config/peerOrgnizations/`底下所有的文件拷贝到`dif-client/crypto-config/peerOrgnizations`下。 
+参考文档 [cryptogen-doc.md](./cryptogen-doc.md) 生成证书，并将`crypto-config/peerOrgnizations/[组织domain]/msp`目录发给RTBAsia (cong.liu@rtbasia.com)。`crypto-config/peerOrgnizations/`底下所有的文件拷贝到`dif-client/crypto-config/peerOrgnizations`下。 
 
 ### 确认证书存在
 
@@ -75,27 +72,5 @@ crypto-config/
 
 ```
 ./clear-peer-cli.sh
-```
-
-
-## 从旧版本升级
-
-- 如果部署过旧版本，需要停止原来服务并清理掉volume中数据。
-
-**注意**:`请将证书备份`
-
-
-```shell
-# 停止peer, 在dif-client目录下运行
-docker-compose -f docker-compose-peer.yaml down --volumes
-
-# 停止dif-client，在dif-client目录下运行
-forever stop app/app.js #如果失败可以直接kill掉forever和node app.js进程
-
-# 停止ipfs, 在ipfs目录下运行
-docker-compose down --volumes
-
-# 停止dif-merge, 在dif-merge目录下运行
-bin/stop.sh
 ```
 
