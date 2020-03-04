@@ -117,7 +117,7 @@
 }
 
 .ngdialog.ngdialog-theme-default .ngdialog-content {
-    width: 572px;
+    width: 684px;
 }
 
 
@@ -381,6 +381,7 @@ button:hover, .link-default:hover, .link-normal:hover {
     width: 120px;
     background: #3695d6;
     color: white;
+    z-index: 200;
 }
 
 .align-right {

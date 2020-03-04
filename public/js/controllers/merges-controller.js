@@ -82,11 +82,11 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
                 break
 
               case 'ua_spider':
-                hist.type = 'UA(已知爬虫)'
+                hist.type = 'UA特征(机器及爬虫)'
                 break
 
               case 'ua_client':
-                hist.type = 'UA(合规客户端)'
+                hist.type = 'UA特征(合格客户端)'
                 break
 
               case 'domain':
@@ -94,11 +94,11 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
                 break
 
               case 'device':
-                hist.type = '设备号黑名单'
+                hist.type = '设备ID黑名单'
                 break
 
               case 'default':
-                hist.type = '设备号白名单'
+                hist.type = '设备ID白名单'
                 break
 
               case 'publisher_ip':
