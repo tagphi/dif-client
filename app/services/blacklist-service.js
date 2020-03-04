@@ -59,6 +59,16 @@ async function commitPublisherIPs (callbackArgs, argsFromJobHist) {
   return true
 }
 
+async function commitUA (resp, filename, size, type, uploadTime) {
+  let deltaIpfsInfo = makeIpfsinfo(filename, resp.sampleFileHash, size)
+  await invokeCC('deltaUpload', [deltaIpfsInfo, type, uploadTime])
+  logger.info(`success to upload ${type} blacklist:${filename}`)
+
+  let fullIpfsInfo = makeIpfsinfo(filename, resp.patternHash, -1)
+  await invokeCC('fullUpload', [fullIpfsInfo, type])
+  logger.info(`success to upload ${type} fulllist`)
+}
+
 /**
  * 上传黑名单
  **/
@@ -71,9 +81,14 @@ async function uploadBlacklist (filename, size, blacklistBuf, type) {
   fullBlacklistIpfsInfo = JSON.parse(fullBlacklistIpfsInfo)
 
   // 提交给java任务服务器
-  await submitBlacklistToJobHistory(uploadTime, type, filename, size, blacklistBuf, fullBlacklistIpfsInfo.path)
-
   logger.info(`success to upload ${type} blacklist:${filename}`)
+
+  if (type.indexOf('ua') !== -1) { // ua同步返回delta ipfs 和full ipfs
+    let resp = await submitUAToJobHistory(uploadTime, type, filename, size, blacklistBuf, fullBlacklistIpfsInfo.path)
+    await commitUA(resp, filename, size, type, uploadTime)
+  } else {
+    await submitBlacklistToJobHistory(uploadTime, type, filename, size, blacklistBuf, fullBlacklistIpfsInfo.path)
+  }
 }
 
 /**
@@ -86,6 +101,18 @@ async function submitBlacklistToJobHistory (uploadTime, type, filename, size, bl
 
   logger.info(`submit blacklist to job history:type-${type},filename:${filename},resp:${resp}`)
   return resp
+}
+
+/**
+ * 提交UA黑名单给java任务服务器
+ **/
+async function submitUAToJobHistory (uploadTime, type, filename, size, blacklistBuf, fullBlacklistIpfsInfo) {
+  let resp = await submitToJobHistory('/uaUpload', type, blacklistBuf,
+    {oldHash: fullBlacklistIpfsInfo},
+    {cmd: 'commitBlacklist', args: {type, filename, uploadTime, size}})
+
+  logger.info(`submit blacklist to job history:type-${type},filename:${filename},resp:${resp}`)
+  return JSON.parse(resp)
 }
 
 /**
@@ -135,12 +162,19 @@ async function merge (type, latestVersion) {
   allRmListInfo = allRmListInfo || '[]'
   allRmListInfo = extractPaths(allRmListInfo)
 
+  if (type.indexOf('ua') !== -1) {
+    await mergeUA(latestVersion, type)
+    return
+  }
+
   // 剔除媒体ip
   let publishIpfsInfo = ''
+
   if (type === 'ip') {
     publishIpfsInfo = await queryCC('getPublisherIp', [])
     publishIpfsInfo = publishIpfsInfo || '[]'
     publishIpfsInfo = extractPaths(publishIpfsInfo)
+
     allRmListInfo = allRmListInfo.concat(publishIpfsInfo)
   }
 
@@ -151,6 +185,17 @@ async function merge (type, latestVersion) {
 
   await submitToJobHistory('/merge', type, undefined,
     {blacklist: allOrgsFulllists, removelist: allRmListInfo},
+    {cmd: 'commitMerge', args: {type, latestVersion}}, latestVersion)
+}
+
+async function mergeUA (latestVersion, type) {
+  // 获取合并的全量列表
+  let allOrgsFulllists = await queryCC('getAllOrgsList', [type])
+  allOrgsFulllists = allOrgsFulllists || '[]'
+  allOrgsFulllists = concatHashAndMspid(allOrgsFulllists)
+
+  await submitToJobHistory('/merge', type === 'ua_spider' ? 'UASpider' : 'UAClient', undefined,
+    {blacklist: allOrgsFulllists},
     {cmd: 'commitMerge', args: {type, latestVersion}}, latestVersion)
 }
 
@@ -185,7 +230,7 @@ async function commitMerge (callbackArgs, argsFromJobHist) {
 
   await invokeCC('uploadMergeList', [mergedListIpfsinfo, callbackArgs.type, callbackArgs.latestVersion + ''])
   // 链码中投票合并
-  await invokeCC('merge', [callbackArgs.type, now])
+  await invokeCC('merge', [callbackArgs.type])
 
   logger.info(`[${callbackArgs.type}]:success to generate merge list:${callbackArgs.latestMergeIpfsInfo}`)
   return true
@@ -296,7 +341,7 @@ function makeIpfsinfo (filename, hash, size) {
 /**
  * 是否锁定
  **/
-async function isLocked() {
+async function isLocked () {
   const result = await queryCC('isLocked', [])
   return result === 'true'
 }

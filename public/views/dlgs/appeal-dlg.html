@@ -2,34 +2,44 @@
 <div class="modal-dialog" role="document">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>申诉</h3>
+            <h3>申诉移出</h3>
         </div>
         <form name="uploadForm" class="modal-body form">
             <ul class="plist">
                 <li>
-                    <span class="pname">类型</span>
+                    <span class="pname" style="width: 88px;">类型</span>
                     <!--选择类型-->
                     <div class="upload-dlg-types">
-                        <input id="type_ip" ng-model="selectType" value="ip" type="radio" class="magic-radio"
-                               ng-checked="true">
-                        <label for="type_ip"
-                               ng-class="{'d-inline':true,'color-lightslategray':selectType!='ip','color-blue-raido':selectType=='ip'}">ip</label>
+                        <div class="row">
+                            <div class="col-4" ng-click="chooseAppealType('ip')">
+                                <input id="type_ip" ng-model="selectType" value="ip" type="radio" class="magic-radio"
+                                       ng-checked="true">
+                                <label for="type_ip"
+                                       ng-class="{'d-inline':true,'color-lightslategray':selectType!='ip','color-blue':selectType=='ip'}">IP黑名单</label>
+                            </div>
+                            <div class="col-4" ng-click="chooseAppealType('domain')">
+                                <input id="type_domain" ng-model="selectType" value="domain" type="radio" class="magic-radio">
+                                <label for="type_domain"
+                                       ng-class="{'d-inline':true,'color-lightslategray':selectType!='domain','color-blue':selectType=='domain'}">域名黑名单</label>
+                            </div>
+                            <div class="col-4" ng-click="chooseAppealType('device')">
+                                <input id="type_device" ng-model="selectType" value="device" type="radio" class="magic-radio">
+                                <label for="type_device"
+                                       ng-class="{'d-inline':true,'color-lightslategray':selectType!='device','color-blue':selectType=='device'}">设备号黑名单</label>
+                            </div>
+                        </div>
 
-                        <input id="type_domain" ng-model="selectType" value="domain" type="radio" class="magic-radio">
-                        <label for="type_domain"
-                               ng-class="{'d-inline':true,'color-lightslategray':selectType!='domain','color-blue-raido':selectType=='domain'}">域名</label>
-
-                        <input id="type_device" ng-model="selectType" value="device" type="radio" class="magic-radio">
-                        <label for="type_device"
-                               ng-class="{'d-inline':true,'color-lightslategray':selectType!='device','color-blue-raido':selectType=='device'}">设备ID</label>
-
-                        <input id="type_default" ng-model="selectType" value="default" type="radio" class="magic-radio">
-                        <label for="type_default"
-                               ng-class="{'d-inline':true,'color-lightslategray':selectType!='default','color-blue-raido':selectType=='default'}">默认设备ID</label>
+                        <div class="row">
+                            <div class="col-4" ng-click="chooseAppealType('default')">
+                                <input id="type_default" ng-model="selectType" value="default" type="radio" class="magic-radio">
+                                <label for="type_default"
+                                       ng-class="{'d-inline':true,'color-lightslategray':selectType!='default','color-blue':selectType=='default'}">设备号白名单</label>
+                            </div>
+                        </div>
                     </div>
                 </li>
                 <li>
-                    <span class="pname">文件</span>
+                    <span class="pname" style="width: 64px;">文件</span>
                     <span class="pcon">
                     <div id="file" name="file" ng-model="uploadFile" type="file"
                          ngf-select
@@ -46,8 +56,8 @@
                     </span>
                 </li>
                 <li style="margin-top: 16px;">
-                    <span class="pname">申诉理由</span>
-                    <textarea ng-model="summary" class="appeal-summary" placeholder="请输入申诉理由" required></textarea>
+                    <span class="pname" style="width: 64px;">理由</span>
+                    <textarea ng-model="summary" class="appeal-summary" placeholder="请输入从{{selectTypeLabel}}中移除此文件数据的理由" required></textarea>
                 </li>
             </ul>
         </form>

@@ -14,23 +14,100 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
   }
 
   /**
+   * 格式化历史数据
+   **/
+  function formatHistories () {
+    /**
+     * dateCounter
+     {
+      '20191011':2 // 该日合并版本计数器
+     }
+     **/
+    let dateVersionCounter = {}
+
+    /**
+     * 查询该日期的版本计数器
+     *  每次获取当前版本+1，作为最新的版本
+     **/
+    function dateVersion (date, num) {
+      let curCount = dateVersionCounter[date]
+
+      if (!curCount) {
+        curCount = num + 1
+      }
+
+      dateVersionCounter[date] = curCount - 1
+
+      return dateVersionCounter[date]
+    }
+
+    let len = $scope.histories.length
+
+    $scope.histories.forEach(function (row, id) {
+      row.id = id + 1
+      row.type = $scope.type
+
+      // 转换时间戳
+      let date = new Date()
+      date.setTime(row.timestamp)
+      row.date = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss')
+      row.dateSimp = $filter('date')(date, 'yyyyMMdd')
+
+      row.version = row.dateSimp + '_' + dateVersion(row.dateSimp, len)
+      row.filename = row.type + '_' + row.version
+    })
+  }
+
+  /**
    * 查询合并历史
+
    **/
   $scope.queryHists = function (type) {
     HttpService.post('/blacklist/mergedHistories', {type})
       .then(function (respData) {
         if (respData.success) {
-          respData.data.forEach(function (row, id) {
-            row.id = id + 1
-            row.type = $scope.type
+          $scope.histories = respData.data
 
-            // 转换时间戳
-            let date = new Date()
-            date.setTime(row.timestamp)
-            row.date = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss')
+          // 转换类型
+          $scope.histories.map(function (hist, id) {
+            let type = hist.type
+
+            if (!type) {
+              return
+            }
+
+            switch (type) {
+              case 'ip':
+                hist.type = 'IP黑名单'
+                break
+
+              case 'ua_spider':
+                hist.type = 'UA(已知爬虫)'
+                break
+
+              case 'ua_client':
+                hist.type = 'UA(合规客户端)'
+                break
+
+              case 'domain':
+                hist.type = '域名黑名单'
+                break
+
+              case 'device':
+                hist.type = '设备号黑名单'
+                break
+
+              case 'default':
+                hist.type = '设备号白名单'
+                break
+
+              case 'publisher_ip':
+                hist.type = 'IP白名单'
+                break
+            }
           })
 
-          $scope.histories = respData.data
+          formatHistories()
         } else {
           alertMsgService.alert('获取失败', false)
           $scope.histories = []

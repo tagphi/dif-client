@@ -1,5 +1,5 @@
 /* eslint-disable handle-callback-err */
-app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $filter, HttpService, ngDialog, alertMsgService, Upload) {
+app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $interval, $filter, HttpService, ngDialog, alertMsgService, Upload) {
   /**
    * 退出
    */
@@ -21,7 +21,9 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     $scope.locked = true
     HttpService.post('/blacklist/isLocked')
       .then(function (respData) {
-        $scope.locked = respData.data.locked
+        if (respData.data) {
+          $scope.locked = respData.data.locked
+        }
       })
   }
 
@@ -32,7 +34,9 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     $scope.watcher = false
     HttpService.post('/auth/watcher')
       .then(function (respData) {
-        $scope.watcher = respData.data.isWatcher
+        if (respData.data) {
+          $scope.watcher = respData.data.isWatcher
+        }
       })
   }
 
@@ -122,12 +126,16 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
               $scope.prog = prog
             })
             .success(function (data, status, headers, config) {
-              $scope.prog = 0
-              $scope.closeThisDialog()
+              // $scope.prog = 0
+
               if (data.success) {
-                alertMsgService.alert('提交成功', true)
-                $scope.queryHistories()
+                $timeout(function () {
+                  alertMsgService.alert('提交成功', true)
+                  $scope.closeThisDialog()
+                  $scope.queryHistories(1)
+                }, 2000)
               } else {
+                $scope.closeThisDialog()
                 alertMsgService.alert(data.message, false)
               }
             })
@@ -145,6 +153,32 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
    * 上传申诉列表对话框
    */
   $scope.openAppealDlg = function () {
+    if (!$scope.selectType) {
+      $scope.selectType = 'ip'
+    }
+
+    labelByType($scope.selectType)
+
+    function labelByType (type) {
+      switch (type) {
+        case 'ip':
+          $scope.selectTypeLabel = 'IP黑名单'
+          break
+
+        case 'domain':
+          $scope.selectTypeLabel = '域名黑名单'
+          break
+
+        case 'device':
+          $scope.selectTypeLabel = '设备号黑名单'
+          break
+
+        case 'default':
+          $scope.selectTypeLabel = '设备号白名单'
+          break
+      }
+    }
+
     let dlgOpts = {
       template: 'views/dlgs/appeal-dlg.html',
       scope: $scope,
@@ -153,6 +187,10 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
         $scope.prog = 0
         $scope.confirmActionText = '上传'
         $scope.dataType = 'appeal'
+
+        $scope.chooseAppealType = function (type) {
+          labelByType(type)
+        }
 
         /**
          * 上传黑名单
@@ -183,11 +221,14 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             })
             .success(function (data, status, headers, config) {
               $scope.prog = 0
-              $scope.closeThisDialog()
               if (data.success) {
-                alertMsgService.alert('提交成功', true)
-                $scope.queryHistories()
+                $timeout(function () {
+                  alertMsgService.alert('提交成功', true)
+                  $scope.closeThisDialog()
+                  $scope.queryHistories(1)
+                }, 2000)
               } else {
+                $scope.closeThisDialog()
                 alertMsgService.alert(data.message, false)
               }
             })
@@ -209,7 +250,94 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
       template: 'views/dlgs/download-dlg.html',
       scope: $scope,
       controller: ['$scope', 'HttpService', function ($scope, HttpService) {
-        $scope.dataType = $scope.dataType || 'ip'
+        $scope.downloadDlg = {
+          tab: 'prod',
+          prod: {
+            firstNote: undefined,
+            secondNote: undefined,
+            all: true,
+            selectedTypes: ['default', 'ip', 'device', 'domain', 'ua_spider', 'ua_client']
+          },
+          dev: {
+            firstNote: '包含了联盟成员最新提交的数据，正在进行审查...',
+            secondNote: undefined,
+            all: true,
+            selectedTypes: ['default', 'ip', 'device', 'domain', 'ua_spider', 'ua_client']
+          },
+          onTabClicked: function (clickedTab) {
+            this.tab = clickedTab
+            this.showTab = this[this.tab]
+          },
+          select: function (type) {
+            let selectedTypes = this.showTab.selectedTypes
+
+            let id = selectedTypes.indexOf(type)
+
+            if (id !== -1) {
+              selectedTypes.splice(id, 1)
+            } else {
+              selectedTypes.push(type)
+            }
+
+            this.showTab.all = selectedTypes.length === 6
+          },
+          selectAll: function () {
+            let all = !this.showTab.all
+            this.showTab.all = all
+
+            if (!all) {
+              this.showTab.selectedTypes = []
+            } else {
+              this.showTab.selectedTypes = ['default', 'ip', 'device', 'domain', 'ua_spider', 'ua_client']
+            }
+          },
+          jumpToMergesPage: function () {
+            $scope.closeThisDialog()
+            $location.path('/merges')
+          }
+        }
+
+        $scope.downloadDlg.showTab = $scope.downloadDlg[$scope.downloadDlg.tab]
+
+        function handleVersionInfo (versionInfo) {
+          if (versionInfo.pubDate) {
+            let pubDate = new Date(versionInfo.pubDate)
+            let version = $filter('date')(pubDate, 'yyyyMMdd')
+            let pubDateFormatted = $filter('date')(pubDate, 'yyyy/MM/dd HH:mm:ss')
+            $scope.downloadDlg.prod.firstNote = '版本号：' + version
+            $scope.downloadDlg.prod.secondNote = '发布于：' + pubDateFormatted
+          }
+
+          let nextPubDate = new Date(versionInfo.nextPubDate)
+
+          let nextPubDateFormatted = $filter('date')(nextPubDate, 'yyyy/MM/dd HH:mm:ss')
+
+          $scope.downloadDlg.dev.secondNote = '预计发布时间：' + nextPubDateFormatted
+
+          // 倒计时
+          $interval(function () {
+            let delta = nextPubDate.getTime() - new Date().getTime()
+
+            let UNIT_SECOND = 1000
+            let UNIT_MINUTE = UNIT_SECOND * 60
+            let UNIT_HOUR = UNIT_MINUTE * 60
+
+            let hour = Math.floor(delta / UNIT_HOUR)
+            let minute = Math.floor((delta - hour * UNIT_HOUR) / UNIT_MINUTE)
+            let seconds = Math.floor((delta - hour * UNIT_HOUR - minute * UNIT_MINUTE) / UNIT_SECOND)
+            let countdown = hour + ':' + minute + ':' + seconds
+            $scope.downloadDlg.dev.secondNote = '预计发布时间：' + nextPubDateFormatted + '，倒计时：' + countdown
+          }, 1000)
+        }
+
+        // 获取版本信息
+        HttpService.post('/blacklist/versionInfo', undefined)
+          .then(function (respData) {
+            if (!respData.success) return
+
+            let versionInfo = respData.data
+            handleVersionInfo(versionInfo)
+          })
       }]
     }
 
@@ -275,6 +403,16 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
       hist.showDisagree = (action === 'disagree' && mouseAction === 'enter')
     }
   }
+
+  $scope.mouseInSummary = function (hist) {
+    if (hist.details.summary.length > 30) {
+      hist.showSummary = true
+    }
+  }
+
+  $scope.mouseOutSummary = function (hist) {
+    hist.showSummary = false
+  }
   /**
    * 查询
    */
@@ -301,10 +439,56 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
           })
 
           $scope.showingTab.histories = respData.data
+
+          // 转换类型
+          $scope.showingTab.histories.map(function (hist, id) {
+            let type = hist.type
+
+            if (!type) {
+              return
+            }
+
+            switch (type) {
+              case 'ip':
+                hist.type = 'IP黑名单'
+                break
+
+              case 'ua_spider':
+                hist.type = 'UA(已知爬虫)'
+                break
+
+              case 'ua_client':
+                hist.type = 'UA(合规客户端)'
+                break
+
+              case 'domain':
+                hist.type = '域名黑名单'
+                break
+
+              case 'device':
+                hist.type = '设备号黑名单'
+                break
+
+              case 'default':
+                hist.type = '设备号白名单'
+                break
+
+              case 'publisher_ip':
+                hist.type = 'IP白名单'
+                break
+            }
+          })
+
           // 转换ipfs信息
           if ($scope.showingTab.type === 'appeal') {
             $scope.showingTab.histories.map(function (hist, id) {
               hist.details.ipfsInfo = JSON.parse(hist.details.ipfsInfo)
+
+              if (hist.details.summary.length > 30) {
+                hist.details.summaryShort = hist.details.summary.substr(0, 30) + '...'
+              } else {
+                hist.details.summaryShort = hist.details.summary
+              }
             })
           }
           $scope.showingTab.total = respData.total

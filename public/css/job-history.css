@@ -7,6 +7,120 @@
     background-color: rgba(255, 99, 38, 0.71);
 }
 
+.row {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px
+}
+
+.col-1, .col-2, .col-3, .col-4, .col-5, .col-6, .col-7, .col-8, .col-9, .col-10, .col-11, .col-12, .col,
+.col-auto, .col-sm-1, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-sm-10, .col-sm-11, .col-sm-12, .col-sm,
+.col-sm-auto, .col-md-1, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-md-10, .col-md-11, .col-md-12, .col-md,
+.col-md-auto, .col-lg-1, .col-lg-2, .col-lg-3, .col-lg-4, .col-lg-5, .col-lg-6, .col-lg-7, .col-lg-8, .col-lg-9, .col-lg-10, .col-lg-11, .col-lg-12, .col-lg,
+.col-lg-auto, .col-xl-1, .col-xl-2, .col-xl-3, .col-xl-4, .col-xl-5, .col-xl-6, .col-xl-7, .col-xl-8, .col-xl-9, .col-xl-10, .col-xl-11, .col-xl-12, .col-xl,
+.col-xl-auto {
+    position: relative;
+    width: 100%;
+    min-height: 1px;
+    /*padding-right: 15px;*/
+    /*padding-left: 15px;*/
+}
+
+.col {
+    -ms-flex-preferred-size: 0;
+    flex-basis: 0;
+    -ms-flex-positive: 1;
+    flex-grow: 1;
+    max-width: 100%;
+}
+
+.col-auto {
+    -ms-flex: 0 0 auto;
+    flex: 0 0 auto;
+    width: auto;
+    max-width: none;
+}
+
+.col-1 {
+    -ms-flex: 0 0 8.333333%;
+    flex: 0 0 8.333333%;
+    max-width: 8.333333%;
+}
+
+.col-2 {
+    -ms-flex: 0 0 16.666667%;
+    flex: 0 0 16.666667%;
+    max-width: 16.666667%;
+}
+
+.col-3 {
+    -ms-flex: 0 0 25%;
+    flex: 0 0 25%;
+    max-width: 25%;
+}
+
+.col-4 {
+    -ms-flex: 0 0 33.333333%;
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+}
+
+.col-5 {
+    -ms-flex: 0 0 41.666667%;
+    flex: 0 0 41.666667%;
+    max-width: 41.666667%;
+}
+
+.col-6 {
+    -ms-flex: 0 0 50%;
+    flex: 0 0 50%;
+    max-width: 50%;
+}
+
+.col-7 {
+    -ms-flex: 0 0 58.333333%;
+    flex: 0 0 58.333333%;
+    max-width: 58.333333%;
+}
+
+.col-8 {
+    -ms-flex: 0 0 66.666667%;
+    flex: 0 0 66.666667%;
+    max-width: 66.666667%;
+}
+
+.col-9 {
+    -ms-flex: 0 0 75%;
+    flex: 0 0 75%;
+    max-width: 75%;
+}
+
+.col-10 {
+    -ms-flex: 0 0 83.333333%;
+    flex: 0 0 83.333333%;
+    max-width: 83.333333%;
+}
+
+.col-11 {
+    -ms-flex: 0 0 91.666667%;
+    flex: 0 0 91.666667%;
+    max-width: 91.666667%;
+}
+
+.col-12 {
+    -ms-flex: 0 0 100%;
+    flex: 0 0 100%;
+    max-width: 100%;
+}
+
+.ngdialog.ngdialog-theme-default .ngdialog-content {
+    width: 572px;
+}
+
+
 .container-match-parent {
     width: 100%;
     height: 100%;
@@ -33,7 +147,7 @@
     color: lightslategray;
 }
 
-.color-blue-raido {
+.color-blue {
     color: #3e96ec;
 }
 
@@ -123,6 +237,8 @@ button:hover, .link-default:hover, .link-normal:hover {
 */
 .upload-dlg-types {
     width: 600px !important;
+    position: relative;
+    left: -12px;
 }
 
 .opt-common {
@@ -238,8 +354,10 @@ button:hover, .link-default:hover, .link-normal:hover {
     transform: scale(1.5);
 }
 
-.scaler{}
-.scaler:hover{
+.scaler {
+}
+
+.scaler:hover {
     display: inline-block;
     transform: scale(1.5);
 }
@@ -265,8 +383,7 @@ button:hover, .link-default:hover, .link-normal:hover {
     color: white;
 }
 
-
-.align-right{
+.align-right {
     /*right: -60px;*/
 }
 
@@ -278,7 +395,7 @@ button:hover, .link-default:hover, .link-normal:hover {
     background: #3bb6ff;
 }
 
-.appeal-summary{
+.appeal-summary {
     width: 242px;
     height: 131px;
     background-color: white;
@@ -287,10 +404,21 @@ button:hover, .link-default:hover, .link-normal:hover {
     color: grey;
 }
 
-.grp-label{
-    width: 80px !important;
+.appeal-summary-pop {
+    background: #bbd8f7;
+    position: absolute;
+    padding: 16px;
+    line-height: 22px;
+    color: #403939;
+    text-align: left;
+    z-index: 100;
+    border: 2px solid #94c1ea;
+    box-shadow: 4px 4px 2px 1px #c2d4e4;
 }
 
+.grp-label {
+    width: 80px !important;
+}
 
 .btn-down-crts {
     float: right;
@@ -299,34 +427,150 @@ button:hover, .link-default:hover, .link-normal:hover {
     top: 54px;
 }
 
-.down-ip{
+.down-ip {
     position: relative !important;
     top: 0 !important;
     left: -182px !important;
 }
 
-.down-merge-type{
+.down-merge-type {
     width: 50px;
 }
 
-.title-icon{
+.title-icon {
     font-size: 38px;
     color: #3c8dbc;
     font-weight: lighter;
     margin-right: 4px;
 }
 
-.title-label{
+.title-label {
     color: #3c8dbc;
     font-size: 24px;
 }
 
 .table th {
-   color: #0c63a3;
+    color: #0c63a3;
     background-color: #3e97eb61;
     font-size: 16px;
 }
 
-.table th:hover,.table td:hover{
+.table th:hover, .table td:hover {
     background: #eee;
+}
+
+.form > .row > .col {
+    display: inline-block !important;
+    width: 48%;
+    padding: 4px 0px;
+}
+
+.download-dlg {
+    font-size: 14px;
+}
+
+.download-dlg .tab-title {
+    margin: 8px;
+    padding: 6px;
+    font-size: 17px;
+}
+
+.download-dlg .tab-title.active {
+    border-bottom: 2px solid #1792e5;
+    transition: all 0.5s;
+}
+
+.download-dlg .note {
+
+}
+
+.download-dlg .magic-checkbox + label {
+    position: relative;
+    display: block;
+    padding-left: 23px;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+.download-dlg .magic-checkbox + label:before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    content: '';
+    border: 1px solid #c0c0c0;
+}
+
+.download-dlg .magic-checkbox + label:after {
+    top: 2px;
+    left: 6px;
+    box-sizing: border-box;
+    width: 5px;
+    height: 9px;
+    transform: rotate(45deg);
+    border-width: 2px;
+    border-style: solid;
+    border-color: #fff;
+    border-top: 0;
+    border-left: 0;
+}
+
+.download-dlg .note-grp {
+    margin-bottom: 4px;
+}
+
+.download-dlg .note-grp .right {
+    margin-left: 16px;
+}
+
+.download-dlg .note-grp .note-label {
+    position: relative;
+    top: -1px;
+    left: 4px;
+}
+
+.download-dlg .all {
+    float: left;
+    position: relative;
+    left: 9px;
+    top: 11px;
+}
+
+.dark-blue {
+    /*color: #4b78aa;*/
+    background-color: #4b78aa;
+}
+
+.download-dlg {
+    font-size: 15px;
+}
+
+.download-dlg .note-grp {
+    margin: 3px 10px 15px 10px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.download-dlg .tab-title  {
+    margin: 10px;
+    padding: 6px;
+    font-size: 17px;
+}
+
+.download-dlg .note-grp .right {
+    /* margin-left: 16px; */
+    margin-top: 10px;
+    display: block;
+}
+
+.dark-blue {
+    /* color: #4b78aa; */
+    background-color: #a01111;
+    margin-right: 10px;
+}
+
+.modal span {
+    margin: 10px;
 }
