@@ -20,32 +20,23 @@
                                        >IP黑名单</label>
                             </div>
                             <div class="col-4">
-                                <input id="type_ua_spider" ng-model="selectType" value="ua_spider" type="radio"
-                                       class="magic-radio"
-                                       >
-                                <label for="type_ua_spider"
-                                       ng-class="{'d-inline':true,'color-lightslategray':selectType!='ua_spider','color-blue':selectType=='ua_spider'}"
-                                       >UA特征(机器及爬虫)</label>
+                                <input id="type_publisherIp" ng-model="selectType" value="publisherIp" type="radio"
+                                       class="magic-radio">
+                                <label for="type_publisherIp"
+                                       ng-class="{'d-inline':true,'color-lightslategray':selectType!='publisherIp','color-blue':selectType=='publisherIp'}">媒体服务器IP</label>
                             </div>
+
                             <div class="col-4">
-                                <input id="type_ua_client" ng-model="selectType" value="ua_client" type="radio"
+                                <input id="type_domain" ng-model="selectType" value="domain" type="radio"
                                        class="magic-radio"
-                                       >
-                                <label for="type_ua_client"
-                                       ng-class="{'d-inline':true,'color-lightslategray':selectType!='ua_client','color-blue':selectType=='ua_client'}"
-                                       >UA特征(合格客户端)</label>
+                                >
+                                <label for="type_domain"
+                                       ng-class="{'d-inline':true,'color-lightslategray':selectType!='domain','color-blue':selectType=='domain'}"
+                                >域名黑名单</label>
                             </div>
                         </div>
 
                         <div class="row" ng-show="!locked">
-                            <div class="col-4">
-                                <input id="type_domain" ng-model="selectType" value="domain" type="radio"
-                                       class="magic-radio"
-                                       >
-                                <label for="type_domain"
-                                       ng-class="{'d-inline':true,'color-lightslategray':selectType!='domain','color-blue':selectType=='domain'}"
-                                       >域名黑名单</label>
-                            </div>
                             <div class="col-4">
                                 <input id="type_device" ng-model="selectType" value="device" type="radio"
                                        class="magic-radio"
@@ -62,14 +53,24 @@
                                        ng-class="{'d-inline':true,'color-lightslategray':selectType!='default','color-blue':selectType=='default'}"
                                        >设备ID白名单</label>
                             </div>
+                            <div class="col-4">
+                                <input id="type_ua_spider" ng-model="selectType" value="ua_spider" type="radio"
+                                       class="magic-radio"
+                                >
+                                <label for="type_ua_spider"
+                                       ng-class="{'d-inline':true,'color-lightslategray':selectType!='ua_spider','color-blue':selectType=='ua_spider'}"
+                                >UA特征(机器及爬虫)</label>
+                            </div>
                         </div>
 
                         <div class="row">
                             <div class="col-4">
-                                <input id="type_publisherIp" ng-model="selectType" value="publisherIp" type="radio"
-                                       class="magic-radio">
-                                <label for="type_publisherIp"
-                                       ng-class="{'d-inline':true,'color-lightslategray':selectType!='publisherIp','color-blue':selectType=='publisherIp'}">媒体服务器IP</label>
+                                <input id="type_ua_client" ng-model="selectType" value="ua_client" type="radio"
+                                       class="magic-radio"
+                                >
+                                <label for="type_ua_client"
+                                       ng-class="{'d-inline':true,'color-lightslategray':selectType!='ua_client','color-blue':selectType=='ua_client'}"
+                                >UA特征(合格客户端)</label>
                             </div>
                         </div>
 
