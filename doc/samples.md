@@ -1,36 +1,37 @@
 # Dif黑名单使用示例
 
 ## 目录
-- [全局说明](#全局说明)
-- [上传/申诉](#上传申诉)
-    - [ip](#ip)
-        - [黑名单](#黑名单)
-        - [申诉](#申诉)
-        - [白名单（媒体IP）](#白名单媒体ip)
-    - [device](#device)
-        - [黑名单](#黑名单)
-        - [申诉](#申诉)
-    - [默认设备（设备白名单）](#默认设备设备白名单)
-        - [黑名单](#黑名单)
-        - [申诉](#申诉)
-    - [域名Domain](#域名domain)
-        - [黑名单](#黑名单)
-        - [申诉](#申诉)
-- [下载](#下载)
-    - [ip](#ip)
-    - [device](#device)
-    - [domain](#domain)
 
-## 全局说明
+- [全局说明](#全局说明)
+- [IP](#ip)
+	- [上传](#上传)
+	- [申诉](#申诉)
+	- [合并后名单](#合并后名单)
+- [媒体服务器IP](#媒体服务器ip)
+	- [上传](#上传)
+- [设备号黑名单](#设备号黑名单)
+	- [上传](#上传)
+	- [申诉](#申诉)
+	- [合并后名单](#合并后名单)
+- [设备号白名单](#设备号白名单)
+	- [上传](#上传)
+	- [申诉](#申诉)
+- [域名黑名单](#域名黑名单)
+	- [上传](#上传)
+	- [申诉](#申诉)
+	- [合并后名单](#合并后名单)
+- [UA(已知爬虫/合规客户端)](#ua已知爬虫合规客户端)
+	- [上传](#上传)
+	- [合并后规则名单](#合并后规则名单)
+
+### 全局说明
 
 - 每行为一条记录，行分隔符为`\n`
 - 每列分隔符为tab键，即`\t`
 
-## 上传/申诉
+### IP
 
-### ip
-
-##### 黑名单
+##### 上传
 
 **格式** - `ip	标志位`
 
@@ -60,7 +61,24 @@
 223.104.24.175
 ```
 
-##### 白名单（媒体IP）
+##### 合并后名单
+
+**格式** - `ip:投票的组织id...`
+
+示例
+
+```
+1.119.10.254:HyLink,PUBLICISMEDIA
+1.119.130.30:HyLink,PUBLICISMEDIA
+1.119.131.92:Adsame,PUBLICISMEDIA
+1.119.139.147:Adsame,PUBLICISMEDIA
+1.119.140.242:Adsame,PUBLICISMEDIA
+1.119.140.2:Adsame,PUBLICISMEDIA
+```
+
+### 媒体服务器IP
+
+##### 上传
 
 **格式** - `ip`
 
@@ -73,9 +91,10 @@
 223.104.24.175
 ```
 
-### device
 
-##### 黑名单
+### 设备号黑名单
+
+##### 上传
 
 **格式** - `设备id	设备类型	加密方式	标志位`
 
@@ -106,11 +125,25 @@
 99DAFF87-BD4B-4295-B5CB-27313093F0CF	IDFA	RAW
 ```
 
-### 默认设备（设备白名单）
+##### 合并后名单
+
+**格式** - `设备id	设备类型	加密方式:投票的组织id...`
+
+示例
+
+```
+0009A7B7-3565-4D78-A4CB-0A63B310FCF5	IDFA	RAW:PUBLICISMEDIA,RTBAsia
+0009c8c1b960c3254db681649abe67a8	IMEI	MD5:LDN,RTBAsia
+000C1C14-3374-414A-B334-B3930589472B	IDFA	RAW:PUBLICISMEDIA,RTBAsia
+001266b95c11c0b6de232092fb6dc35c	IMEI	MD5:Adsame,LDN
+
+```
+
+### 设备号白名单
 
 即程序生成的非标准格式的设备id
 
-##### 黑名单
+##### 上传
 
 **格式** - `设备id	设备类型	标志位`
 
@@ -137,9 +170,9 @@
 ```
 
 
-### 域名Domain
+### 域名黑名单
 
-##### 黑名单
+##### 上传
 
 **格式** - `域名	标志位`
 
@@ -161,43 +194,11 @@ peer0.rtbasia.com
 peer0.rtbasia2.com
 ```
 
-## 下载
-
-#### ip
-
-**格式** - `ip:投票的组织id...`
-
-- 示例
-
-```
-1.119.10.254:HyLink,PUBLICISMEDIA
-1.119.130.30:HyLink,PUBLICISMEDIA
-1.119.131.92:Adsame,PUBLICISMEDIA
-1.119.139.147:Adsame,PUBLICISMEDIA
-1.119.140.242:Adsame,PUBLICISMEDIA
-1.119.140.2:Adsame,PUBLICISMEDIA
-```
-
-
-#### device
-
-**格式** - `设备id	设备类型	加密方式:投票的组织id...`
-
-- 示例
-
-```
-0009A7B7-3565-4D78-A4CB-0A63B310FCF5	IDFA	RAW:PUBLICISMEDIA,RTBAsia
-0009c8c1b960c3254db681649abe67a8	IMEI	MD5:LDN,RTBAsia
-000C1C14-3374-414A-B334-B3930589472B	IDFA	RAW:PUBLICISMEDIA,RTBAsia
-001266b95c11c0b6de232092fb6dc35c	IMEI	MD5:Adsame,LDN
-
-```
-
-#### domain
+##### 合并后名单
 
 **格式** - `域名:投票的组织id...`
 
-- 示例
+示例
 
 ```
 peer0.rtbasia.com:HyLink,PUBLICISMEDIA
@@ -205,3 +206,37 @@ peer0.rtbasia2.com:HyLink,PUBLICISMEDIA
 ```
 
 
+### UA(已知爬虫/合规客户端)
+
+##### 上传
+
+**格式**  
+
+```
+规则1^A规则2...
+名单示例
+....
+```
+
+- **NOTE：** 其中分隔符^A为不可见字符  编码为"\001"
+
+示例
+
+```
+p1:Mozilla/5.0^Ap1:Mozilla^Ap2:Baiduspider
+Mozilla/5.0 (compatible; Baiduspider-render/2.0; +http://www.baidu.com/searc    h/spider.html)
+p1:Mozilla/5.0^Ap2:Trident/5.0
+Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0);
+p2:360spider
+360spider (http://webscan.360.cn)
+```
+
+##### 合并后规则名单
+
+**格式** - `规则`
+
+示例：
+
+```
+p2:360spider
+```
