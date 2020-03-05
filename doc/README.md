@@ -19,29 +19,29 @@
 
 ## 部署Client Site
 
-### 拷贝组织证书到dif-client/crypto-config/ 目录下
-
-参考文档 [cryptogen-doc.md](./cryptogen-doc.md) 生成证书，并将`crypto-config/peerOrgnizations/[组织domain]/msp`目录发给RTBAsia (cong.liu@rtbasia.com)。`crypto-config/peerOrgnizations/`底下所有的文件拷贝到`dif-client/crypto-config/peerOrgnizations`下。 
-
-### 确认证书存在
-
-* 确保order tls证书在dif-client/crypto-config/order-tls目录下
-* 确保本组织的证书在dif-client/crypto-config/peerOrganizations目录下
-
 ## 部署步骤
 
-- 防火墙打开或放通端口**
+- 防火墙打开或放通端口
 
     - 7051、7052、7053
     - 4001、4002、5001
     - 8080、8081
 
-- 下载安装包 [https://github.com/tagphi/dif-client/release/dif-client-v2.0.0.tar.gz](https://github.com/tagphi/dif-client/release/dif-client-v2.0.0.tar.gz) 并解压
+- 下载安装包 https://github.com/tagphi/dif-client/releases/download/2.0.0/dif-client-v2.0.0.tar.gz并解压
+
+- 拷贝组织证书到dif-client/crypto-config/ 目录下
+
+    参考文档 [cryptogen-doc.md](./cryptogen-doc.md) 生成证书，并将`crypto-config/peerOrgnizations/[组织domain]/msp`目录发给RTBAsia (cong.liu@rtbasia.com)。`crypto-config/peerOrgnizations/`底下所有的文件拷贝到`dif-client/crypto-config/peerOrgnizations`下
+
+    确认证书存在
+
+    * 确保order tls证书在dif-client/crypto-config/order-tls目录下
+    * 确保本组织的证书在dif-client/crypto-config/peerOrganizations目录下
 
 - 配置组织的msp id到文件 `msp_id.conf`
 
     ```shell
-    cat 成员MSPID > msp_id.conf
+    echo 成员MSPID > msp_id.conf
     ```
 
 - 将组织证书拷贝到`crypto-config/peerOrganizations`目录下，最终正确的证书结构如下
@@ -64,8 +64,14 @@ crypto-config/
 
 - 启动
 
-```
+```shell
 ./start-peer-cli.sh
+
+# 首次启动后会需要一段时间同步区块，在这段时间服务是不可用的。
+# 查看区块同步的高度
+docker logs --tail 100 peer容器名 2>&1| grep "Committed block"
+
+# 区块同步完成后访问http://你的peer域名:8081，用户名密码在config.json中配置
 ```
 
 - 停止并清理数据
