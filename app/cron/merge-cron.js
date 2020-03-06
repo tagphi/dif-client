@@ -24,8 +24,18 @@ let isRunning = false
 function startCron () {
   if (isRunning) return
   isRunning = true
-  let cronTime = '*/' + CONFIG.site.cron.merge_interval + ' * * * * *'
+  let cronTime = cronTimeFromConfig(CONFIG.site.cron.merge_interval)
   new CronJob(cronTime, onTick, null, true, CONFIG.site.cron.timezone)
+}
+
+function cronTimeFromConfig (configTime) {
+  configTime += ''
+
+  if (configTime.indexOf('*') !== -1) {
+    return configTime
+  } else {
+    return '*/' + configTime + ' * * * * *'
+  }
 }
 
 async function onTick () {

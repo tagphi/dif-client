@@ -24,24 +24,42 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
      }
      **/
     let dateVersionCounter = {}
+    let dateVersionTotal = {}
 
     /**
      * 查询该日期的版本计数器
      *  每次获取当前版本+1，作为最新的版本
      **/
-    function dateVersion (date, num) {
+    function dateVersion (date) {
       let curCount = dateVersionCounter[date]
+      let total = dateVersionTotal[date]
 
       if (!curCount) {
-        curCount = num + 1
+        curCount = total
+      } else {
+        curCount = curCount - 1
       }
 
-      dateVersionCounter[date] = curCount - 1
-
-      return dateVersionCounter[date]
+      dateVersionCounter[date] = curCount
+      return curCount
     }
 
-    let len = $scope.histories.length
+    $scope.histories.forEach(function (row, id) {
+      let date = new Date()
+      date.setTime(row.timestamp)
+      row.date = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss')
+      row.dateSimp = $filter('date')(date, 'yyyyMMdd')
+
+      let total = dateVersionTotal[row.dateSimp]
+
+      if (total) {
+        total += 1
+      } else {
+        total = 1
+      }
+
+      dateVersionTotal[row.dateSimp] = total
+    })
 
     $scope.histories.forEach(function (row, id) {
       row.id = id + 1
@@ -53,7 +71,7 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
       row.date = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss')
       row.dateSimp = $filter('date')(date, 'yyyyMMdd')
 
-      row.version = row.dateSimp + '_' + dateVersion(row.dateSimp, len)
+      row.version = row.dateSimp + '_' + dateVersion(row.dateSimp)
       row.filename = row.type + '_' + row.version
     })
   }

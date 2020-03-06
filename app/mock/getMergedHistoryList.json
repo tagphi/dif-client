@@ -1,0 +1,210 @@
+[
+  {
+    "timestamp": "1543411305493",
+    "version": "2",
+    "ipfsInfo": {
+      "version": 2,
+      "ipfsInfo": {
+        "hash": "QmWoMdNZ8rvjCiiFXRkJsa1Egp6GuT88e1gcjJN8b2UAFJ",
+        "path": "QmWoMdNZ8rvjCiiFXRkJsa1Egp6GuT88e1gcjJN8b2UAFJ",
+        "name": "device-1543411305493.log",
+        "size": -1
+      }
+    }
+  },
+  {
+    "timestamp": "1543411443132",
+    "version": "1",
+    "ipfsInfo": {
+      "version": 1,
+      "ipfsInfo": {
+        "path": "QmbFMke1KXqnYyBBWxB74N4c5SBnJMVAiMNRcGu6x1AwQH",
+        "hash": "QmbFMke1KXqnYyBBWxB74N4c5SBnJMVAiMNRcGu6x1AwQH",
+        "size": 6,
+        "name": "device-merged-1543411440936.txt"
+      }
+    }
+  },
+  {
+    "timestamp": "1543411703706",
+    "version": "13",
+    "ipfsInfo": {
+      "version": 13,
+      "ipfsInfo": {
+        "hash": "QmNg5zYyswBcJmXuY7ZnqVDR6Qj8daC7xPGSboA4R1qpQQ",
+        "path": "QmNg5zYyswBcJmXuY7ZnqVDR6Qj8daC7xPGSboA4R1qpQQ",
+        "name": "device-1543411703706.log",
+        "size": -1
+      }
+    }
+  },
+  {
+    "timestamp": "1552150800000",
+    "version": "13",
+    "ipfsInfo": {
+      "version": 13,
+      "ipfsInfo": {
+        "hash": "QmNg5zYyswBcJmXuY7ZnqVDR6Qj8daC7xPGSboA4R1qpQQ",
+        "path": "QmNg5zYyswBcJmXuY7ZnqVDR6Qj8daC7xPGSboA4R1qpQQ",
+        "name": "device-1543411703706.log",
+        "size": -1
+      }
+    }
+  },
+  {
+    "timestamp": "1553014800000",
+    "version": "13",
+    "ipfsInfo": {
+      "version": 13,
+      "ipfsInfo": {
+        "hash": "QmNg5zYyswBcJmXuY7ZnqVDR6Qj8daC7xPGSboA4R1qpQQ",
+        "path": "QmNg5zYyswBcJmXuY7ZnqVDR6Qj8daC7xPGSboA4R1qpQQ",
+        "name": "device-1543411703706.log",
+        "size": -1
+      }
+    }
+  },
+  {
+    "timestamp": "1554829200000",
+    "version": "15",
+    "ipfsInfo": {
+      "version": 15,
+      "ipfsInfo": {
+        "hash": "QmarcNRorb7uEvpzVSc9AbCFU6YdL82BYPfBtUXbMEDRdM",
+        "path": "QmarcNRorb7uEvpzVSc9AbCFU6YdL82BYPfBtUXbMEDRdM",
+        "name": "device-1552897008622.log",
+        "size": -1
+      }
+    }
+  },
+  {
+    "timestamp": "1557421200000",
+    "version": "24",
+    "ipfsInfo": {
+      "version": 24,
+      "ipfsInfo": {
+        "hash": "QmUqWyqx2z5jnzm3GvZxjZJKV4KeLb7xqv6uxpn2tHgKc7",
+        "path": "QmUqWyqx2z5jnzm3GvZxjZJKV4KeLb7xqv6uxpn2tHgKc7",
+        "name": "device-1556507430808.log",
+        "size": -1
+      }
+    }
+  },
+  {
+    "timestamp": "1560099600000",
+    "version": "28",
+    "ipfsInfo": {
+      "version": 28,
+      "ipfsInfo": {
+        "hash": "QmXVeJZ6qDxzt2YNjGpmDRgNMiwuw6GWX2bm7YhyA8CkMp",
+        "path": "QmXVeJZ6qDxzt2YNjGpmDRgNMiwuw6GWX2bm7YhyA8CkMp",
+        "name": "device-1558141231529.log",
+        "size": -1
+      }
+    }
+  },
+  {
+    "timestamp": "1562691600000",
+    "version": "30",
+    "ipfsInfo": {
+      "version": 30,
+      "ipfsInfo": {
+        "hash": "QmUsoqT4s1svbpgSjxRrg1vEZThW6Ch5WtHYXh9F9YS2VV",
+        "path": "QmUsoqT4s1svbpgSjxRrg1vEZThW6Ch5WtHYXh9F9YS2VV",
+        "name": "device-1560430603850.log",
+        "size": -1
+      }
+    }
+  },
+  {
+    "timestamp": "1566234000000",
+    "version": "76",
+    "ipfsInfo": {
+      "version": 76,
+      "ipfsInfo": {
+        "hash": "QmXp4nyDkenEA1rpaYztBAQf9yu8v6YTqrS9eU9UonpzsX",
+        "path": "QmXp4nyDkenEA1rpaYztBAQf9yu8v6YTqrS9eU9UonpzsX",
+        "name": "device-1565365195058.log",
+        "size": -1
+      }
+    }
+  },
+  {
+    "timestamp": "1568912400000",
+    "version": "117",
+    "ipfsInfo": {
+      "version": 117,
+      "ipfsInfo": {
+        "hash": "QmYvyf5qa7pgsnQsFDhcwazCBKZy2fzWUGyPXkHZd3wf1p",
+        "path": "QmYvyf5qa7pgsnQsFDhcwazCBKZy2fzWUGyPXkHZd3wf1p",
+        "name": "device-1568032297093.log",
+        "size": -1
+      }
+    }
+  },
+  {
+    "timestamp": "1571504400000",
+    "version": "124",
+    "ipfsInfo": {
+      "version": 124,
+      "ipfsInfo": {
+        "hash": "QmSnamddRmWaB4wLSQwvntWQGyAgUNPvnidWqbNUn1jrH2",
+        "path": "QmSnamddRmWaB4wLSQwvntWQGyAgUNPvnidWqbNUn1jrH2",
+        "name": "device-1571480878788.log",
+        "size": -1
+      }
+    }
+  },
+  {
+    "timestamp": "1574182800000",
+    "version": "157",
+    "ipfsInfo": {
+      "version": 157,
+      "ipfsInfo": {
+        "hash": "QmfENnHbTX6ZEZjd8XijR5yBLrBs1wijR6AV2NxDnCb4Ek",
+        "path": "QmfENnHbTX6ZEZjd8XijR5yBLrBs1wijR6AV2NxDnCb4Ek",
+        "name": "device-1574058021373.log",
+        "size": -1
+      }
+    }
+  },
+  {
+    "timestamp": "1576774800000",
+    "version": "186",
+    "ipfsInfo": {
+      "version": 186,
+      "ipfsInfo": {
+        "hash": "QmcPUkpW9ZkeWYma1ANTCt45PLKKgCzeVg2zWSC1LdHfeK",
+        "path": "QmcPUkpW9ZkeWYma1ANTCt45PLKKgCzeVg2zWSC1LdHfeK",
+        "name": "device-1576748551776.log",
+        "size": -1
+      }
+    }
+  },
+  {
+    "timestamp": "1579453200000",
+    "version": "204",
+    "ipfsInfo": {
+      "version": 204,
+      "ipfsInfo": {
+        "hash": "QmWfxMUhdjabdf27mDoqm6kvP9bKBrszdDNKch94ovYNaF",
+        "path": "QmWfxMUhdjabdf27mDoqm6kvP9bKBrszdDNKch94ovYNaF",
+        "name": "device-1579071823845.log",
+        "size": -1
+      }
+    }
+  },
+  {
+    "timestamp": "1582131600000",
+    "version": "221",
+    "ipfsInfo": {
+      "version": 221,
+      "ipfsInfo": {
+        "hash": "Qma3Uu9NBB4F8cLbbfN5wRYtPHrPUrBBXa9LeA3r78hV5G",
+        "path": "Qma3Uu9NBB4F8cLbbfN5wRYtPHrPUrBBXa9LeA3r78hV5G",
+        "name": "device-1581996809060.log",
+        "size": -1
+      }
+    }
+  }
+]
