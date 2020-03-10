@@ -241,6 +241,11 @@ button:hover, .link-default:hover, .link-normal:hover {
     left: -12px;
 }
 
+.upload-dlg-types .row {
+    position: relative;
+    left: -17px;
+}
+
 .opt-common {
     padding: 4px 24px;
     margin: 0px -8px;
@@ -574,4 +579,9 @@ button:hover, .link-default:hover, .link-normal:hover {
 
 .modal span {
     margin: 10px;
+}
+
+.down-locked {
+    position: relative;
+    top: 9px;
 }

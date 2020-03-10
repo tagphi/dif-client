@@ -18,7 +18,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
    * 是否锁定
    **/
   $scope.isLockedPeriod = function () {
-    $scope.locked = false
+    $scope.locked = true
     HttpService.post('/blacklist/isLocked')
       .then(function (respData) {
         if (respData.data) {
