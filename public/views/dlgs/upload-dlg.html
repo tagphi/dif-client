@@ -9,10 +9,11 @@
             <ul class="plist">
                 <li>
                     <span class="pname grp-label">类型</span>
+
                     <!--选择类型-->
                     <div class="upload-dlg-types">
-                        <div class="row" ng-show="!locked">
-                            <div class="col-4">
+                        <div class="row" ng-class="{'down-locked':locked}">
+                            <div class="col-4" ng-show="!locked">
                                 <input id="type_ip" ng-model="selectType" value="ip" type="radio" class="magic-radio"
                                        ng-checked="true">
                                 <label for="type_ip"
@@ -26,7 +27,7 @@
                                        ng-class="{'d-inline':true,'color-lightslategray':selectType!='publisherIp','color-blue':selectType=='publisherIp'}">媒体服务器IP</label>
                             </div>
 
-                            <div class="col-4">
+                            <div class="col-4" ng-show="!locked">
                                 <input id="type_domain" ng-model="selectType" value="domain" type="radio"
                                        class="magic-radio"
                                 >
@@ -36,8 +37,8 @@
                             </div>
                         </div>
 
-                        <div class="row" ng-show="!locked">
-                            <div class="col-4">
+                        <div class="row">
+                            <div class="col-4" ng-show="!locked">
                                 <input id="type_device" ng-model="selectType" value="device" type="radio"
                                        class="magic-radio"
                                        >
@@ -45,7 +46,7 @@
                                        ng-class="{'d-inline':true,'color-lightslategray':selectType!='device','color-blue':selectType=='device'}"
                                        >设备ID黑名单</label>
                             </div>
-                            <div class="col-4">
+                            <div class="col-4" ng-show="!locked">
                                 <input id="type_default" ng-model="selectType" value="default" type="radio"
                                        class="magic-radio"
                                        >
@@ -53,7 +54,7 @@
                                        ng-class="{'d-inline':true,'color-lightslategray':selectType!='default','color-blue':selectType=='default'}"
                                        >设备ID白名单</label>
                             </div>
-                            <div class="col-4">
+                            <div class="col-4" ng-show="!locked">
                                 <input id="type_ua_spider" ng-model="selectType" value="ua_spider" type="radio"
                                        class="magic-radio"
                                 >
@@ -63,14 +64,13 @@
                             </div>
                         </div>
 
-                        <div class="row">
+                        <div class="row" ng-show="!locked">
                             <div class="col-4">
                                 <input id="type_ua_client" ng-model="selectType" value="ua_client" type="radio"
-                                       class="magic-radio"
-                                >
+                                       class="magic-radio">
                                 <label for="type_ua_client"
-                                       ng-class="{'d-inline':true,'color-lightslategray':selectType!='ua_client','color-blue':selectType=='ua_client'}"
-                                >UA特征(合格客户端)</label>
+                                       ng-class="{'d-inline':true,'color-lightslategray':selectType!='ua_client','color-blue':selectType=='ua_client'}">
+                                    UA特征(合格客户端)</label>
                             </div>
                         </div>
 
