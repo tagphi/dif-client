@@ -1,4 +1,8 @@
-function versionFromTimestamp (timestamp) {
+function versionFromTimestamp (timestamp, adjustZone) {
+  if (adjustZone) {
+    timestamp += 1000 * 60 * 60 * 8
+  }
+
   let pubDate = new Date(parseInt(timestamp))
   let month = pubDate.getMonth() + 1
 
@@ -17,8 +21,4 @@ function versionFromTimestamp (timestamp) {
   return version
 }
 
-describe('1', function () {
-  it('2', function () {
-    console.log(versionFromTimestamp(1604160000000))
-  })
-})
+console.log(versionFromTimestamp(1582131600000,true))

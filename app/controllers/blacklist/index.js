@@ -310,7 +310,7 @@ async function devMergeListForTypes (typesList) {
 
       if (ipfsinfo) {
         pathinfoList.push({
-          fileName: type + '-' + versionFromName(ipfsinfo.name) + '.log',
+          fileName: type2Name(type) + '-' + versionFromName(ipfsinfo.name) + '.log',
           hash: ipfsinfo.hash
         })
       }
@@ -325,11 +325,17 @@ async function devMergeListForTypes (typesList) {
 
 function versionFromName (filename) {
   let timestamp = filename.replace('.log', '').split('-')[1]
-  return versionFromTimestamp(timestamp)
+  return versionFromTimestamp(timestamp, false)
 }
 
-function versionFromTimestamp (timestamp) {
-  let pubDate = new Date(parseInt(timestamp))
+function versionFromTimestamp (timestamp, adjustZone) {
+  timestamp = parseInt(timestamp)
+
+  if (adjustZone) {
+    timestamp += 1000 * 60 * 60 * 8
+  }
+
+  let pubDate = new Date(timestamp)
   let month = pubDate.getMonth() + 1
 
   if (month < 10) {
@@ -374,7 +380,7 @@ async function prodMergeListForTypes (typesList) {
       let ipfsinfo = historiesList[0].ipfsInfo.ipfsInfo
 
       pathinfoList.push({
-        fileName: type + '-' + versionFromTimestamp(historiesList[0].timestamp) + '.log',
+        fileName: type2Name(type) + '-' + versionFromTimestamp(historiesList[0].timestamp, true) + '.log',
         hash: ipfsinfo.hash
       })
     } catch (e) {
@@ -384,6 +390,34 @@ async function prodMergeListForTypes (typesList) {
   }
 
   return pathinfoList
+}
+
+/*
+* 将类型转换为中文名
+* */
+function type2Name (type) {
+  switch (type) {
+    case 'ip':
+      return 'IP黑名单'
+
+    case 'ua_spider':
+      return 'UA特征(机器及爬虫)'
+
+    case 'ua_client':
+      return 'UA特征(合格客户端)'
+
+    case 'domain':
+      return '域名黑名单'
+
+    case 'device':
+      return '设备ID黑名单'
+
+    case 'default':
+      return '设备ID白名单'
+
+    case 'publisher_ip':
+      return 'IP白名单'
+  }
 }
 
 /**
