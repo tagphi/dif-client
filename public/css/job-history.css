@@ -117,7 +117,7 @@
 }
 
 .ngdialog.ngdialog-theme-default .ngdialog-content {
-    width: 572px;
+    width: 684px;
 }
 
 
@@ -239,6 +239,11 @@ button:hover, .link-default:hover, .link-normal:hover {
     width: 600px !important;
     position: relative;
     left: -12px;
+}
+
+.upload-dlg-types .row {
+    position: relative;
+    left: -17px;
 }
 
 .opt-common {
@@ -381,6 +386,7 @@ button:hover, .link-default:hover, .link-normal:hover {
     width: 120px;
     background: #3695d6;
     color: white;
+    z-index: 200;
 }
 
 .align-right {
@@ -573,4 +579,9 @@ button:hover, .link-default:hover, .link-normal:hover {
 
 .modal span {
     margin: 10px;
+}
+
+.down-locked {
+    position: relative;
+    top: 9px;
 }

@@ -24,24 +24,42 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
      }
      **/
     let dateVersionCounter = {}
+    let dateVersionTotal = {}
 
     /**
      * 查询该日期的版本计数器
      *  每次获取当前版本+1，作为最新的版本
      **/
-    function dateVersion (date, num) {
+    function dateVersion (date) {
       let curCount = dateVersionCounter[date]
+      let total = dateVersionTotal[date]
 
       if (!curCount) {
-        curCount = num + 1
+        curCount = total
+      } else {
+        curCount = curCount - 1
       }
 
-      dateVersionCounter[date] = curCount - 1
-
-      return dateVersionCounter[date]
+      dateVersionCounter[date] = curCount
+      return curCount
     }
 
-    let len = $scope.histories.length
+    $scope.histories.forEach(function (row, id) {
+      let date = new Date()
+      date.setTime(row.timestamp)
+      row.date = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss')
+      row.dateSimp = $filter('date')(date, 'yyyyMMdd')
+
+      let total = dateVersionTotal[row.dateSimp]
+
+      if (total) {
+        total += 1
+      } else {
+        total = 1
+      }
+
+      dateVersionTotal[row.dateSimp] = total
+    })
 
     $scope.histories.forEach(function (row, id) {
       row.id = id + 1
@@ -53,7 +71,7 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
       row.date = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss')
       row.dateSimp = $filter('date')(date, 'yyyyMMdd')
 
-      row.version = row.dateSimp + '_' + dateVersion(row.dateSimp, len)
+      row.version = row.dateSimp + '_' + dateVersion(row.dateSimp)
       row.filename = row.type + '_' + row.version
     })
   }
@@ -82,11 +100,11 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
                 break
 
               case 'ua_spider':
-                hist.type = 'UA(已知爬虫)'
+                hist.type = 'UA特征(机器及爬虫)'
                 break
 
               case 'ua_client':
-                hist.type = 'UA(合规客户端)'
+                hist.type = 'UA特征(合格客户端)'
                 break
 
               case 'domain':
@@ -94,11 +112,11 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
                 break
 
               case 'device':
-                hist.type = '设备号黑名单'
+                hist.type = '设备ID黑名单'
                 break
 
               case 'default':
-                hist.type = '设备号白名单'
+                hist.type = '设备ID白名单'
                 break
 
               case 'publisher_ip':

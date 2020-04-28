@@ -210,22 +210,26 @@ exports.downloadMergedlist = async function (req, res, next) {
 }
 
 /**
- * 版本信息
+ *  版本信息
  **/
 exports.versionInfo = async function (req, res, next) {
   let versionInfo = {}
   // 获取最新生产版本信息
-  let mergedListInfo = await queryChaincode('getMergedList', ['device'])
+  let prodMergedList = await queryChaincode('getMergedHistoryList', ['device'])
 
-  if (!mergedListInfo) {
-    mergedListInfo = '{}'
+  if (!prodMergedList) {
+    prodMergedList = '[]'
   }
 
-  mergedListInfo = JSON.parse(mergedListInfo)
+  prodMergedList = JSON.parse(prodMergedList)
 
-  if (mergedListInfo.ipfsInfo && mergedListInfo.ipfsInfo.name) {
-    let mergedTimestamp = mergedListInfo.ipfsInfo.name.replace('.log', '').split('-')[1]
-    versionInfo.pubDate = new Date(parseInt(mergedTimestamp))
+  // 时间逆序
+  prodMergedList.sort(function (item1, item2) {
+    return parseInt(item2.timestamp) - parseInt(item1.timestamp)
+  })
+
+  if (prodMergedList.length > 0) {
+    versionInfo.pubDate = new Date(parseInt(prodMergedList[0].timestamp))
   }
 
   // 预测下个版本发布日期
@@ -273,9 +277,9 @@ exports.downloadByEnv = async function (req, res, next) {
   let filesList
 
   if (env === 'prod') {
-    filesList = await prodFileinfosForTypes(typesList)
+    filesList = await prodMergeListForTypes(typesList)
   } else if (env === 'dev') {
-    filesList = await devFileinfosForTypes(typesList)
+    filesList = await devMergeListForTypes(typesList)
   }
 
   if (filesList.length !== 0) {
@@ -287,9 +291,9 @@ exports.downloadByEnv = async function (req, res, next) {
 }
 
 /**
- * 生产环境要下载合并文件列表
+ * 实验版本各类型合并文件列表
  **/
-async function prodFileinfosForTypes (typesList) {
+async function devMergeListForTypes (typesList) {
   let pathinfoList = []
 
   for (let i = 0; i < typesList.length; i++) {
@@ -306,7 +310,7 @@ async function prodFileinfosForTypes (typesList) {
 
       if (ipfsinfo) {
         pathinfoList.push({
-          fileName: type + '-' + versionFromName(ipfsinfo.name) + '.log',
+          fileName: type2Name(type) + '-' + versionFromName(ipfsinfo.name) + '.log',
           hash: ipfsinfo.hash
         })
       }
@@ -320,27 +324,39 @@ async function prodFileinfosForTypes (typesList) {
 }
 
 function versionFromName (filename) {
-  if (!filename) {
-    return new Date().getTime()
+  let timestamp = filename.replace('.log', '').split('-')[1]
+  return versionFromTimestamp(timestamp, false)
+}
+
+function versionFromTimestamp (timestamp, adjustZone) {
+  timestamp = parseInt(timestamp)
+
+  if (adjustZone) {
+    timestamp += 1000 * 60 * 60 * 8
   }
 
-  let timestamp = filename.replace('.log', '').split('-')[1]
-  let pubDate = new Date(parseInt(timestamp))
+  let pubDate = new Date(timestamp)
   let month = pubDate.getMonth() + 1
 
   if (month < 10) {
     month = '0' + month
   }
 
-  let version = pubDate.getFullYear() + '' + month + '' + pubDate.getDate()
+  let day = pubDate.getDate()
+
+  if (day < 10) {
+    day = '0' + day
+  }
+
+  let version = pubDate.getFullYear() + '' + month + '' + day
 
   return version
 }
 
 /**
- * 实验环境要下载合并文件列表
+ * 生产版本各类型合并列表
  **/
-async function devFileinfosForTypes (typesList) {
+async function prodMergeListForTypes (typesList) {
   let pathinfoList = []
 
   for (let i = 0; i < typesList.length; i++) {
@@ -364,7 +380,7 @@ async function devFileinfosForTypes (typesList) {
       let ipfsinfo = historiesList[0].ipfsInfo.ipfsInfo
 
       pathinfoList.push({
-        fileName: type + '-' + versionFromName(ipfsinfo.name) + '.log',
+        fileName: type2Name(type) + '-' + versionFromTimestamp(historiesList[0].timestamp, true) + '.log',
         hash: ipfsinfo.hash
       })
     } catch (e) {
@@ -374,6 +390,34 @@ async function devFileinfosForTypes (typesList) {
   }
 
   return pathinfoList
+}
+
+/*
+* 将类型转换为中文名
+* */
+function type2Name (type) {
+  switch (type) {
+    case 'ip':
+      return 'IP黑名单'
+
+    case 'ua_spider':
+      return 'UA特征(机器及爬虫)'
+
+    case 'ua_client':
+      return 'UA特征(合格客户端)'
+
+    case 'domain':
+      return '域名黑名单'
+
+    case 'device':
+      return '设备ID黑名单'
+
+    case 'default':
+      return '设备ID白名单'
+
+    case 'publisher_ip':
+      return 'IP白名单'
+  }
 }
 
 /**

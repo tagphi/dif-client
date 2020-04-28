@@ -38,7 +38,7 @@
                            ng-checked="downloadDlg.showTab.selectedTypes.indexOf('device')!=-1">
                     <label for="type_device"
                            ng-class="{'d-inline':true,'color-lightslategray':true,
-                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('device')!=-1}">设备号黑名单</label>
+                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('device')!=-1}">设备ID黑名单</label>
                 </div>
             </div>
             <div class="row">
@@ -48,7 +48,7 @@
                            ng-checked="downloadDlg.showTab.selectedTypes.indexOf('default')!=-1">
                     <label for="type_default"
                            ng-class="{'d-inline':true,'color-lightslategray':true,
-                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('default')!=-1}">设备号白名单</label>
+                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('default')!=-1}">设备ID白名单</label>
                 </div>
 
                 <div class="col-6">
@@ -70,7 +70,7 @@
 
                     <label for="type_ua_spider"
                            ng-class="{'d-inline':true,'color-lightslategray':true,
-                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('ua_spider')!=-1}">UA(已知爬虫)</label>
+                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('ua_spider')!=-1}">UA特征(机器及爬虫)</label>
                 </div>
 
                 <div class="col-6">
@@ -80,7 +80,7 @@
 
                     <label for="type_ua_client"
                            ng-class="{'d-inline':true,'color-lightslategray':true,
-                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('ua_client')!=-1}">UA(合规客户端)</label>
+                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('ua_client')!=-1}">UA特征(合格客户端)</label>
                 </div>
             </div>
         </form>
