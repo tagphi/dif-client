@@ -1,4 +1,6 @@
-function extractTargetsFromDiscover (client, discoveryResults, CONFIG) {
+var logger = require('../utils/logger-utils').logger()
+
+function extractTargetsFromDiscover(client, discoveryResults, CONFIG) {
   let difPlan = discoveryResults.endorsement_targets.dif
   let difLayouts = difPlan.layouts
   let difGroups = difPlan.groups
@@ -22,6 +24,7 @@ function extractTargetsFromDiscover (client, discoveryResults, CONFIG) {
     targets.push(peer)
   })
 
+  logger.info(`discovered endorser peers:` + JSON.stringify(difGroups))
   return targets
 }
 
