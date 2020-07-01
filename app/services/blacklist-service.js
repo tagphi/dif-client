@@ -156,16 +156,36 @@ async function commitBlacklist (callbackArgs, argsFromJobHist) {
   return true
 }
 
-async function merge (type, latestVersion) {
-  // 查询所有组织的移除列表信息
-  let allRmListInfo = await queryCC('getRemoveList', [type])
-  allRmListInfo = allRmListInfo || '[]'
-  allRmListInfo = extractPaths(allRmListInfo)
+/*
+* 所有组织指定类型的全量列表
+*
+* @returns ['mspid:hash']
+* */
+async function fulllistOfOrgs (type) {
+  let orgsFulllists = await queryCC('getAllOrgsList', [type])
+  orgsFulllists = orgsFulllists || '[]'
+  orgsFulllists = concatHashAndMspid(orgsFulllists)
+  return orgsFulllists;
+}
 
+async function merge (type, latestVersion) {
+  // 获取合并的全量列表 格式：['mspid:hash']
+  let orgsFulllists = await fulllistOfOrgs(type);
+
+  // 合并ua（合规客户端或爬虫）
   if (type.indexOf('ua') !== -1) {
-    await mergeUA(latestVersion, type)
+    await mergeUA(orgsFulllists, latestVersion, type)
     return
   }
+
+  let extraArgs = {
+    blacklist: orgsFulllists
+  }
+
+  // 查询所有组织的移除列表信息
+  let allRmList = await queryCC('getRemoveList', [type])
+  allRmList = allRmList || '[]'
+  allRmList = extractPaths(allRmList)
 
   // 剔除媒体ip
   let publishIpfsInfo = ''
@@ -175,27 +195,24 @@ async function merge (type, latestVersion) {
     publishIpfsInfo = publishIpfsInfo || '[]'
     publishIpfsInfo = extractPaths(publishIpfsInfo)
 
-    allRmListInfo = allRmListInfo.concat(publishIpfsInfo)
+    allRmList = allRmList.concat(publishIpfsInfo)
   }
 
-  // 获取合并的全量列表
-  let allOrgsFulllists = await queryCC('getAllOrgsList', [type])
-  allOrgsFulllists = allOrgsFulllists || '[]'
-  allOrgsFulllists = concatHashAndMspid(allOrgsFulllists)
+  extraArgs.removelist = allRmList
 
-  await submitToJobHistory('/merge', type, undefined,
-    {blacklist: allOrgsFulllists, removelist: allRmListInfo},
+  // 合并设备id的话，需要剔除掉对应的
+  if (type === 'device') {
+    let mergedListIpfsInfo = await queryChaincode('getMergedList', ['domain'])
+    extraArgs.greylist = [JSON.parse(mergedListIpfsInfo).ipfsInfo.path]
+  }
+
+  await submitToJobHistory('/merge', type, undefined, extraArgs,
     {cmd: 'commitMerge', args: {type, latestVersion}}, latestVersion)
 }
 
-async function mergeUA (latestVersion, type) {
-  // 获取合并的全量列表
-  let allOrgsFulllists = await queryCC('getAllOrgsList', [type])
-  allOrgsFulllists = allOrgsFulllists || '[]'
-  allOrgsFulllists = concatHashAndMspid(allOrgsFulllists)
-
+async function mergeUA (fulllistOfOrgs, latestVersion, type) {
   await submitToJobHistory('/merge', type === 'ua_spider' ? 'UASpider' : 'UAClient', undefined,
-    {blacklist: allOrgsFulllists},
+    {blacklist: fulllistOfOrgs},
     {cmd: 'commitMerge', args: {type, latestVersion}}, latestVersion)
 }
 
@@ -217,6 +234,7 @@ function extractPaths (records) {
     if (typeof rec.ipfsInfo === 'string') {
       return JSON.parse(rec.ipfsInfo).hash
     }
+
     return rec.ipfsInfo.hash
   })
 }

@@ -9,14 +9,14 @@ let blacklistService = require('../services/blacklist-service')
 let queryCC = require('../cc/query')
 
 const DATA_TYPES = [
+  {type: 'default', merging: false},
   {type: 'device', merging: false},
+
   {type: 'ip', merging: false},
+  {type: 'domain', merging: false},
 
   {type: 'ua_spider', merging: false},
-  {type: 'ua_client', merging: false},
-
-  {type: 'domain', merging: false},
-  {type: 'default', merging: false}
+  {type: 'ua_client', merging: false}
 ]
 
 let isRunning = false
