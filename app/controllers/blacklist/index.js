@@ -209,49 +209,37 @@ exports.downloadMergedlist = async function (req, res, next) {
   }
 }
 
+
 /**
  *  版本信息
  **/
 exports.versionInfo = async function (req, res, next) {
-  let versionInfo = {}
   // 获取最新生产版本信息
-  let prodMergedList = await queryChaincode('getMergedHistoryList', ['device'])
-
-  if (!prodMergedList) {
-    prodMergedList = '[]'
-  }
+  let prodMergedList = await queryChaincode('getMergedHistoryList', ['device']) || '[]'
 
   prodMergedList = JSON.parse(prodMergedList)
+    .sort(function (item1, item2) {  // 时间逆序
+      return parseInt(item2.timestamp) - parseInt(item1.timestamp)
+    })
 
-  // 时间逆序
-  prodMergedList.sort(function (item1, item2) {
-    return parseInt(item2.timestamp) - parseInt(item1.timestamp)
-  })
+  let versionInfo = {}
 
   if (prodMergedList.length > 0) {
     versionInfo.pubDate = new Date(parseInt(prodMergedList[0].timestamp))
   }
 
   // 预测下个版本发布日期
-  let nextPubDate = publishDate()
-
-  if (new Date().getTime() > nextPubDate.getTime()) {
-    nextPubDate = publishDate(1)
-  }
-
-  versionInfo.nextPubDate = nextPubDate
+  versionInfo.nextPubDate = nextPublishDate()
 
   respUtils.succResponse(res, '获取版本', versionInfo)
 }
 
-function publishDate (monthOffset) {
-  monthOffset = monthOffset || 0
-
+function nextPublishDate () {
   let date = new Date()
-  let year = date.getFullYear()
-  let month = date.getMonth()
-  let curMothDate = new Date(year, month + monthOffset, 20)
-  return curMothDate
+  date.setMonth(date.getMonth() + 1)
+  date.setDate(28)
+  date.setHours(0, 0, 0)
+  return date
 }
 
 //  env=prod&types=publisher_ip,default,ip,device,domain
@@ -555,14 +543,16 @@ exports.validateMergedHistories = [
 exports.mergedHistories = async function (req, res, next) {
   let type = req.body.type
 
-  let result = await queryChaincode('getMergedHistoryList', [type])
-  if (result.indexOf('Err') !== -1) return next(result)
-  result = JSON.parse(result)
-  // 时间逆序
-  result.sort(function (item1, item2) {
-    return parseInt(item2.timestamp) - parseInt(item1.timestamp)
-  })
-  respUtils.succResponse(res, '获取成功', result)
+  let mergedList = await queryChaincode('getMergedHistoryList', [type])
+
+  if (mergedList.indexOf('Err') !== -1) return next(mergedList)
+
+  mergedList = JSON.parse(mergedList)
+    .sort(function (item1, item2) { // 时间逆序
+      return parseInt(item2.timestamp) - parseInt(item1.timestamp)
+    })
+
+  respUtils.succResponse(res, '获取成功', mergedList)
 }
 
 /**

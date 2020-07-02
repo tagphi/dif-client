@@ -37,6 +37,9 @@ angular.module('dif').directive('commonPagination', function ($http, $q, $timeou
       scope.selectPage = function (page) {
         if (scope.currentPage !== page) {
           scope.currentPage = page
+
+          // 重置并计算页面
+          scope.resetAndCalcPages(scope.currentPage)
         }
       }
 
@@ -49,13 +52,16 @@ angular.module('dif').directive('commonPagination', function ($http, $q, $timeou
       scope.next = function () {
         if (scope.currentPage < scope.totalPage) {
           scope.currentPage++
-          scope.loadData(scope.payload)
+          // 重置并计算页面
+          scope.resetAndCalcPages(scope.currentPage)
         }
       }
 
       scope.prev = function () {
         if (scope.currentPage > 1) {
           scope.currentPage--
+          // 重置并计算页面
+          scope.resetAndCalcPages(scope.currentPage)
         }
       }
 
@@ -64,6 +70,7 @@ angular.module('dif').directive('commonPagination', function ($http, $q, $timeou
        */
       function genPages (curPage, forwordStep, backwordsStep) {
         let pages = []
+
         if (forwordStep && forwordStep >= 1) {
           for (let i = forwordStep; i > 0; i--) { // 生成小页码
             pages.push(curPage - i)
@@ -84,21 +91,19 @@ angular.module('dif').directive('commonPagination', function ($http, $q, $timeou
       /**
        * 重置并计算页面
        */
-      scope.resetAndCalcPages = function () {
-        scope.currentPage = 1
+      scope.resetAndCalcPages = function (curPage = 1) {
+        scope.currentPage = curPage
         scope.calcPages()
       }
 
-      // 计算页数
+      // 计算页码
       scope.calcPages = function () {
         let FIXED_PAGES = 5 // 固定页数
         // 计算总页数
         scope.totalPage = Math.ceil(scope.total / scope.pageSize)
 
         if (scope.totalPage <= 8) { // 8页以下，全部生成
-          genPages(scope.currentPage,
-            scope.currentPage - 1,
-            scope.totalPage - scope.currentPage + 1)
+          genPages(scope.currentPage, scope.currentPage - 1, scope.totalPage - scope.currentPage + 1)
         } else { // 8页以上，生成固定页数5
           let isFront = scope.currentPage <= FIXED_PAGES
           let isBackwords = ((scope.totalPage - scope.currentPage) <= FIXED_PAGES)

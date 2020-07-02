@@ -6,6 +6,7 @@
     <li ng-class="{true:'disabled'}[currentPage==1]">
         <a ng-click="prev()"> ‹ </a>
     </li>
+    <!--  页码  -->
     <li ng-class="{true:'active'}[currentPage==page]" ng-repeat="page in pages">
         <a class="animated rotateIn" ng-click="selectPage(page)" ng-bind="page"></a>
     </li>

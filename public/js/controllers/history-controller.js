@@ -1,4 +1,5 @@
 /* eslint-disable handle-callback-err */
+
 app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $interval, $filter, HttpService, ngDialog, alertMsgService, Upload) {
   /**
    * 退出
@@ -250,19 +251,29 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
       template: 'views/dlgs/download-dlg.html',
       scope: $scope,
       controller: ['$scope', 'HttpService', function ($scope, HttpService) {
+        const TYPES = function () {
+          return ['default', 'ip', 'device', 'domain', 'ua_spider', 'ua_client']
+        }
+
         $scope.downloadDlg = {
+          showTab: undefined,
           tab: 'prod',
           prod: {
-            firstNote: undefined,
-            secondNote: undefined,
+            prod: true, // 生产面板
+
+            versionNote: undefined,
+            pubDateNote: undefined,
+            validNote: undefined, // 有效期
+
             all: true,
-            selectedTypes: ['default', 'ip', 'device', 'domain', 'ua_spider', 'ua_client']
+            selectedTypes: TYPES()
           },
           dev: {
-            firstNote: '包含了联盟成员最新提交的数据，正在进行审查...',
-            secondNote: undefined,
+            tipNote: '包含了联盟成员最新提交的数据，正在进行审查...',
+            countDownNote: 'countDownNote202001',
+
             all: true,
-            selectedTypes: ['default', 'ip', 'device', 'domain', 'ua_spider', 'ua_client']
+            selectedTypes: TYPES()
           },
           onTabClicked: function (clickedTab) {
             this.tab = clickedTab
@@ -282,14 +293,8 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             this.showTab.all = selectedTypes.length === 6
           },
           selectAll: function () {
-            let all = !this.showTab.all
-            this.showTab.all = all
-
-            if (!all) {
-              this.showTab.selectedTypes = []
-            } else {
-              this.showTab.selectedTypes = ['default', 'ip', 'device', 'domain', 'ua_spider', 'ua_client']
-            }
+            let all = this.showTab.all = !this.showTab.all
+            this.showTab.selectedTypes = !all ? [] : TYPES()
           },
           jumpToMergesPage: function () {
             $scope.closeThisDialog()
@@ -297,22 +302,46 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
           }
         }
 
-        $scope.downloadDlg.showTab = $scope.downloadDlg[$scope.downloadDlg.tab]
+        /*
+        * 是否是新的版本规则
+        * 新旧版本日期分界线 2020-06-21
+        * 新规则要求本月发布的版本是下个月
+        * */
+        function newVersionRule (date) {
+          const dividerDate = 1592668800000
+          return date.getTime() > dividerDate
+        }
+
+        /*
+        * 获取指定日期的月天数
+        * */
+        function daysOfMonth (date) {
+          return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
+        }
 
         function handleVersionInfo (versionInfo) {
-          if (versionInfo.pubDate) {
-            let pubDate = new Date(versionInfo.pubDate)
-            let version = $filter('date')(pubDate, 'yyyyMMdd')
-            let pubDateFormatted = $filter('date')(pubDate, 'yyyy/MM/dd HH:mm:ss')
-            $scope.downloadDlg.prod.firstNote = '版本号：' + version
-            $scope.downloadDlg.prod.secondNote = '发布于：' + pubDateFormatted
-          }
-
           let nextPubDate = new Date(versionInfo.nextPubDate)
 
-          let nextPubDateFormatted = $filter('date')(nextPubDate, 'yyyy/MM/dd HH:mm:ss')
+          // 发布日期
+          if (versionInfo.pubDate) {
+            let pubDate = new Date(versionInfo.pubDate)
 
-          $scope.downloadDlg.dev.secondNote = '预计发布时间：' + nextPubDateFormatted
+            $scope.downloadDlg.prod.pubDateNote = '发布于：' + $filter('date')(pubDate, 'yyyy/MM/dd HH:mm:ss')
+
+            let versionInYM = $filter('date')(pubDate, 'yyyyMM')
+            let newVersionInYM = $filter('date')(pubDate, 'yyyyMM')
+
+            if (!newVersionRule(pubDate)) { // 旧规则
+              $scope.downloadDlg.prod.versionNote = '版本号：' + versionInYM
+              $scope.downloadDlg.prod.validNote = '有效期：' + `${versionInYM}20 ~ ${newVersionInYM}20`
+            } else {
+              $scope.downloadDlg.prod.versionNote = '版本号：' + newVersionInYM
+              $scope.downloadDlg.prod.validNote = '有效期：' + `${newVersionInYM}01 ~ ${newVersionInYM}${daysOfMonth(nextPubDate)}`
+            }
+          }
+
+          let nextPubDateFormatted = $filter('date')(nextPubDate, 'yyyy/MM/dd HH:mm:ss')
+          $scope.downloadDlg.dev.countDownNote = '预计发布时间：' + nextPubDateFormatted
 
           // 倒计时
           $interval(function () {
@@ -326,9 +355,11 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             let minute = Math.floor((delta - hour * UNIT_HOUR) / UNIT_MINUTE)
             let seconds = Math.floor((delta - hour * UNIT_HOUR - minute * UNIT_MINUTE) / UNIT_SECOND)
             let countdown = hour + ':' + minute + ':' + seconds
-            $scope.downloadDlg.dev.secondNote = '预计发布时间：' + nextPubDateFormatted + '，倒计时：' + countdown
+            $scope.downloadDlg.dev.countDownNote = '预计发布时间：' + nextPubDateFormatted + '，倒计时：' + countdown
           }, 1000)
         }
+
+        $scope.downloadDlg.showTab = $scope.downloadDlg.prod
 
         // 获取版本信息
         HttpService.post('/blacklist/versionInfo', undefined)
@@ -336,6 +367,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             if (!respData.success) return
 
             let versionInfo = respData.data
+
             handleVersionInfo(versionInfo)
           })
       }]

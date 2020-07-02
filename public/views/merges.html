@@ -1,4 +1,3 @@
-
 <div>
     <header class="header">
         <span ng-click="back()" class="iconfont"
@@ -30,25 +29,26 @@
                 </div>
                 <table class="table tc" ng-show="histories.length!=0">
                     <thead>
-                    <tr>
-                        <th>序号</th>
-                        <th>日期</th>
-                        <th>类型</th>
-                        <th>版本</th>
-                        <th>操作</th>
-                    </tr>
+                        <tr>
+                            <th>序号</th>
+                            <th>日期</th>
+                            <th>类型</th>
+                            <th>版本</th>
+                            <th>有效期</th>
+                            <th>操作</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="hist in histories">
-                        <td>{{hist.id}}</td>
-
-                        <td>{{hist.date}}</td>
-                        <td>{{hist.type}}</td>
-                        <td>{{hist.version}}</td>
-                        <td>
-                            <a href="/blacklist/download?path={{hist.ipfsInfo.ipfsInfo.path}}&name={{hist.filename}}">下载</a>
-                        </td>
-                    </tr>
+                        <tr ng-repeat="hist in histories">
+                            <td>{{hist.id}}</td>
+                            <td>{{hist.date}}</td>
+                            <td>{{hist.type}}</td>
+                            <td>{{hist.version}}</td>
+                            <td>{{hist.validPeriod}}</td>
+                            <td>
+                                <a href="/blacklist/download?path={{hist.ipfsInfo.ipfsInfo.path}}&name={{hist.filename}}">下载</a>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
