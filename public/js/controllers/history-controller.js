@@ -1,6 +1,6 @@
 /* eslint-disable handle-callback-err */
 
-app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $interval, $filter, HttpService, ngDialog, alertMsgService, Upload) {
+app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $interval, $filter, HttpService, ngDialog, alertMsgService, Upload, xutils) {
   /**
    * 退出
    */
@@ -50,6 +50,8 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
   $scope.showingTab = {
     type: 'delta', // 默认黑名单
     histories: [], // 历史数据
+    memberName: undefined,// 成员名
+
     total: 0, // 总历史记录数
     pageSize: 10,
     currentPage: 1 // 页面指针
@@ -329,7 +331,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             $scope.downloadDlg.prod.pubDateNote = '发布于：' + $filter('date')(pubDate, 'yyyy/MM/dd HH:mm:ss')
 
             let versionInYM = $filter('date')(pubDate, 'yyyyMM')
-            let newVersionInYM = $filter('date')(pubDate, 'yyyyMM')
+            let newVersionInYM = $filter('date')(nextPubDate, 'yyyyMM')
 
             if (!newVersionRule(pubDate)) { // 旧规则
               $scope.downloadDlg.prod.versionNote = '版本号：' + versionInYM
@@ -408,6 +410,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
           HttpService.post('/blacklist/voteAppeal', payload)
             .then(function (respData) {
               $scope.closeThisDialog()
+
               if (!respData.success) return alertMsgService.alert('投票失败', false)
 
               alertMsgService.alert('投票成功', true)
@@ -457,10 +460,13 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
       endDate: dataRange[1]
     }
 
+    if ($scope.memberName) payload.memberName = $scope.memberName
+
     payload.dataType = $scope.selectDataType
     payload.pageNO = pageNO || $scope.showingTab.currentPage
 
     let api = $scope.selectDataType === 'publisherIP' ? '/blacklist/publisherIPs' : '/blacklist/histories'
+
     HttpService.post(api, payload)
       .then(function (respData) {
         if (respData.success) {
@@ -473,43 +479,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
           $scope.showingTab.histories = respData.data
 
           // 转换类型
-          $scope.showingTab.histories.map(function (hist, id) {
-            let type = hist.type
-
-            if (!type) {
-              return
-            }
-
-            switch (type) {
-              case 'ip':
-                hist.type = 'IP黑名单'
-                break
-
-              case 'ua_spider':
-                hist.type = 'UA特征(机器及爬虫)'
-                break
-
-              case 'ua_client':
-                hist.type = 'UA特征(合格客户端)'
-                break
-
-              case 'domain':
-                hist.type = '域名黑名单'
-                break
-
-              case 'device':
-                hist.type = '设备ID黑名单'
-                break
-
-              case 'default':
-                hist.type = '设备ID白名单'
-                break
-
-              case 'publisher_ip':
-                hist.type = 'IP白名单'
-                break
-            }
-          })
+          $scope.showingTab.histories.forEach((hist, id) => hist.type = xutils.type2Name(hist.type))
 
           // 转换ipfs信息
           if ($scope.showingTab.type === 'appeal') {

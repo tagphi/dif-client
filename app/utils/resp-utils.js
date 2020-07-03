@@ -36,7 +36,10 @@ function download (res, filename, content) {
   res.send(content)
 }
 
-function page (res, result, pageNO) {
+/*
+* 分页
+* */
+function page (res, list, pageNO) {
   pageNO = pageNO || 1
   let pageSize = CONFIG_SITE.pageSize || 10
 
@@ -44,18 +47,19 @@ function page (res, result, pageNO) {
   let startOffset = (pageNO - 1) * pageSize
   let endOffset = startOffset + pageSize - 1
 
-  let pageResult = _getPageData(result, startOffset, endOffset)
+  let pageResult = _getPageData(list, startOffset, endOffset)
 
-  let ret = {
+  let resp = {
     success: true,
     message: '查询成功',
-    total: result.length,
+    total: list.length,
     pageSize: pageSize
   }
-  logger.info(JSON.stringify(ret))
 
-  ret.data = pageResult
-  res.json(ret)
+  logger.info(JSON.stringify(resp))
+
+  resp.data = pageResult
+  res.json(resp)
 }
 
 function _getPageData (result, startOffset, endOffset) {

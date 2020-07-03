@@ -2,7 +2,7 @@
 /**
  * 合并版本历史页面控制器
  **/
-app.controller('MergesController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $filter, HttpService, ngDialog, alertMsgService, Upload) {
+app.controller('MergesController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $filter, HttpService, ngDialog, alertMsgService, Upload, xutils) {
   $scope.histories = []
   $scope.type = 'device'
 
@@ -34,8 +34,7 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
       let total = versionTotalByDate[date]
       let curCount = versionCounterByDate[date]
 
-      versionCounterByDate[date] = !curCount ? total : curCount - 1
-      return curCount
+      return versionCounterByDate[date] = !curCount ? total : curCount - 1
     }
 
     /*
@@ -65,32 +64,40 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
       versionTotalByDate[dateSimp] = total ? total + 1 : 1
     })
 
-    $scope.histories.forEach(function (row, id) {
-      row.id = id + 1
-      row.type = $scope.type
+    $scope.histories.forEach(function (record, i) {
+      let nextRecord = undefined
 
-      // 转换时间戳
-      let date = new Date(parseInt(row.timestamp))
-      row.date = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss')
-
-      // 版本
-      row.dateSimp = $filter('date')(date, 'yyyyMMdd')
-      row.version = row.dateSimp + '_' + versionByDate(row.dateSimp)
-
-      let isNewRule = newVersionRule(date)
-
-      let yearMonth = $filter('date')(date, 'yyyyMM')
-      date.setMonth(date.getMonth() + 1)
-      let nextYearMonth = $filter('date')(date, 'yyyyMM')
-
-      // 有效期
-      if (isNewRule) { // 新版规则
-        row.validPeriod = `${nextYearMonth}01 ~ ${nextYearMonth}${daysOfMonth(date)}`
-      } else { // 新规则
-        row.validPeriod = `${yearMonth}20 ~ ${nextYearMonth}20`
+      if (i != 0) { // 不是最后一个元素
+        nextRecord = $scope.histories[i - 1]
       }
 
-      row.filename = row.type + '_' + row.version
+      record.id = i + 1
+      record.type = $scope.type
+
+      // 转换时间戳
+      let date = new Date(parseInt(record.timestamp))
+      record.date = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss')
+
+      // 版本
+      record.dateSimp = $filter('date')(date, 'yyyyMMdd')
+      record.version = record.dateSimp + '_' + versionByDate(record.dateSimp)
+
+      let validStart = $filter('date')(date, 'yyyyMMdd')
+
+      let nextPubDate
+
+      if (nextRecord) { // 下个版本已发布,有效期截止为下个版本发布期
+        nextPubDate = new Date(parseInt(nextRecord.timestamp))
+      } else { // 下个版本未发布，推一个月
+        date.setMonth(date.getMonth() + 1)
+        date.setDate(28)
+        nextPubDate = date
+      }
+
+      let validEnd = $filter('date')(nextPubDate, 'yyyyMMdd')
+      record.validPeriod = `${validStart} ~ ${validEnd}`
+
+      record.filename = record.type + '_' + record.version
     })
   }
 
@@ -104,38 +111,8 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
           $scope.histories = respData.data
 
           // 转换类型
-          $scope.histories.map(function (hist, id) {
-            if (!hist.type) return
-
-            switch (hist.type) {
-              case 'ip':
-                hist.type = 'IP黑名单'
-                break
-
-              case 'domain':
-                hist.type = '域名黑名单'
-                break
-
-              case 'ua_spider':
-                hist.type = 'UA特征(机器及爬虫)'
-                break
-
-              case 'ua_client':
-                hist.type = 'UA特征(合格客户端)'
-                break
-
-              case 'device':
-                hist.type = '设备ID黑名单'
-                break
-
-              case 'default':
-                hist.type = '设备ID白名单'
-                break
-
-              case 'publisher_ip':
-                hist.type = 'IP白名单'
-                break
-            }
+          $scope.histories.forEach(function (hist, id) {
+            hist.type = xutils.type2Name(hist.type)
           })
 
           // 格式化历史数据

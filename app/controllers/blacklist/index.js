@@ -218,9 +218,7 @@ exports.versionInfo = async function (req, res, next) {
   let prodMergedList = await queryChaincode('getMergedHistoryList', ['device']) || '[]'
 
   prodMergedList = JSON.parse(prodMergedList)
-    .sort(function (item1, item2) {  // 时间逆序
-      return parseInt(item2.timestamp) - parseInt(item1.timestamp)
-    })
+    .sort((item1, item2) => parseInt(item2.timestamp) - parseInt(item1.timestamp)) // 时间逆序
 
   let versionInfo = {}
 
@@ -229,17 +227,13 @@ exports.versionInfo = async function (req, res, next) {
   }
 
   // 预测下个版本发布日期
-  versionInfo.nextPubDate = nextPublishDate()
+  versionInfo.nextPubDate = nextPublishDate(versionInfo.pubDate)
 
   respUtils.succResponse(res, '获取版本', versionInfo)
 }
 
-function nextPublishDate () {
-  let date = new Date()
-  date.setMonth(date.getMonth() + 1)
-  date.setDate(28)
-  date.setHours(0, 0, 0)
-  return date
+function nextPublishDate (date = new Date()) {
+  return new Date(date.getFullYear(), date.getMonth() + 1, 28)
 }
 
 //  env=prod&types=publisher_ip,default,ip,device,domain
@@ -353,16 +347,10 @@ async function prodMergeListForTypes (typesList) {
     try {
       let historiesList = await queryChaincode('getMergedHistoryList', [type])
 
-      if (!historiesList || historiesList.toLowerCase().indexOf('error') !== -1) {
-        continue
-      }
+      if (!historiesList || historiesList.toLowerCase().indexOf('error') !== -1) continue
 
       historiesList = JSON.parse(historiesList)
-
-      // 时间逆序
-      historiesList.sort(function (item1, item2) {
-        return parseInt(item2.timestamp) - parseInt(item1.timestamp)
-      })
+        .sort((item1, item2) => parseInt(item2.timestamp) - parseInt(item1.timestamp)) // 时间逆序
 
       // 最新的合并历史的ipfs信息
       let ipfsinfo = historiesList[0].ipfsInfo.ipfsInfo
@@ -388,14 +376,14 @@ function type2Name (type) {
     case 'ip':
       return 'IP黑名单'
 
+    case 'domain':
+      return '域名黑名单'
+
     case 'ua_spider':
       return 'UA特征(机器及爬虫)'
 
     case 'ua_client':
       return 'UA特征(合格客户端)'
-
-    case 'domain':
-      return '域名黑名单'
 
     case 'device':
       return '设备ID黑名单'
@@ -411,13 +399,14 @@ function type2Name (type) {
 /**
  * 下载真实的ip
  **/
-exports.downloadRealIPs = async function (req, res, next) {
+exports.downloadRealIPs = async function (req, res) {
   let resp = await agent.get(ADMIN_ADDR + '/peer/downloadRealIPs').buffer()
   let realIPsInfo = JSON.parse(resp.text)
+
   if (!realIPsInfo.path) return respUtils.download(res, `real-ips-${new Date().getTime()}.txt`, '暂无脱水ip')
+
   let realIPFileInfo = await ipfsCliRemote.get(realIPsInfo.path, realIPsInfo.name)
-  let realIps = realIPFileInfo.content.toString()
-  respUtils.download(res, realIPsInfo.name, realIps)
+  respUtils.download(res, realIPsInfo.name, realIPFileInfo.content.toString())
 }
 
 /**
@@ -433,6 +422,7 @@ exports.downloadPublishIPs = async function (req, res, next) {
 
   try {
     let publisherIPsRecord = await queryChaincode('getPublisherIpByMspId', [mspId])
+
     if (!publisherIPsRecord) return respUtils.download(res, filename, '暂无数据')
 
     publisherIPsRecord = JSON.parse(publisherIPsRecord)
@@ -485,50 +475,55 @@ exports.validateHistories = [
          "against": [],
          "status": 0
      }
- }....
+ }
  ]
  **/
 exports.histories = async function (req, res, next) {
   let dataType = req.body.dataType
+
   let startTimestamp = Date.parse(req.body.startDate) + ''
   let endTimestamp = Date.parse(req.body.endDate) + ''
 
+  let memberName = req.body.memberName
+
   let pageNO = req.body.pageNO || 1
 
-  let result
+  let recordsList
 
   if (dataType === 'delta') {
-    result = await queryChaincode('listDeltaUploadHistory', [startTimestamp, endTimestamp]) || '[]'
+    recordsList = await queryChaincode('listDeltaUploadHistory', [startTimestamp, endTimestamp]) || '[]'
   } else if (dataType === 'appeal') {
-    result = await queryChaincode('listAppeals', [startTimestamp, endTimestamp])
+    recordsList = await queryChaincode('listAppeals', [startTimestamp, endTimestamp])
   } else {
     throw new Error('未知的数据类型:' + dataType)
   }
 
-  logger.debug(`listDeltaUploadHistory -dataType:${dataType} result:${result}`)
+  logger.debug(`listDeltaUploadHistory -dataType:${dataType} result:${recordsList}`)
 
-  if (result.indexOf('Err') !== -1) return next(result)
+  if (recordsList.indexOf('Err') !== -1) return next(recordsList)
 
-  result = JSON.parse(result)
-  // 时间逆序
-  result.sort(function (item1, item2) {
-    return parseInt(item2.timestamp) - parseInt(item1.timestamp)
-  })
+  recordsList = JSON.parse(recordsList)
+    .sort((item1, item2) => parseInt(item2.timestamp) - parseInt(item1.timestamp)) // 时间逆序
+
+  // 查询指定成员
+  if (memberName) recordsList = recordsList.filter(item => item.mspid.toLowerCase().indexOf(memberName.toLowerCase()) != -1)
 
   if (dataType === 'appeal') { // 申诉 --> 转化每一个key
-    result.map(function (appeal) {
-      let appealDetails = appeal.details
-      appeal.details.key = Buffer.from(appealDetails.key).toString('base64')
+    recordsList.forEach(function (appeal) {
+      let details = appeal.details
+      appeal.details.key = Buffer.from(details.key).toString('base64')
 
       // 检查自己是否已经投过票
       let selfMspid = CONFIG__MSP.id
-      if (appealDetails.agree.indexOf(selfMspid) !== -1 ||
-        appealDetails.against.indexOf(selfMspid) !== -1) {
+
+      if (details.agree.indexOf(selfMspid) !== -1
+        || details.against.indexOf(selfMspid) !== -1) {
         appeal.selfVoted = true
       }
     })
   }
-  respUtils.page(res, result, pageNO)
+
+  respUtils.page(res, recordsList, pageNO)
 }
 
 /**
@@ -548,9 +543,7 @@ exports.mergedHistories = async function (req, res, next) {
   if (mergedList.indexOf('Err') !== -1) return next(mergedList)
 
   mergedList = JSON.parse(mergedList)
-    .sort(function (item1, item2) { // 时间逆序
-      return parseInt(item2.timestamp) - parseInt(item1.timestamp)
-    })
+    .sort((item1, item2) => parseInt(item2.timestamp) - parseInt(item1.timestamp)) // 时间逆序
 
   respUtils.succResponse(res, '获取成功', mergedList)
 }
@@ -565,21 +558,22 @@ exports.validatePublisherIPs = [
 
 exports.publisherIPs = async function (req, res, next) {
   let pageNO = req.body.pageNO
-  // [{"mspId":"RTBAsia","timestamp":"1535951671633","lines":2}]
-  let result = await queryChaincode('getPublishers', [])
+  let memberName = req.body.memberName
 
-  if (result.indexOf('Err') !== -1) return next(result)
+  // 示例：[{"mspId":"RTBAsia","timestamp":"1535951671633","lines":2}]
+  let publisherIps = await queryChaincode('getPublishers', [])
 
-  result = JSON.parse(result)
-  result.forEach(function (record) {
-    record.ipfsInfo = JSON.parse(record.ipfsInfo)
-  })
-  // 时间逆序
-  result.sort(function (item1, item2) {
-    return parseInt(item2.timestamp) - parseInt(item1.timestamp)
-  })
+  if (publisherIps.indexOf('Err') !== -1) return next(publisherIps)
 
-  respUtils.page(res, result, pageNO)
+  publisherIps = JSON.parse(publisherIps)
+    .sort((item1, item2) => parseInt(item2.timestamp) - parseInt(item1.timestamp)) // 时间逆序
+
+  // 查询指定成员
+  if (memberName) publisherIps = publisherIps.filter(item => item.mspid.toLowerCase().indexOf(memberName.toLowerCase()) != -1)
+
+  publisherIps.forEach(record => record.ipfsInfo = JSON.parse(record.ipfsInfo))
+
+  respUtils.page(res, publisherIps, pageNO)
 }
 
 exports.mergeManually = async function (req, res, next) {
@@ -602,6 +596,7 @@ exports.voteAppeal = async function (req, res, next) {
   let action = req.body.action
 
   let result = await invokeCC('voteAppeal', [action, key])
+
   if (result && result.indexOf('Err') !== -1) return next(result)
 
   respUtils.succResponse(res, '投票成功')
@@ -617,6 +612,7 @@ exports.callback = async function (req, res) {
   if (!blacklistService[cmd]) return respUtils.succResponse(res)
 
   let result = await blacklistService[cmd](args, req.body)
+
   if (result) {
     respUtils.succResponse(res, `success to call ${cmd}(${JSON.stringify(args)})`)
     logger.info(`success to call  ${cmd}(${JSON.stringify(args)})`)
@@ -636,6 +632,7 @@ exports.jobs = async function (req, res) {
   let jobsResults = await agent
     .get(`${MERGE_SERVICE_URL}/jobs?start=${start}&end=${end}`)
     .buffer()
+
   jobsResults = JSON.parse(jobsResults.text)
 
   respUtils.succResponse(res, undefined, jobsResults)
@@ -646,7 +643,5 @@ exports.jobs = async function (req, res) {
  **/
 exports.isLocked = async function (req, res) {
   const locked = await blacklistService.isLocked()
-  respUtils.succResponse(res, '查询成功', {
-    locked
-  })
+  respUtils.succResponse(res, '查询成功', {locked})
 }
