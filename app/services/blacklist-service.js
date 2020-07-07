@@ -9,6 +9,7 @@ let logger = require('../utils/logger-utils').logger()
 
 let ipfsCliLocal = require('../utils/ipfs-cli')
 var superagent = require('superagent-promise')(require('superagent'), Promise)
+let mergeCron = require('../cron/merge-cron')
 
 /**
  * 提交申诉给java任务服务器
@@ -120,6 +121,7 @@ async function submitUAToJobHistory (uploadTime, type, filename, size, blacklist
  **/
 async function submitToJobHistory (jobApi, type, dataBuf, extraArgs, callbackArgs, version) {
   logger.info(`jobApi=${jobApi}, \n type=${type}, \n extraArgs=${JSON.stringify(extraArgs)}, \n callbackArgs=${JSON.stringify(callbackArgs)},\n version:${version}`)
+
   let resp = await superagent
     .post(`${MERGE_SERVICE_URL}${jobApi}`)
     .attach('file', dataBuf, 'file')
@@ -200,10 +202,13 @@ async function merge (type, latestVersion) {
 
   extraArgs.removelist = allRmList
 
-  // 合并设备id的话，需要剔除掉对应的
+  // 合并设备id的话，需要剔除掉对应的白名单（默认设备）
   if (type === 'device') {
-    let mergedListIpfsInfo = await queryChaincode('getMergedList', ['domain'])
-    extraArgs.greylist = [JSON.parse(mergedListIpfsInfo).ipfsInfo.path]
+    let whiteDeviceIMergedList = await queryCC('getMergedList', ['default'])
+
+    if (whiteDeviceIMergedList) {
+      extraArgs.greylist = [JSON.parse(whiteDeviceIMergedList).ipfsInfo.path]
+    }
   }
 
   await submitToJobHistory('/merge', type, undefined, extraArgs,
@@ -243,14 +248,23 @@ function extractPaths (records) {
  * 确认提交合并
  **/
 async function commitMerge (callbackArgs, argsFromJobHist) {
+  let type = callbackArgs.type;
+
   let now = new Date().getTime().toString()
-  let mergedListIpfsinfo = makeIpfsinfo(`${callbackArgs.type}-${now}.log`, argsFromJobHist.hash, -1)
+  let mergedListIpfsinfo = makeIpfsinfo(`${type}-${now}.log`, argsFromJobHist.hash, -1)
 
-  await invokeCC('uploadMergeList', [mergedListIpfsinfo, callbackArgs.type, callbackArgs.latestVersion + ''])
+  await invokeCC('uploadMergeList', [mergedListIpfsinfo, type, callbackArgs.latestVersion + ''])
   // 链码中投票合并
-  await invokeCC('merge', [callbackArgs.type])
+  await invokeCC('merge', [type])
 
-  logger.info(`[${callbackArgs.type}]:success to generate merge list:${callbackArgs.latestMergeIpfsInfo}`)
+  logger.info(`[${type}]:success to generate merge list:${mergedListIpfsinfo}`)
+
+  // 如果合并成功的是default（设备白名单），则触发合并device(设备黑名单)
+  if (type == 'default') {
+    logger.info(`start to merge device after default merged`)
+    await mergeCron.mergeDevice()
+  }
+
   return true
 }
 

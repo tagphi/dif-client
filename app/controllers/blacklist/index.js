@@ -478,6 +478,7 @@ exports.validateHistories = [
  }
  ]
  **/
+
 exports.histories = async function (req, res, next) {
   let dataType = req.body.dataType
 
@@ -497,8 +498,6 @@ exports.histories = async function (req, res, next) {
   } else {
     throw new Error('未知的数据类型:' + dataType)
   }
-
-  logger.debug(`listDeltaUploadHistory -dataType:${dataType} result:${recordsList}`)
 
   if (recordsList.indexOf('Err') !== -1) return next(recordsList)
 

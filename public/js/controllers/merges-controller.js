@@ -9,8 +9,13 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
   /**
    * 返回
    **/
-  $scope.back = function () {
-    window.history.back()
+  $scope.back = () => window.history.back()
+
+  /*
+  * 主版本
+  * */
+  function mainVersion (pubDate) {
+    return xutils.newVersionRule(pubDate) ? xutils.dateToYM(pubDate) : xutils.dateToYMD(pubDate);
   }
 
   /**
@@ -30,38 +35,22 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
      * 查询该日期的版本计数器
      *  每次获取当前版本+1，作为最新的版本
      **/
-    function versionByDate (date) {
-      let total = versionTotalByDate[date]
-      let curCount = versionCounterByDate[date]
+    function versionByDate (pubDate) {
+      let mainVer = mainVersion(pubDate);
 
-      return versionCounterByDate[date] = !curCount ? total : curCount - 1
-    }
+      let total = versionTotalByDate[mainVer] || 1
+      let curCount = versionCounterByDate[mainVer]
 
-    /*
-    * 是否是新的版本规则
-    * 新旧版本日期分界线 2020-06-21
-    * 新规则要求本月发布的版本是下个月
-    * */
-    function newVersionRule (date) {
-      const dividerDate = 1592668800000
-      return date.getTime() > dividerDate
-    }
-
-    /*
-    * 获取指定日期的月天数
-    * */
-    function daysOfMonth (date) {
-      return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
+      return versionCounterByDate[mainVer] = !curCount ? total : curCount - 1
     }
 
     /*
     * 统计每日发布的版本总数
     * */
-    $scope.histories.forEach(function (row, id) {
-      let dateSimp = $filter('date')(new Date(parseInt(row.timestamp)), 'yyyyMMdd')
-
-      let total = versionTotalByDate[dateSimp]
-      versionTotalByDate[dateSimp] = total ? total + 1 : 1
+    $scope.histories.forEach((row) => {
+      let mainVer = mainVersion(new Date(parseInt(row.timestamp)));
+      let total = versionTotalByDate[mainVer]
+      versionTotalByDate[mainVer] = total ? total + 1 : 1
     })
 
     $scope.histories.forEach(function (record, i) {
@@ -75,27 +64,23 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
       record.type = $scope.type
 
       // 转换时间戳
-      let date = new Date(parseInt(record.timestamp))
-      record.date = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss')
+      let pubDate = new Date(parseInt(record.timestamp))
+      record.date = xutils.dateToFull(pubDate)
 
       // 版本
-      record.dateSimp = $filter('date')(date, 'yyyyMMdd')
-      record.version = record.dateSimp + '_' + versionByDate(record.dateSimp)
+      let pubDateYMD = xutils.dateToYMD(pubDate)
+      let pubDateYM = xutils.dateToYM(pubDate)
 
-      let validStart = $filter('date')(date, 'yyyyMMdd')
+      let nextPubDate = xutils.nextMonth(pubDate)
+      let nextMonthYM = xutils.dateToYM(nextPubDate)
 
-      let nextPubDate
-
-      if (nextRecord) { // 下个版本已发布,有效期截止为下个版本发布期
-        nextPubDate = new Date(parseInt(nextRecord.timestamp))
-      } else { // 下个版本未发布，推一个月
-        date.setMonth(date.getMonth() + 1)
-        date.setDate(28)
-        nextPubDate = date
+      if (!xutils.newVersionRule(pubDate)) { // 旧版本
+        record.version = pubDateYMD + '_' + versionByDate(pubDate)
+        record.validPeriod = `${pubDateYM}28 ~ ${nextMonthYM}28`
+      } else { // 新版本
+        record.version = nextMonthYM + '_' + versionByDate(nextPubDate)
+        record.validPeriod = `${nextMonthYM}01 ~ ${nextMonthYM}${xutils.daysOfMonth(nextPubDate)}`
       }
-
-      let validEnd = $filter('date')(nextPubDate, 'yyyyMMdd')
-      record.validPeriod = `${validStart} ~ ${validEnd}`
 
       record.filename = record.type + '_' + record.version
     })
@@ -106,14 +91,12 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
    **/
   $scope.queryHists = function (type) {
     HttpService.post('/blacklist/mergedHistories', {type})
-      .then(function (respData) {
-        if (respData.success) {
-          $scope.histories = respData.data
+      .then(({data, success}) => {
+        if (success) {
+          $scope.histories = data
 
           // 转换类型
-          $scope.histories.forEach(function (hist, id) {
-            hist.type = xutils.type2Name(hist.type)
-          })
+          $scope.histories.forEach((hist, id) => hist.type = xutils.type2Name(hist.type))
 
           // 格式化历史数据
           formatHistories()
@@ -127,14 +110,14 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
   /**
    * 标签选择
    */
-  $scope.selectTab = function (type) {
+  $scope.selectTab = type => {
     $scope.type = type
 
     // 查询
     $scope.queryHists(type)
   }
 
-  ;(function init () {
+  ;(() => {
     $scope.queryHists($scope.type)
   })()
 })
