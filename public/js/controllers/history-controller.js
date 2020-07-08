@@ -295,6 +295,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
           let dev = $scope.downloadDlg.dev
 
           let nextPubDate = new Date(versionInfo.nextPubDate)
+          let newVersionInYM = xutils.dateToYM(nextPubDate)
 
           // 发布日期
           if (versionInfo.pubDate) {
@@ -302,10 +303,13 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
 
             prod.pubDateNote = '发布于：' + xutils.dateToFull(pubDate)
 
-            let newVersionInYM = xutils.dateToYM(nextPubDate)
-
-            prod.versionNote = '版本号：' + newVersionInYM
-            prod.validNote = '有效期：' + `${newVersionInYM}01 ~ ${newVersionInYM}${xutils.daysOfMonth(nextPubDate)}`
+            if (xutils.newVersionRule(pubDate)) { // 新版本规则
+              prod.versionNote = '版本号：' + newVersionInYM
+              prod.validNote = '有效期：' + `${newVersionInYM}01 ~ ${newVersionInYM}${xutils.daysOfMonth(nextPubDate)}`
+            } else { // 旧版本规则
+              prod.versionNote = '版本号：' + xutils.dateToYMD(pubDate)
+              prod.validNote = '有效期：' + `${xutils.dateToYMD(pubDate)}28 ~ ${newVersionInYM}28`
+            }
           }
 
           // 倒计时

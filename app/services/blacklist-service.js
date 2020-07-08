@@ -2,9 +2,11 @@
 
 let queryCC = require('../cc/query')
 let invokeCC = require('../cc/invoke')
+
 let CONFIG = require('../../config.json')
 var MERGE_SERVICE_URL = CONFIG.site.mergeServiceUrl
 var callbackUrl = CONFIG.site.callbackUrl
+
 let logger = require('../utils/logger-utils').logger()
 
 let ipfsCliLocal = require('../utils/ipfs-cli')
