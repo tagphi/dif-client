@@ -15,7 +15,7 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
   * 主版本
   * */
   function mainVersion (pubDate) {
-    return xutils.newVersionRule(pubDate) ? xutils.dateToYM(pubDate) : xutils.dateToYMD(pubDate);
+    return xutils.newVersionRule(pubDate) ? xutils.dateToYM(xutils.nextMonth(pubDate)) : xutils.dateToYMD(pubDate);
   }
 
   /**
@@ -78,7 +78,7 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
         record.version = pubDateYMD + '_' + versionByDate(pubDate)
         record.validPeriod = `${pubDateYM}28 ~ ${nextMonthYM}28`
       } else { // 新版本
-        record.version = nextMonthYM + '_' + versionByDate(nextPubDate)
+        record.version = nextMonthYM + '_' + versionByDate(pubDate)
         record.validPeriod = `${nextMonthYM}01 ~ ${nextMonthYM}${xutils.daysOfMonth(nextPubDate)}`
       }
 
