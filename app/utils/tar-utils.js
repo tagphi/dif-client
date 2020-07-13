@@ -10,9 +10,8 @@ function xz (zipedFilePath, destDir) {
     tar.x({
       file: zipedFilePath,
       cwd: destDir
-    }).then(function () {
-      resolve(true)
     })
+      .then(() => resolve(true))
   })
 
   return xzPromise

@@ -1,19 +1,13 @@
-function call ({data}) {
-  console.log(arguments)
-  console.log(data)
+async function call () {
+  return 'in'
+}
+
+async function outer () {
+  return await call()
 }
 
 describe('$test groups$', function () {
   it('case 1', async function () {
-    try {
-      return
-      throw new Error('错粗粮')
-
-      console.log('body')
-    } catch (e) {
-      console.log('error ->', e)
-    } finally {
-      console.log('finnaly')
-    }
+    console.log(await call() == 'in')
   });
 });

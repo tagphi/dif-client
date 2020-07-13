@@ -1,27 +1,32 @@
-var logger = require('../utils/logger-utils').logger()
+let logger = require('../utils/logger-utils').logger()
 
-function extractTargetsFromDiscover(client, discoveryResults, CONFIG) {
+/*
+* 从自动发现信息中提取背书的目标节点
+*
+* @param client 用于访问peer和
+* */
+function extractTargetsFromDiscover (client, discoveryResults, CONFIG) {
   let difPlan = discoveryResults.endorsement_targets.dif
   let difLayouts = difPlan.layouts
   let difGroups = difPlan.groups
 
   let endorserPeers = []
+
   for (let i = 0; i < difLayouts.length; i++) {
     let groupPeers = difGroups['G' + i]['peers']
     endorserPeers = endorserPeers.concat(groupPeers)
   }
 
   let targets = []
-  endorserPeers.forEach(function (endorser) {
+
+  endorserPeers.forEach(endorser => {
     let connOptions = {
       name: endorser.name,
       'request-timeout': CONFIG.peer['request_timeout'],
       'ssl-target-name-override': endorser.name
     }
-    let url = 'grpc://' + endorser.endpoint
-
-    let peer = client.newPeer(url, connOptions)
-    targets.push(peer)
+    
+    targets.push(client.newPeer('grpc://' + endorser.endpoint, connOptions))
   })
 
   logger.info(`discovered endorser peers:` + JSON.stringify(difGroups))

@@ -8,14 +8,13 @@ function downloadFile (downloadUrl, saveDir, fileName) {
   fs.removeSync(saveDir)
   fs.ensureDirSync(saveDir)
 
-  let downloadPromise = new Promise(function (resolve, reject) {
+  let downloadPromise = new Promise((resolve, reject) => {
     // 下载并写入链码目录
     let ccPathOut = fs.createWriteStream(saveDir + '/' + fileName)
+
     request(downloadUrl)
       .pipe(ccPathOut)
-      .on('finish', function () {
-        resolve(true)
-      })
+      .on('finish', () => resolve(true))
   })
 
   return downloadPromise

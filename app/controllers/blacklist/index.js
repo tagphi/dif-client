@@ -88,37 +88,6 @@ async function uploadBlacklist (req, res) {
   ok(res, '上传成功')
 }
 
-exports.getMergedRmList = async (req, res) => {
-  let type = req.body.type
-
-  let mergedRmList = await blacklistService.getMergedRmList(type)
-
-  let response = ''
-
-  if (mergedRmList != null) {
-    for (let record in mergedRmList) {
-      let firstOrg = true
-
-      response += record + ':'
-
-      let orgs = mergedRmList[record]
-
-      orgs.forEach(org => {
-        if (!firstOrg) {
-          response += ','
-          firstOrg = false
-        }
-
-        response += org
-      })
-
-      response += '\n'
-    }
-  }
-
-  download(res, 'remove_list_' + type + 'latest.txt', response)
-}
-
 /**
  * 下载黑名单
  *
