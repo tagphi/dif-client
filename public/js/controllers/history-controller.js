@@ -41,7 +41,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
   /**
    * 是否锁定
    **/
-  $scope.isLockedPeriod = () => {
+  $scope.isLockedPeriod = function(){
     HttpService.post('/blacklist/isLocked')
       .then(({data}) => $scope.locked = data.locked)
   }
@@ -49,7 +49,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
   /**
    * 是否是观察者
    **/
-  $scope.isWatcher = () => {
+  $scope.isWatcher = function () {
     HttpService.post('/auth/watcher')
       .then(({data}) => $scope.watcher = data.isWatcher)
   }
@@ -86,7 +86,10 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
       scope: $scope,
       controller: ['$scope', function ($scope) {
         $scope.selectFileName = '...'
+
         $scope.prog = 0
+        let uploading = false
+
         $scope.confirmActionText = '上传'
         $scope.dataType = 'delta'
         $scope.uploadFile = undefined
@@ -102,6 +105,10 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             alertMsgService.alert('请先选择文件', false)
             return
           }
+
+          if (uploading) return
+          uploading = true
+
           $scope.selectType = $scope.selectType || 'ip'
 
           let request = {
@@ -126,10 +133,13 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
                 $scope.closeThisDialog()
                 alertMsgService.alert(data.message, false)
               }
+
+              $timeout(() => uploading = false, 3000)
             })
             .error(() => {
               $scope.closeThisDialog()
               alertMsgService.alert('上传出错', false)
+              $timeout(() => uploading = false, 3000)
             })
         }
       }]
@@ -177,6 +187,8 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
         $scope.confirmActionText = '上传'
         $scope.dataType = 'appeal'
 
+        let appealing = false
+
         $scope.chooseAppealType = function (type) {
           labelByType(type)
         }
@@ -190,6 +202,9 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             alertMsgService.alert('请先选择文件', false)
             return
           }
+
+          if (appealing) return
+          appealing = true
 
           $scope.selectType = $scope.selectType || 'ip'
 
@@ -208,8 +223,9 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
               var prog = parseInt(evt.loaded / evt.total * 120)
               $scope.prog = prog
             })
-            .success(function (data, status, headers, config) {
+            .success(function (data) {
               $scope.prog = 0
+
               if (data.success) {
                 $timeout(function () {
                   alertMsgService.alert('提交成功', true)
@@ -220,10 +236,13 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
                 $scope.closeThisDialog()
                 alertMsgService.alert(data.message, false)
               }
+
+              $timeout(() => appealing = false, 3000)
             })
             .error(function () {
               $scope.closeThisDialog()
               alertMsgService.alert('申诉出错', false)
+              $timeout(() => appealing = false, 3000)
             })
         }
       }]
@@ -280,7 +299,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
 
             this.showTab.all = selectedTypes.length === 6
           },
-          selectAll: () => {
+          selectAll: function () {
             let all = this.showTab.all = !this.showTab.all
             this.showTab.selectedTypes = !all ? [] : TYPES()
           },

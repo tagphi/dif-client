@@ -4,7 +4,7 @@ let utils = require('fabric-client/lib/utils.js')
 let logger = utils.getLogger('cc/query')
 
 let helper = require('../../common/helper.js')
-let CONFIG = require('../../config')``
+let CONFIG = require('../../config')
 let ccUtil = require('./cc-utils')
 
 let query = async (fcn, args) => {
@@ -32,7 +32,7 @@ let query = async (fcn, args) => {
 
     if (responsePayloads) {
       let result = responsePayloads[0].toString()
-      logger.info(`[query cc] -- fn:${fcn},args:${JSON.stringify(args)},result:${result}`)
+      logger.info(`[query cc] -- fn:${fcn},args:${JSON.stringify(args)},result:${result.substring(0,100)}`)
       return result
     } else {
       logger.error('responsePayloads is null')

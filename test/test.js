@@ -1,13 +1,12 @@
-async function call () {
-  return 'in'
-}
+let CronJob = require('cron').CronJob
 
-async function outer () {
-  return await call()
+//3 1 * * * ?
+function onTick () {
+  console.log(new Date() + ':ticking')
 }
 
 describe('$test groups$', function () {
   it('case 1', async function () {
-    console.log(await call() == 'in')
+    new CronJob('39 */1 * * * *', onTick, null, true)
   });
 });
