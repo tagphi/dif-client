@@ -20,6 +20,7 @@
         "request_timeout":60000
     },
     "site": {
+        "version":"v2.4.0",
         "dev":true,
         "watcher":false,
         "adminAddr":"http://admin.dif.rtbasia.com:8080",
@@ -41,8 +42,9 @@
         },
         "cron":{
             "enabled":true,
-            "query_cc_install":5,
-            "merge_interval":60
+            "query_cc_install":" */59 * * * *",
+            "merge_interval":" */31 * * * *",
+            "heartbeat_interval":" */10 * * * *"
         },
         "ipfs":{
             "host":"175.6.228.227",

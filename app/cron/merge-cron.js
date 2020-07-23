@@ -7,6 +7,7 @@ let logger = require('../utils/logger-utils').logger()
 
 let blacklistService = require('../services/blacklist-service')
 let queryCC = require('../cc/query')
+let cronUtil = require('./cron-util')
 
 const DATA_TYPES = [
   {type: 'default', merging: false},
@@ -27,18 +28,8 @@ function startCron () {
 
   isRunning = true
 
-  let cronTime = cronTimeFromConfig(CONFIG.site.cron.merge_interval)
+  let cronTime = cronUtil.cronTimeFromConfig(CONFIG.site.cron.merge_interval)
   new CronJob(cronTime, onTick, null, true, CONFIG.site.cron.timezone)
-}
-
-function cronTimeFromConfig (configTime) {
-  configTime += ''
-
-  if (configTime.indexOf('*') !== -1) {
-    return configTime
-  } else {
-    return '*/' + configTime + ' * * * * *'
-  }
 }
 
 /*

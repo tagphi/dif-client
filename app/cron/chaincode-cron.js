@@ -11,15 +11,16 @@ let queryCC = require('../../query-installed-chaincode')
 let installCC = require('../../install-chaincode')
 
 let downloader = require('../utils/download-utils')
-var agent = require('superagent-promise')(require('superagent'), Promise)
+let agent = require('superagent-promise')(require('superagent'), Promise)
 let path = require('path')
 let tar = require('../utils/tar-utils')
+let cronUtil = require('./cron-util')
 
 let isProcessing = false
 
 function startCron () {
-  let cronTime = '*/' + CONFIG.site.cron.query_cc_install + ' * * * * *'
-  new CronJob(cronTime, onTick, null, true, CONFIG.site.cron.timezone)
+  new CronJob(cronUtil.cronTimeFromConfig(CONFIG.site.cron.query_cc_install),
+    onTick, null, true, CONFIG.site.cron.timezone)
 }
 
 async function onTick () {
@@ -79,7 +80,6 @@ async function downloadAndInstallCC (remoteLatestCC) {
   let ccDir = remoteLatestCC.type === 'golang'
     ? path.join(__dirname, '../../chaincode/go/src')
     : path.join(__dirname, '../../chaincode/build')
-
 
   // 用于下载和解压
   let tmpPath = path.join(__dirname, '../../chaincode/tmp')

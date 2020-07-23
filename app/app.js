@@ -12,6 +12,7 @@ let logger = require('./utils/logger-utils').logger()
 
 let chaincodeCron = require('./cron/chaincode-cron')
 let mergeCron = require('./cron/merge-cron')
+let heartbeatCron = require('./cron/heartbeat-cron')
 // 上传文件表单的处理
 var multer = require('multer')
 
@@ -63,6 +64,7 @@ var router = require('./router')
 function _startCrons () {
   // 背书节点，启动链码同步定时器
   chaincodeCron.startCron()
+  heartbeatCron.startCron()
 
   setTimeout(function () {
     mergeCron.startCron()

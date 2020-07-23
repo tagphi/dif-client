@@ -32,7 +32,7 @@ let query = async (fcn, args) => {
 
     if (responsePayloads) {
       let result = responsePayloads[0].toString()
-      logger.info(`[query cc] -- fn:${fcn},args:${JSON.stringify(args)},result:${result.substring(0,100)}`)
+      logger.info(`[query cc] -- fn:${fcn},args:${JSON.stringify(args).substr(0,100)},result:${result.substring(0,100)}`)
       return result
     } else {
       logger.error('responsePayloads is null')

@@ -118,7 +118,7 @@ async function submitUAToJobHistory (uploadTime, type, filename, size, blacklist
  * 提交任务给job服务器
  **/
 async function submitToJobHistory (jobApi, type, dataBuf, extraArgs, callbackArgs, version) {
-  logger.info(`jobApi=${jobApi}, \n type=${type}, \n extraArgs=${JSON.stringify(extraArgs)}, \n callbackArgs=${JSON.stringify(callbackArgs)},\n version:${version}`)
+  logger.info(`jobApi=${jobApi}, \n type=${type}, \n extraArgs=${JSON.stringify(extraArgs).substr(0,100)}, \n callbackArgs=${JSON.stringify(callbackArgs).substr(0,100)},\n version:${version}`)
 
   let resp = await superagent
     .post(`${MERGE_SERVICE_URL}${jobApi}`)
