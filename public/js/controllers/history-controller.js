@@ -173,7 +173,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
           break
 
         case 'default':
-          $scope.selectTypeLabel = '设备ID白名单'
+          $scope.selectTypeLabel = '设备ID灰名单'
           break
       }
     }

@@ -5,7 +5,7 @@
             <span ng-class="{'tab-title':true,'active':downloadDlg.tab=='prod'}"
                   ng-click="downloadDlg.onTabClicked('prod')">生产版本</span>
             <span ng-class="{'tab-title':true,'active':downloadDlg.tab=='dev'}"
-                  ng-click="downloadDlg.onTabClicked('dev')">实验版本</span>
+                  ng-click="downloadDlg.onTabClicked('dev')">预发布版本</span>
         </span>
     </div>
     <div class="modal-content">
@@ -65,7 +65,7 @@
                            ng-checked="downloadDlg.showTab.selectedTypes.indexOf('default')!=-1">
                     <label for="type_default"
                            ng-class="{'d-inline':true,'color-lightslategray':true,
-                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('default')!=-1}">设备ID白名单</label>
+                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('default')!=-1}">设备ID灰名单</label>
                 </div>
 
                 <div class="col-6">
