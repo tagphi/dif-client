@@ -28,8 +28,9 @@ mkdir -p ${release_dir}/crypto-config/order-tls
 mkdir -p ${release_dir}/crypto-config/peerOrganizations
 
 cp ./.env ${release_dir}
-cp ./swarm.key ${release_dir}
 cp ./generate_config.sh ${release_dir}
+cp ./update_config.sh ${release_dir}
+
 touch ${release_dir}/msp_id.conf
 
 cp ./config.json.tpl ${release_dir}
