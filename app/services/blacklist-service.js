@@ -238,12 +238,6 @@ async function commitMerge (callbackArgs, argsFromJobHist) {
 
   logger.info(`[${type}]:success to generate merge list:${mergedListIpfsinfo}`)
 
-  // 如果合并成功的是default（设备白名单），则触发合并device(设备黑名单)
-  if (type == 'default') {
-    logger.info(`start to merge device after default merged`)
-    await mergeCron.mergeDevice()
-  }
-
   return true
 }
 

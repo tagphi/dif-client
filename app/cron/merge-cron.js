@@ -11,6 +11,7 @@ let cronUtil = require('./cron-util')
 
 const DATA_TYPES = [
   {type: 'default', merging: false},
+  {type: 'device', merging: false},
 
   {type: 'ip', merging: false},
   {type: 'domain', merging: false},
@@ -18,8 +19,6 @@ const DATA_TYPES = [
   {type: 'ua_spider', merging: false},
   {type: 'ua_client', merging: false}
 ]
-
-const TYPE_DEVICE = {type: 'device', merging: false}
 
 let isRunning = false
 
@@ -41,11 +40,10 @@ async function mergeType (item) {
 
   item.merging = true
 
-  let isUA = item.type.indexOf('ua') !== -1
+  // 取的最新版本，每个类型对应不同的控制版本
+  let latestVersion = await queryCC('version', [item.type]) // ua查出来ua对应的最新版本，其他名单的提交不受影响
 
   try {
-    // 取的最新版本
-    let latestVersion = await queryCC('version', [isUA + '']) // ua查出来ua对应的最新版本，其他名单的提交不受影响
     latestVersion = parseInt(latestVersion)
 
     let latestMergedVersion = await getMergedVersionByType(item.type)
@@ -62,13 +60,6 @@ async function mergeType (item) {
   } finally {
     item.merging = false
   }
-}
-
-/*
-* 合并device，因为需要在default合并成功后再去触发merge
-* */
-async function mergeDevice () {
-  await mergeType(TYPE_DEVICE)
 }
 
 async function onTick () {
@@ -108,4 +99,3 @@ async function getMergedVersionByType (type) {
 
 exports.startCron = startCron
 exports.onTick = onTick
-exports.mergeDevice = mergeDevice

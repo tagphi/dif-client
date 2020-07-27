@@ -13,6 +13,9 @@ let query = async (fcn, args) => {
     client.setConfigSetting('discovery-protocol', 'grpc')
     let channel = await helper.getChannel(client)
 
+    // 追加版本号，用于链码侧兼容
+    args.unshift(CONFIG.site.version || '-1')
+
     let ccRequest = {
       chaincodeId: 'dif', // TODO: 配置中读取
       fcn: fcn,

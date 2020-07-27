@@ -46,3 +46,10 @@ exports.logout = async (req, res) => {
 exports.watcher = async (req, res) => {
   ok(res, '获取成功', {isWatcher: CONFIG_SITE.watcher})
 }
+
+/**
+ *  客户端版本
+ **/
+exports.version = async (req, res) => {
+  ok(res, '获取成功', {version: CONFIG_SITE.version})
+}

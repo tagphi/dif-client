@@ -5,6 +5,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
   $scope.locked = true
   // 是否是观察者
   $scope.watcher = false
+  $scope.version = ''
 
   $scope.selectDataType = 'delta' // 默认选中的标签为
 
@@ -41,7 +42,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
   /**
    * 是否锁定
    **/
-  $scope.isLockedPeriod = function(){
+  $scope.isLockedPeriod = function () {
     HttpService.post('/blacklist/isLocked')
       .then(({data}) => $scope.locked = data.locked)
   }
@@ -52,6 +53,14 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
   $scope.isWatcher = function () {
     HttpService.post('/auth/watcher')
       .then(({data}) => $scope.watcher = data.isWatcher)
+  }
+
+  /**
+   * 获取当前版本
+   **/
+  $scope.isWatcher = function () {
+    HttpService.post('/auth/version')
+      .then(({data}) => $scope.version = data.version || '')
   }
 
   /**
