@@ -281,16 +281,16 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
           prod: {
             prod: true, // 生产面板
 
-            versionNote: '--',
-            pubDateNote: '--',
-            validNote: '--', // 有效期
+            versionNote: '暂无可用版本',
+            pubDateNote: '暂无可用版本',
+            validNote: '暂无可用版本', // 有效期
 
             all: true,
             selectedTypes: TYPES()
           },
           dev: {
             tipNote: '包含了联盟成员最新提交的数据，正在进行审查...',
-            countDownNote: '--',
+            countDownNote: '暂无可用版本',
 
             all: true,
             selectedTypes: TYPES()

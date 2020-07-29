@@ -36,14 +36,18 @@ function startCron () {
 * @param item 格式{type: 'default', merging: false}
 * */
 async function mergeType (item) {
-  if (item.merging) return
+  if (item.merging) {
+    logger.warn(`[${item.type}] still in merging,from:${item.old} to:${item.latest}`)
+    return
+  }
 
   item.merging = true
-
-  // 取的最新版本，每个类型对应不同的控制版本
-  let latestVersion = await queryCC('version', [item.type]) // ua查出来ua对应的最新版本，其他名单的提交不受影响
+  let latestVersion
 
   try {
+    // 取的最新版本，每个类型对应不同的控制版本
+    let latestVersion = await queryCC('version', [item.type]) // ua查出来ua对应的最新版本，其他名单的提交不受影响
+
     latestVersion = parseInt(latestVersion)
 
     let latestMergedVersion = await getMergedVersionByType(item.type)
@@ -51,7 +55,10 @@ async function mergeType (item) {
 
     // 有全局新版本才去合并
     if (latestVersion != 0 && latestVersion > latestMergedVersion) {
+      item.old = latestMergedVersion
+      item.latest = latestVersion
       logger.info(`[${item.type}] start merge:currentVersion-${latestMergedVersion},latestVersion-${latestVersion}`)
+
       await blacklistService.merge(item.type, latestVersion)
       logger.info(`[${item.type}] success merge:from ${latestMergedVersion} to ${latestVersion}`)
     }
@@ -60,18 +67,19 @@ async function mergeType (item) {
   } finally {
     item.merging = false
   }
+
+  item.merging = false
 }
 
 async function onTick () {
-  try {
-    logger.info('merge cron ticking...')
-
-    // 取的各类型的最新合并列表，并根据版本决定是否合并
-    for (item of DATA_TYPES) {
+  // 取的各类型的最新合并列表，并根据版本决定是否合并
+  for (item of DATA_TYPES) {
+    try {
+      logger.info('merge cron ticking...')
       await mergeType(item)
+    } catch (e) {
+      logger.error('merge cron err', e)
     }
-  } catch (e) {
-    logger.error('merge cron err', e)
   }
 }
 
