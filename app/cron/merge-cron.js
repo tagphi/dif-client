@@ -47,7 +47,7 @@ async function mergeType (item) {
     latestVersion = parseInt(latestVersion)
 
     let latestMergedVersion = await getMergedVersionByType(item.type)
-    logger.info(`[${item.type}] latestVersion-${latestVersion},typedMergedVersion-${latestMergedVersion}`)
+    logger.info(`[${item.type}] latestVersion:${latestVersion},typedMergedVersion:${latestMergedVersion}`)
 
     // 有全局新版本才去合并
     if (latestVersion != 0 && latestVersion > latestMergedVersion) {

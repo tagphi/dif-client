@@ -237,7 +237,6 @@ async function commitMerge (callbackArgs, argsFromJobHist) {
   await invokeCC('merge', [type])
 
   logger.info(`[${type}]:success to generate merge list:${mergedListIpfsinfo}`)
-
   return true
 }
 

@@ -23,6 +23,5 @@ dev
 config.json
 discover-test.js
 blacklist-service-test.js
-*-test.js
 swarm.key
 msp_id.conf
