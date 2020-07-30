@@ -55,14 +55,14 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
   $scope.isWatcher = function () {
     HttpService.post('/auth/watcher')
       .then(({data}) => {
-        if (data) $scope.watcher = data.isWatcher
+        if (data) $scope.watcher = data.watcher
       })
   }
 
   /**
    * 获取当前版本
    **/
-  $scope.isWatcher = function () {
+  $scope.queryVersion = function () {
     HttpService.post('/auth/version')
       .then(({data}) => {
         if (data) $scope.version = data.version || ''
@@ -78,6 +78,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
 
     $scope.isLockedPeriod()
     $scope.isWatcher()
+    $scope.queryVersion()
 
     // 监听所有面板的选项中页面的变化
     $scope.$watch('showingTab.currentPage', (newCurPage, old) => {
