@@ -199,7 +199,7 @@ exports.versionInfo = async (req, res) => {
 }
 
 function nextPublishDate (date = new Date()) {
-  return new Date(date.getFullYear(), date.getMonth() + 1, 28)
+  return new Date(Date.UTC(date.getFullYear(), date.getMonth() + 1, 24,17))
 }
 
 //  env=prod&types=publisher_ip,default,ip,device,domain

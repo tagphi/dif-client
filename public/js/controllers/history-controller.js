@@ -64,7 +64,9 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
    **/
   $scope.isWatcher = function () {
     HttpService.post('/auth/version')
-      .then(({data}) => $scope.version = data.version || '')
+      .then(({data}) => {
+        if (data) $scope.version = data.version || ''
+      })
   }
 
   /**
