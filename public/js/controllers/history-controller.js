@@ -5,6 +5,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
   $scope.locked = true
   // 是否是观察者
   $scope.watcher = false
+  $scope.version = ''
 
   $scope.selectDataType = 'delta' // 默认选中的标签为
 
@@ -41,9 +42,11 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
   /**
    * 是否锁定
    **/
-  $scope.isLockedPeriod = function(){
+  $scope.isLockedPeriod = function () {
     HttpService.post('/blacklist/isLocked')
-      .then(({data}) => $scope.locked = data.locked)
+      .then(({data}) => {
+        if (data) $scope.locked = data.locked
+      })
   }
 
   /**
@@ -51,7 +54,19 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
    **/
   $scope.isWatcher = function () {
     HttpService.post('/auth/watcher')
-      .then(({data}) => $scope.watcher = data.isWatcher)
+      .then(({data}) => {
+        if (data) $scope.watcher = data.watcher
+      })
+  }
+
+  /**
+   * 获取当前版本
+   **/
+  $scope.queryVersion = function () {
+    HttpService.post('/auth/version')
+      .then(({data}) => {
+        if (data) $scope.version = data.version || ''
+      })
   }
 
   /**
@@ -63,6 +78,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
 
     $scope.isLockedPeriod()
     $scope.isWatcher()
+    $scope.queryVersion()
 
     // 监听所有面板的选项中页面的变化
     $scope.$watch('showingTab.currentPage', (newCurPage, old) => {
@@ -173,7 +189,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
           break
 
         case 'default':
-          $scope.selectTypeLabel = '设备ID白名单'
+          $scope.selectTypeLabel = '设备ID灰名单'
           break
       }
     }
@@ -268,16 +284,16 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
           prod: {
             prod: true, // 生产面板
 
-            versionNote: '--',
-            pubDateNote: '--',
-            validNote: '--', // 有效期
+            versionNote: '暂无可用版本',
+            pubDateNote: '暂无可用版本',
+            validNote: '暂无可用版本', // 有效期
 
             all: true,
             selectedTypes: TYPES()
           },
           dev: {
             tipNote: '包含了联盟成员最新提交的数据，正在进行审查...',
-            countDownNote: '--',
+            countDownNote: '暂无可用版本',
 
             all: true,
             selectedTypes: TYPES()

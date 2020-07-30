@@ -12,6 +12,9 @@ let invoke = async function (fcn, args) {
   let channel = await helper.getChannel(client)
   let txId = client.newTransactionID(true)
 
+  // 追加版本号，用于链码侧兼容
+  args.unshift(CONFIG.site.version || '-1')
+
   let request = {
     chaincodeId: 'dif', // TODO: 配置中读取
     fcn: fcn,

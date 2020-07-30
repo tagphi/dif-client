@@ -15,7 +15,7 @@ angular.module('dif').factory('xutils', ['$http', '$q', '$rootScope', '$location
             return '设备ID黑名单'
 
           case 'default':
-            return '设备ID白名单'
+            return '设备ID灰名单'
 
           case 'domain':
             return '域名黑名单'

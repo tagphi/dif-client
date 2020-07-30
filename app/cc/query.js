@@ -13,6 +13,9 @@ let query = async (fcn, args) => {
     client.setConfigSetting('discovery-protocol', 'grpc')
     let channel = await helper.getChannel(client)
 
+    // 追加版本号，用于链码侧兼容
+    args.unshift(CONFIG.site.version || '-1')
+
     let ccRequest = {
       chaincodeId: 'dif', // TODO: 配置中读取
       fcn: fcn,
@@ -32,7 +35,7 @@ let query = async (fcn, args) => {
 
     if (responsePayloads) {
       let result = responsePayloads[0].toString()
-      logger.info(`[query cc] -- fn:${fcn},args:${JSON.stringify(args)},result:${result.substring(0,100)}`)
+      logger.info(`[query cc] -- fn:${fcn},args:${JSON.stringify(args).substr(0,100)},result:${result.substring(0,100)}`)
       return result
     } else {
       logger.error('responsePayloads is null')

@@ -10,7 +10,6 @@ var callbackUrl = CONFIG.site.callbackUrl
 let logger = require('../utils/logger-utils').logger()
 
 var superagent = require('superagent-promise')(require('superagent'), Promise)
-let mergeCron = require('../cron/merge-cron')
 
 /**
  * 提交申诉给java任务服务器
@@ -117,8 +116,8 @@ async function submitUAToJobHistory (uploadTime, type, filename, size, blacklist
 /**
  * 提交任务给job服务器
  **/
-async function submitToJobHistory (jobApi, type, dataBuf, extraArgs, callbackArgs, version) {
-  logger.info(`jobApi=${jobApi}, \n type=${type}, \n extraArgs=${JSON.stringify(extraArgs)}, \n callbackArgs=${JSON.stringify(callbackArgs)},\n version:${version}`)
+async function submitToJobHistory (jobApi, type, dataBuf, extraArgs = {}, callbackArgs = {}, version) {
+  logger.info(`jobApi=${jobApi}, \n type=${type}, \n extraArgs=${JSON.stringify(extraArgs).substr(0, 100)}, \n callbackArgs=${JSON.stringify(callbackArgs).substr(0, 100)},\n version:${version}`)
 
   let resp = await superagent
     .post(`${MERGE_SERVICE_URL}${jobApi}`)
@@ -194,7 +193,6 @@ async function merge (type, latestVersion) {
   // 合并设备id的话，需要剔除掉对应的白名单（默认设备）
   if (type === 'device') {
     let defaultMergedList = await queryCC('getMergedList', ['default'])
-
     if (defaultMergedList) extraArgs.greylist = [JSON.parse(defaultMergedList).ipfsInfo.path]
   }
 
@@ -237,13 +235,6 @@ async function commitMerge (callbackArgs, argsFromJobHist) {
   await invokeCC('merge', [type])
 
   logger.info(`[${type}]:success to generate merge list:${mergedListIpfsinfo}`)
-
-  // 如果合并成功的是default（设备白名单），则触发合并device(设备黑名单)
-  if (type == 'default') {
-    logger.info(`start to merge device after default merged`)
-    await mergeCron.mergeDevice()
-  }
-
   return true
 }
 

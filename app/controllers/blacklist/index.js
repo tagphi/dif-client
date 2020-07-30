@@ -199,7 +199,7 @@ exports.versionInfo = async (req, res) => {
 }
 
 function nextPublishDate (date = new Date()) {
-  return new Date(date.getFullYear(), date.getMonth() + 1, 28)
+  return new Date(Date.UTC(date.getFullYear(), date.getMonth() + 1, 24,17))
 }
 
 //  env=prod&types=publisher_ip,default,ip,device,domain
@@ -230,7 +230,7 @@ exports.downloadByEnv = async function (req, res, next) {
 }
 
 /**
- * 实验版本各类型合并文件列表
+ * 预发布版本各类型合并文件列表
  **/
 async function devMergeListForTypes (typesList) {
   let pathinfoList = []
@@ -326,7 +326,7 @@ function type2Name (type) {
       return '设备ID黑名单'
 
     case 'default':
-      return '设备ID白名单'
+      return '设备ID灰名单'
 
     case 'publisher_ip':
       return 'IP白名单'

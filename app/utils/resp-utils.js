@@ -8,7 +8,7 @@ let ok = function (res, msg, data) {
     success: true,
     message: msg
   }
-  logger.info(JSON.stringify(respData))
+  logger.info(JSON.stringify(respData).substr(0,100))
 
   if (data) respData.data = data
 
@@ -55,7 +55,7 @@ function page (res, list, pageNO) {
     pageSize: pageSize
   }
 
-  logger.info(JSON.stringify(pageResp))
+  logger.info(JSON.stringify(pageResp).substr(0,100))
 
   pageResp.data = pageData
   res.json(pageResp)
