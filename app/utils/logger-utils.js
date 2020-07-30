@@ -46,7 +46,7 @@ log4js.configure({
 
 exports.logger = function () {
   let stackInfos = stackInfo()
-  var logger = log4js.getLogger(stackInfos.file)
+  let logger = log4js.getLogger(stackInfos.file)
 
   // 要包装的日志级别
   logger.info = logWrapper(logger, 'info')
@@ -62,7 +62,8 @@ exports.logger = function () {
  **/
 function logWrapper (logger, level) {
   logger['old' + level] = logger[level]
-  return function (msg) {
+
+  return msg => {
     let stackInfos = stackInfo()
     logger['old' + level](` [${stackInfos.line}:${stackInfos.pos}] ` + msg)
   }
@@ -73,13 +74,14 @@ function logWrapper (logger, level) {
  * @returns Object
  */
 function stackInfo () {
-  var path = require('path')
-  var stackReg = /at\s+(.*)\s+\((.*):(\d*):(\d*)\)/i
-  var stackReg2 = /at\s+()(.*):(\d*):(\d*)/i
-  var stacklist = (new Error()).stack.split('\n').slice(3)
-  var s = stacklist[0]
-  var sp = stackReg.exec(s) || stackReg2.exec(s)
-  var data = {}
+  let path = require('path')
+  let stackReg = /at\s+(.*)\s+\((.*):(\d*):(\d*)\)/i
+  let stackReg2 = /at\s+()(.*):(\d*):(\d*)/i
+  let stacklist = (new Error()).stack.split('\n').slice(3)
+  let s = stacklist[0]
+  let sp = stackReg.exec(s) || stackReg2.exec(s)
+  let data = {}
+
   if (sp && sp.length === 5) {
     data.method = sp[1]
     data.path = sp[2]
@@ -87,5 +89,6 @@ function stackInfo () {
     data.pos = sp[4]
     data.file = path.basename(data.path)
   }
+
   return data
 }

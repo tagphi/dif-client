@@ -5,21 +5,38 @@
             <span ng-class="{'tab-title':true,'active':downloadDlg.tab=='prod'}"
                   ng-click="downloadDlg.onTabClicked('prod')">生产版本</span>
             <span ng-class="{'tab-title':true,'active':downloadDlg.tab=='dev'}"
-                  ng-click="downloadDlg.onTabClicked('dev')">实验版本</span>
+                  ng-click="downloadDlg.onTabClicked('dev')">预发布版本</span>
         </span>
     </div>
     <div class="modal-content">
         <form name="downloadForm" class="modal-body form container panel-body">
-            <div class="container note-grp" ng-show="downloadDlg.showTab.firstNote">
-                <span style="position: relative;left: -1px;">
+            <!--      生产面板      -->
+            <div class="container note-grp" ng-show="downloadDlg.showTab && downloadDlg.showTab.prod">
+                <span style="display:inline-block;position: relative;left: -1px;width: 50%">
                     <span class="iconfont" style="font-size: 18px;">&#xe71b;</span>
-                    <span class="note-label">{{downloadDlg.showTab.firstNote}}</span>
+                    <span class="note-label">{{downloadDlg.showTab.versionNote}}</span>
+                </span>
+                <span class="col-6">
+                    <span class="iconfont">&#xe629;</span>
+                    <span class="note-label">{{downloadDlg.showTab.pubDateNote}}</span>
                 </span>
                 <div style="height: 12px;"></div>
-
-                <span ng-show="downloadDlg.showTab.secondNote">
+                <span>
                     <span class="iconfont">&#xe629;</span>
-                    <span class="note-label">{{downloadDlg.showTab.secondNote}}</span>
+                    <span class="note-label">{{downloadDlg.showTab.validNote}}</span>
+                </span>
+            </div>
+
+            <!--     实验标签       -->
+            <div class="container note-grp" ng-show="downloadDlg.showTab && !downloadDlg.showTab.prod">
+                <span style="position: relative;left: -1px;">
+                    <span class="iconfont" style="font-size: 18px;">&#xe71b;</span>
+                    <span class="note-label">{{downloadDlg.showTab.tipNote}}</span>
+                </span>
+                <div style="height: 12px;"></div>
+                <span>
+                    <span class="iconfont">&#xe629;</span>
+                    <span class="note-label">{{downloadDlg.showTab.countDownNote}}</span>
                 </span>
             </div>
 
@@ -48,7 +65,7 @@
                            ng-checked="downloadDlg.showTab.selectedTypes.indexOf('default')!=-1">
                     <label for="type_default"
                            ng-class="{'d-inline':true,'color-lightslategray':true,
-                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('default')!=-1}">设备ID白名单</label>
+                           'color-blue':downloadDlg.showTab.selectedTypes.indexOf('default')!=-1}">设备ID灰名单</label>
                 </div>
 
                 <div class="col-6">

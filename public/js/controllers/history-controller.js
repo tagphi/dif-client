@@ -1,47 +1,21 @@
 /* eslint-disable handle-callback-err */
-app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $interval, $filter, HttpService, ngDialog, alertMsgService, Upload) {
-  /**
-   * 退出
-   */
-  $scope.logout = function () {
-    HttpService.post('/auth/logout')
-      .then(function (respData) {
-        $location.path('/')
-      })
-      .catch(function (err) {
-        console.log(err)
-        $location.path('/')
-      })
-  }
 
-  /**
-   * 是否锁定
-   **/
-  $scope.isLockedPeriod = function () {
-    $scope.locked = true
-    HttpService.post('/blacklist/isLocked')
-      .then(function (respData) {
-        if (respData.data) {
-          $scope.locked = respData.data.locked
-        }
-      })
-  }
-
-  /**
-   * 是否是观察者
-   **/
-  $scope.isWatcher = function () {
-    $scope.watcher = false
-    HttpService.post('/auth/watcher')
-      .then(function (respData) {
-        if (respData.data) {
-          $scope.watcher = respData.data.isWatcher
-        }
-      })
-  }
+app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $interval, $filter, HttpService, ngDialog, alertMsgService, Upload, xutils) {
+  // 是否锁定
+  $scope.locked = true
+  // 是否是观察者
+  $scope.watcher = false
+  $scope.version = ''
 
   $scope.selectDataType = 'delta' // 默认选中的标签为
-  let initDateRange = ''
+
+  // 首次加载
+  isFirstLoad = true
+
+  /**
+   * 投票图标被点击
+   **/
+  var isVoting = false
 
   /**
    * 面板状态
@@ -49,9 +23,50 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
   $scope.showingTab = {
     type: 'delta', // 默认黑名单
     histories: [], // 历史数据
+    memberName: undefined,// 成员名
+
     total: 0, // 总历史记录数
     pageSize: 10,
     currentPage: 1 // 页面指针
+  }
+
+  /**
+   * 退出
+   */
+  $scope.logout = () => {
+    HttpService.post('/auth/logout')
+      .then(() => xutils.goHome())
+      .catch(() => xutils.goHome())
+  }
+
+  /**
+   * 是否锁定
+   **/
+  $scope.isLockedPeriod = function () {
+    HttpService.post('/blacklist/isLocked')
+      .then(({data}) => {
+        if (data) $scope.locked = data.locked
+      })
+  }
+
+  /**
+   * 是否是观察者
+   **/
+  $scope.isWatcher = function () {
+    HttpService.post('/auth/watcher')
+      .then(({data}) => {
+        if (data) $scope.watcher = data.watcher
+      })
+  }
+
+  /**
+   * 获取当前版本
+   **/
+  $scope.queryVersion = function () {
+    HttpService.post('/auth/version')
+      .then(({data}) => {
+        if (data) $scope.version = data.version || ''
+      })
   }
 
   /**
@@ -59,25 +74,20 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
    */
   function init () {
     // 加载blacklist历史
-    $timeout(function () {
-      $scope.queryHistories()
-    }, 0.5 * 1000)
+    $timeout(() => $scope.queryHistories(), 0.5 * 1000)
 
     $scope.isLockedPeriod()
     $scope.isWatcher()
+    $scope.queryVersion()
 
     // 监听所有面板的选项中页面的变化
-    $scope.$watch('showingTab.currentPage', function (newCurPage, old) {
-      if (newCurPage === 1 && old === 1) return
-      $scope.queryHistories(newCurPage)
+    $scope.$watch('showingTab.currentPage', (newCurPage, old) => {
+      if (!isFirstLoad) $scope.queryHistories(newCurPage)
     })
 
     // 监听日期改变
-    $scope.$watch('dateRange', function () {
-      if ($scope.dateRange === initDateRange) return
-
-      $scope.queryHistories(1)
-      initDateRange = ''
+    $scope.$watch('dateRange', () => {
+      if (!isFirstLoad) $scope.queryHistories(1)
     })
   }
 
@@ -90,15 +100,17 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     let dlgOpts = {
       template: 'views/dlgs/upload-dlg.html',
       scope: $scope,
-      controller: ['$scope', 'HttpService', function ($scope, HttpService) {
+      controller: ['$scope', function ($scope) {
         $scope.selectFileName = '...'
+
         $scope.prog = 0
+        let uploading = false
+
         $scope.confirmActionText = '上传'
         $scope.dataType = 'delta'
+        $scope.uploadFile = undefined
 
-        if ($scope.locked) {
-          $scope.selectType = 'publisherIp'
-        }
+        if ($scope.locked) $scope.selectType = 'publisherIp'
 
         /**
          * 上传黑名单
@@ -109,6 +121,10 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             alertMsgService.alert('请先选择文件', false)
             return
           }
+
+          if (uploading) return
+          uploading = true
+
           $scope.selectType = $scope.selectType || 'ip'
 
           let request = {
@@ -121,15 +137,10 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
           }
 
           Upload.upload(request)
-            .progress(function (evt) {
-              var prog = parseInt(evt.loaded / evt.total * 120)
-              $scope.prog = prog
-            })
-            .success(function (data, status, headers, config) {
-              // $scope.prog = 0
-
+            .progress(e => $scope.prog = parseInt(e.loaded / e.total * 120))
+            .success((data) => {
               if (data.success) {
-                $timeout(function () {
+                $timeout(() => {
                   alertMsgService.alert('提交成功', true)
                   $scope.closeThisDialog()
                   $scope.queryHistories(1)
@@ -138,14 +149,18 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
                 $scope.closeThisDialog()
                 alertMsgService.alert(data.message, false)
               }
+
+              $timeout(() => uploading = false, 3000)
             })
-            .error(function () {
+            .error(() => {
               $scope.closeThisDialog()
               alertMsgService.alert('上传出错', false)
+              $timeout(() => uploading = false, 3000)
             })
         }
       }]
     }
+
     ngDialog.open(dlgOpts)
   }
 
@@ -174,7 +189,7 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
           break
 
         case 'default':
-          $scope.selectTypeLabel = '设备ID白名单'
+          $scope.selectTypeLabel = '设备ID灰名单'
           break
       }
     }
@@ -182,11 +197,13 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     let dlgOpts = {
       template: 'views/dlgs/appeal-dlg.html',
       scope: $scope,
-      controller: ['$scope', 'HttpService', function ($scope, HttpService) {
+      controller: ['$scope', function ($scope) {
         $scope.selectFileName = '...'
         $scope.prog = 0
         $scope.confirmActionText = '上传'
         $scope.dataType = 'appeal'
+
+        let appealing = false
 
         $scope.chooseAppealType = function (type) {
           labelByType(type)
@@ -201,6 +218,9 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             alertMsgService.alert('请先选择文件', false)
             return
           }
+
+          if (appealing) return
+          appealing = true
 
           $scope.selectType = $scope.selectType || 'ip'
 
@@ -219,8 +239,9 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
               var prog = parseInt(evt.loaded / evt.total * 120)
               $scope.prog = prog
             })
-            .success(function (data, status, headers, config) {
+            .success(function (data) {
               $scope.prog = 0
+
               if (data.success) {
                 $timeout(function () {
                   alertMsgService.alert('提交成功', true)
@@ -231,10 +252,13 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
                 $scope.closeThisDialog()
                 alertMsgService.alert(data.message, false)
               }
+
+              $timeout(() => appealing = false, 3000)
             })
             .error(function () {
               $scope.closeThisDialog()
               alertMsgService.alert('申诉出错', false)
+              $timeout(() => appealing = false, 3000)
             })
         }
       }]
@@ -250,19 +274,29 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
       template: 'views/dlgs/download-dlg.html',
       scope: $scope,
       controller: ['$scope', 'HttpService', function ($scope, HttpService) {
+        const TYPES = function () {
+          return ['default', 'ip', 'device', 'domain', 'ua_spider', 'ua_client']
+        }
+
         $scope.downloadDlg = {
+          showTab: undefined,
           tab: 'prod',
           prod: {
-            firstNote: undefined,
-            secondNote: undefined,
+            prod: true, // 生产面板
+
+            versionNote: '暂无可用版本',
+            pubDateNote: '暂无可用版本',
+            validNote: '暂无可用版本', // 有效期
+
             all: true,
-            selectedTypes: ['default', 'ip', 'device', 'domain', 'ua_spider', 'ua_client']
+            selectedTypes: TYPES()
           },
           dev: {
-            firstNote: '包含了联盟成员最新提交的数据，正在进行审查...',
-            secondNote: undefined,
+            tipNote: '包含了联盟成员最新提交的数据，正在进行审查...',
+            countDownNote: '暂无可用版本',
+
             all: true,
-            selectedTypes: ['default', 'ip', 'device', 'domain', 'ua_spider', 'ua_client']
+            selectedTypes: TYPES()
           },
           onTabClicked: function (clickedTab) {
             this.tab = clickedTab
@@ -282,60 +316,48 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
             this.showTab.all = selectedTypes.length === 6
           },
           selectAll: function () {
-            let all = !this.showTab.all
-            this.showTab.all = all
-
-            if (!all) {
-              this.showTab.selectedTypes = []
-            } else {
-              this.showTab.selectedTypes = ['default', 'ip', 'device', 'domain', 'ua_spider', 'ua_client']
-            }
+            let all = this.showTab.all = !this.showTab.all
+            this.showTab.selectedTypes = !all ? [] : TYPES()
           },
-          jumpToMergesPage: function () {
+          jumpToMergesPage: () => {
             $scope.closeThisDialog()
-            $location.path('/merges')
+            xutils.go('/merges')
           }
         }
-
-        $scope.downloadDlg.showTab = $scope.downloadDlg[$scope.downloadDlg.tab]
 
         function handleVersionInfo (versionInfo) {
-          if (versionInfo.pubDate) {
-            let pubDate = new Date(versionInfo.pubDate)
-            let version = $filter('date')(pubDate, 'yyyyMMdd')
-            let pubDateFormatted = $filter('date')(pubDate, 'yyyy/MM/dd HH:mm:ss')
-            $scope.downloadDlg.prod.firstNote = '版本号：' + version
-            $scope.downloadDlg.prod.secondNote = '发布于：' + pubDateFormatted
-          }
+          let prod = $scope.downloadDlg.prod
+          let dev = $scope.downloadDlg.dev
 
           let nextPubDate = new Date(versionInfo.nextPubDate)
+          let newVersionInYM = xutils.dateToYM(nextPubDate)
 
-          let nextPubDateFormatted = $filter('date')(nextPubDate, 'yyyy/MM/dd HH:mm:ss')
+          // 发布日期
+          if (versionInfo.pubDate) {
+            let pubDate = new Date(versionInfo.pubDate)
 
-          $scope.downloadDlg.dev.secondNote = '预计发布时间：' + nextPubDateFormatted
+            prod.pubDateNote = '发布于：' + xutils.dateToFull(pubDate)
+
+            if (xutils.newVersionRule(pubDate)) { // 新版本规则
+              prod.versionNote = '版本号：' + newVersionInYM
+              prod.validNote = '有效期：' + `${newVersionInYM}01 ~ ${newVersionInYM}${xutils.daysOfMonth(nextPubDate)}`
+            } else { // 旧版本规则
+              prod.versionNote = '版本号：' + xutils.dateToYMD(pubDate)
+              prod.validNote = '有效期：' + `${xutils.dateToYMD(pubDate)}28 ~ ${newVersionInYM}28`
+            }
+          }
 
           // 倒计时
-          $interval(function () {
-            let delta = nextPubDate.getTime() - new Date().getTime()
-
-            let UNIT_SECOND = 1000
-            let UNIT_MINUTE = UNIT_SECOND * 60
-            let UNIT_HOUR = UNIT_MINUTE * 60
-
-            let hour = Math.floor(delta / UNIT_HOUR)
-            let minute = Math.floor((delta - hour * UNIT_HOUR) / UNIT_MINUTE)
-            let seconds = Math.floor((delta - hour * UNIT_HOUR - minute * UNIT_MINUTE) / UNIT_SECOND)
-            let countdown = hour + ':' + minute + ':' + seconds
-            $scope.downloadDlg.dev.secondNote = '预计发布时间：' + nextPubDateFormatted + '，倒计时：' + countdown
-          }, 1000)
+          $interval(() => dev.countDownNote = '预计发布时间：' + xutils.dateToFull(nextPubDate) + '，倒计时：' + xutils.leftTime(nextPubDate), 1000)
         }
 
-        // 获取版本信息
-        HttpService.post('/blacklist/versionInfo', undefined)
-          .then(function (respData) {
-            if (!respData.success) return
+        $scope.downloadDlg.showTab = $scope.downloadDlg.prod
 
-            let versionInfo = respData.data
+        // 获取版本信息
+        HttpService.post('/blacklist/versionInfo')
+          .then(({data: versionInfo, success}) => {
+            if (!success) return
+
             handleVersionInfo(versionInfo)
           })
       }]
@@ -344,20 +366,11 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     ngDialog.open(dlgOpts)
   }
 
-  /**
-   * 跳转到合并界面
-   **/
-  $scope.jumpToMergesPage = function () {
-    $location.path('/merges')
-  }
+  $scope.jumpToJobsPage = () => xutils.go('/job-history')
 
-  $scope.jumpToJobsPage = function () {
-    $location.path('/job-history')
-  }
   /**
    * 投票图标被点击
    **/
-  var isVoting = false
   $scope.clickVoteHand = function (hist, action) {
     // 已经票结束
     if (hist.details.status || hist.selfVoted) return
@@ -373,16 +386,18 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
 
           let payload = {key: appealKey, action: action}
           isVoting = true
+
           HttpService.post('/blacklist/voteAppeal', payload)
-            .then(function (respData) {
+            .then(({success}) => {
               $scope.closeThisDialog()
-              if (!respData.success) return alertMsgService.alert('投票失败', false)
+
+              if (!success) return alertMsgService.alert('投票失败', false)
 
               alertMsgService.alert('投票成功', true)
               $scope.queryHistories($scope.showingTab.currentPage)
               isVoting = false
             })
-            .catch(function (err) {
+            .catch(() => {
               $scope.closeThisDialog()
               alertMsgService.alert('投票失败', false)
               isVoting = false
@@ -397,22 +412,21 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
   /**
    * 鼠标在投票手势上的移动事件
    **/
-  $scope.mouseMoveAgainVote = function (hist, action, mouseAction) {
+  $scope.mouseMoveAgainVote = (hist, action, mouseAction) => {
     if (hist.voteStatus !== 'unvote') {
       hist.showAgree = (action === 'agree' && mouseAction === 'enter')
       hist.showDisagree = (action === 'disagree' && mouseAction === 'enter')
     }
   }
 
-  $scope.mouseInSummary = function (hist) {
+  $scope.mouseInSummary = hist => {
     if (hist.details.summary.length > 30) {
       hist.showSummary = true
     }
   }
 
-  $scope.mouseOutSummary = function (hist) {
-    hist.showSummary = false
-  }
+  $scope.mouseOutSummary = hist => hist.showSummary = false
+
   /**
    * 查询
    */
@@ -425,101 +439,63 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
       endDate: dataRange[1]
     }
 
+    if ($scope.memberName) payload.memberName = $scope.memberName
+
     payload.dataType = $scope.selectDataType
     payload.pageNO = pageNO || $scope.showingTab.currentPage
 
     let api = $scope.selectDataType === 'publisherIP' ? '/blacklist/publisherIPs' : '/blacklist/histories'
+
     HttpService.post(api, payload)
-      .then(function (respData) {
-        if (respData.success) {
-          respData.data.forEach(function (row) { // 转换时间戳
+      .then(function ({data, pageSize, success, total}) {
+        let tab = $scope.showingTab
+
+        if (success) {
+          data.forEach(function (row) { // 转换时间戳
             let date = new Date()
             date.setTime(row.timestamp)
-            row.date = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss')
+            row.date = xutils.dateToFull(date)
           })
 
-          $scope.showingTab.histories = respData.data
+          tab.histories = data
 
           // 转换类型
-          $scope.showingTab.histories.map(function (hist, id) {
-            let type = hist.type
-
-            if (!type) {
-              return
-            }
-
-            switch (type) {
-              case 'ip':
-                hist.type = 'IP黑名单'
-                break
-
-              case 'ua_spider':
-                hist.type = 'UA特征(机器及爬虫)'
-                break
-
-              case 'ua_client':
-                hist.type = 'UA特征(合格客户端)'
-                break
-
-              case 'domain':
-                hist.type = '域名黑名单'
-                break
-
-              case 'device':
-                hist.type = '设备ID黑名单'
-                break
-
-              case 'default':
-                hist.type = '设备ID白名单'
-                break
-
-              case 'publisher_ip':
-                hist.type = 'IP白名单'
-                break
-            }
-          })
+          tab.histories.forEach((hist, id) => hist.type = xutils.type2Name(hist.type))
 
           // 转换ipfs信息
-          if ($scope.showingTab.type === 'appeal') {
-            $scope.showingTab.histories.map(function (hist, id) {
-              hist.details.ipfsInfo = JSON.parse(hist.details.ipfsInfo)
+          if (tab.type === 'appeal') {
+            tab.histories.map((hist, id) => {
+              let details = hist.details
+              details.ipfsInfo = JSON.parse(details.ipfsInfo)
 
-              if (hist.details.summary.length > 30) {
-                hist.details.summaryShort = hist.details.summary.substr(0, 30) + '...'
-              } else {
-                hist.details.summaryShort = hist.details.summary
-              }
+              if (details.summary.length > 30) details.summaryShort = details.summary.substr(0, 30) + '...'
+              else details.summaryShort = details.summary
             })
           }
-          $scope.showingTab.total = respData.total
-          $scope.showingTab.pageSize = respData.pageSize
+
+          tab.total = total
+          tab.pageSize = pageSize
         } else {
           alertMsgService.alert('获取失败', false)
-          $scope.showingTab.histories = []
-          $scope.showingTab.total = 0
-          $scope.showingTab.pageSize = 5
+          tab.histories = []
+          tab.total = 0
+          tab.pageSize = 5
         }
 
-        if (!pageNO) {
-          $scope.showingTab.currentPage = 1
-        }
+        if (!pageNO) tab.currentPage = 1
+
+        isFirstLoad = false
       })
-      .catch(function (err) {
+      .catch(err => {
+        isFirstLoad = false
         alertMsgService.alert(err, false)
       })
   }
 
   /**
-   * 清空日期
-   */
-  $scope.clearDate = function () {
-    $scope.dateRange = ''
-  }
-
-  /**
    * 标签选择
    */
-  $scope.selectTab = function (dataType) {
+  $scope.selectTab = dataType => {
     $scope.selectDataType = dataType
     $scope.showingTab.type = dataType
 
@@ -536,12 +512,11 @@ app.controller('HistoryController', function ($q, $scope, $http, $rootScope, $lo
     if (!dataRange) { // 默认查询最近半年的记录
       let nowDate = new Date()
 
-      let endDateStr = $filter('date')(new Date(nowDate.setDate(nowDate.getDate() + 1)), 'yyyy/MM/dd')
-      let startDateStr = $filter('date')(new Date(nowDate.setDate(nowDate.getDate() - 180)), 'yyyy/MM/dd')
+      let startDate = xutils.dateToSlashedYMD(xutils.addDays(nowDate, -180))
+      let endDate = xutils.dateToSlashedYMD(xutils.addDays(nowDate, 1))
 
-      dataRange = [startDateStr, endDateStr]
-      $scope.dateRange = startDateStr + ' - ' + endDateStr
-      initDateRange = $scope.dateRange
+      dataRange = [startDate, endDate]
+      $scope.dateRange = startDate + ' - ' + endDate
       return dataRange
     } else {
       dataRange = dataRange.split(' - ')

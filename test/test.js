@@ -1,24 +1,13 @@
-function versionFromTimestamp (timestamp, adjustZone) {
-  if (adjustZone) {
-    timestamp += 1000 * 60 * 60 * 8
-  }
+let CronJob = require('cron').CronJob
 
-  let pubDate = new Date(parseInt(timestamp))
-  let month = pubDate.getMonth() + 1
-
-  if (month < 10) {
-    month = '0' + month
-  }
-
-  let day = pubDate.getDate()
-
-  if (day < 10) {
-    day = '0' + day
-  }
-
-  let version = pubDate.getFullYear() + '' + month + '' + day
-
-  return version
+function call (a = {}) {
+  console.log(a)
 }
 
-console.log(versionFromTimestamp(1582131600000,true))
+describe('$test groups$', function () {
+  it('case 1', async function () {
+    let date = new Date()
+    console.log(new Date(Date.UTC(date.getFullYear(), date.getMonth() + 1, 24,17)))
+  });
+});
+

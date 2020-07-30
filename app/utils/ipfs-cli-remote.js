@@ -32,20 +32,19 @@ function bind (host, port) {
   }
  **/
 function add (filePath, opts) {
-  let fileToAdd = fs.readFileSync(filePath)
-  return addByBuffer(fileToAdd, opts)
+  return addByBuffer(fs.readFileSync(filePath), opts)
 }
 
 function addByBuffer (buffer, opts) {
   let addPromise = new Promise((resolve, reject) => {
-    ipfs.add(new Buffer(buffer), opts, function (err, files) {
-      if (err || typeof files === 'undefined') {
-        reject(err)
-      } else {
-        let file = files.pop()
-        resolve(file)
-      }
-    })
+    ipfs.add(new Buffer(buffer), opts,
+      (err, files) => {
+        if (err || typeof files === 'undefined') reject(err)
+        else {
+          let file = files.pop()
+          resolve(file)
+        }
+      })
   })
 
   return addPromise
@@ -64,13 +63,13 @@ function addByStr (str, opts) {
  **/
 async function addMulti (filePaths) {
   let allPromises = []
+
   filePaths.forEach((file) => {
     let addPromise = add(file)
     allPromises.push(addPromise)
   })
 
-  let files = await Promise.all(allPromises)
-  return files
+  return await Promise.all(allPromises)
 }
 
 /**
@@ -88,14 +87,14 @@ function get (path, id, timeout) {
       resolve(err)
     }, timeout || requestTimeout)
 
-    ipfs.get(path, function (err, files) {
+    ipfs.get(path, (err, files) => {
       if (err || typeof files === 'undefined') {
         reject(err)
       } else {
         let file = files.pop()
-        if (id) {
-          file.id = id
-        }
+
+        if (id) file.id = id
+
         resolve(file)
       }
     })
@@ -111,12 +110,13 @@ function get (path, id, timeout) {
  **/
 async function getMulti (paths, ids, timeout) {
   let allPromises = []
+
   paths.forEach((path, pos) => {
     let getPromise = get(path, ids[pos], timeout)
     allPromises.push(getPromise)
   })
-  let files = await Promise.all(allPromises)
-  return files
+
+  return await Promise.all(allPromises)
 }
 
 exports.bind = bind

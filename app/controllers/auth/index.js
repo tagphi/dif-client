@@ -1,14 +1,9 @@
 /**
  *  【认证模块管理器】
  **/
-// 管理员
-var admin = require('../../../config').site
-
-var respUtils = require('../../utils/resp-utils')
-
-var tokenManager = require('../../interceptors/token-manager')
-
-var {check} = require('express-validator/check')
+let {err, ok} = require('../../utils/resp-utils')
+let {check} = require('express-validator/check')
+let tokenManager = require('../../interceptors/token-manager')
 const CONFIG_SITE = require('../../../config').site
 
 exports.url = '/auth'
@@ -21,38 +16,40 @@ exports.validateLogin = [
 /**
  *  登录接口
  **/
-exports.login = async function login (req, res, next) {
+exports.login = async (req, res) => {
   var username = req.body.username
   var password = req.body.password
 
-  if (username === admin.username && password === admin.password) {
-    var sessionId = tokenManager.createSession()
-
-    res.status(200).json({
-      success: true,
-      token: sessionId,
-      username: username
-    })
+  if (username === CONFIG_SITE.username && password === CONFIG_SITE.password) {
+    res.status(200)
+      .json({
+        success: true,
+        token: tokenManager.createSession(),
+        username: username
+      })
   } else {
-    respUtils.errResonse(res, '无效的用户名或密码')
+    err(res, '无效的用户名或密码')
   }
 }
 
 /**
  *  退出接口
  **/
-exports.logout = async function logout (req, res, next) {
+exports.logout = async (req, res) => {
   tokenManager.deleteSession(req.body.token)
-
-  res.status(200).json({
-    success: true,
-    message: '退出成功'
-  })
+  ok(res, '退出成功')
 }
 
 /**
  *  是否是观察者
  **/
-exports.watcher = async function (req, res) {
-  respUtils.succResponse(res, '获取成功', {isWatcher: CONFIG_SITE.watcher})
+exports.watcher = async (req, res) => {
+  ok(res, '获取成功', {isWatcher: CONFIG_SITE.watcher})
+}
+
+/**
+ *  客户端版本
+ **/
+exports.version = async (req, res) => {
+  ok(res, '获取成功', {version: CONFIG_SITE.version})
 }

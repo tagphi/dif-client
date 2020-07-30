@@ -5,7 +5,7 @@ var fs = require('fs')
 var path = require('path')
 const {validationResult} = require('express-validator/check')
 
-var utils = require('./utils/resp-utils')
+var {err} = require('./utils/resp-utils')
 let logger = require('./utils/logger-utils').logger()
 
 exports.mapRoutes = function (app) {
@@ -17,8 +17,6 @@ exports.mapRoutes = function (app) {
 
     let obj = require(file) // controller object
     let excludeHandlers = obj.excludeHandlers // 要排除的处理器名单
-
-    name = obj.name || name
 
     let url = obj['url']
 
@@ -46,14 +44,18 @@ exports.mapRoutes = function (app) {
         if (validator) {
           if (method.indexOf('download') !== -1) {
             app.get(subUrl, validator, asyncWrapper(handler))
+            logger.info(`mapping api [GET]:${subUrl}`)
           } else {
             app.post(subUrl, validator, asyncWrapper(handler))
+            logger.info(`mapping api [POST]:${subUrl}`)
           }
         } else {
           if (method.indexOf('download') !== -1) {
+            logger.info(`mapping api [GET]:${subUrl}`)
             app.get(subUrl, asyncWrapper(handler))
           } else {
             app.post(subUrl, asyncWrapper(handler))
+            logger.info(`mapping api [GET]:${subUrl}`)
           }
         }
       }
@@ -69,7 +71,7 @@ function asyncWrapper (handler) {
     _accessLog(req)
     let errors = validationResult(req)
     if (!errors.isEmpty()) {
-      utils.errResonse(res, errors.array()[0].msg) // 这个地方应该支持字段和多个错误消息
+      err(res, errors.array()[0].msg) // 这个地方应该支持字段和多个错误消息
       res.end()
     } else {
       try {

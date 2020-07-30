@@ -2,15 +2,20 @@
 /**
  * 合并版本历史页面控制器
  **/
-app.controller('MergesController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $filter, HttpService, ngDialog, alertMsgService, Upload) {
+app.controller('MergesController', function ($q, $scope, $http, $rootScope, $location, $localStorage, $timeout, $filter, HttpService, ngDialog, alertMsgService, Upload, xutils) {
   $scope.histories = []
   $scope.type = 'device'
 
   /**
    * 返回
    **/
-  $scope.back = function () {
-    window.history.back()
+  $scope.back = () => window.history.back()
+
+  /*
+  * 主版本
+  * */
+  function mainVersion (pubDate) {
+    return xutils.newVersionRule(pubDate) ? xutils.dateToYM(xutils.nextMonth(pubDate)) : xutils.dateToYMD(pubDate);
   }
 
   /**
@@ -23,130 +28,96 @@ app.controller('MergesController', function ($q, $scope, $http, $rootScope, $loc
       '20191011':2 // 该日合并版本计数器
      }
      **/
-    let dateVersionCounter = {}
-    let dateVersionTotal = {}
+    let versionCounterByDate = {}
+    let versionTotalByDate = {}
 
     /**
      * 查询该日期的版本计数器
      *  每次获取当前版本+1，作为最新的版本
      **/
-    function dateVersion (date) {
-      let curCount = dateVersionCounter[date]
-      let total = dateVersionTotal[date]
+    function versionByDate (pubDate) {
+      let mainVer = mainVersion(pubDate);
 
-      if (!curCount) {
-        curCount = total
-      } else {
-        curCount = curCount - 1
-      }
+      let total = versionTotalByDate[mainVer] || 1
+      let curCount = versionCounterByDate[mainVer]
 
-      dateVersionCounter[date] = curCount
-      return curCount
+      return versionCounterByDate[mainVer] = !curCount ? total : curCount - 1
     }
 
-    $scope.histories.forEach(function (row, id) {
-      let date = new Date()
-      date.setTime(row.timestamp)
-      row.date = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss')
-      row.dateSimp = $filter('date')(date, 'yyyyMMdd')
-
-      let total = dateVersionTotal[row.dateSimp]
-
-      if (total) {
-        total += 1
-      } else {
-        total = 1
-      }
-
-      dateVersionTotal[row.dateSimp] = total
+    /*
+    * 统计每日发布的版本总数
+    * */
+    $scope.histories.forEach((row) => {
+      let mainVer = mainVersion(new Date(parseInt(row.timestamp)));
+      let total = versionTotalByDate[mainVer]
+      versionTotalByDate[mainVer] = total ? total + 1 : 1
     })
 
-    $scope.histories.forEach(function (row, id) {
-      row.id = id + 1
-      row.type = $scope.type
+    $scope.histories.forEach(function (record, i) {
+      let nextRecord = undefined
+
+      if (i != 0) { // 不是最后一个元素
+        nextRecord = $scope.histories[i - 1]
+      }
+
+      record.id = i + 1
+      record.type = $scope.type
 
       // 转换时间戳
-      let date = new Date()
-      date.setTime(row.timestamp)
-      row.date = $filter('date')(date, 'yyyy-MM-dd HH:mm:ss')
-      row.dateSimp = $filter('date')(date, 'yyyyMMdd')
+      let pubDate = new Date(parseInt(record.timestamp))
+      record.date = xutils.dateToFull(pubDate)
 
-      row.version = row.dateSimp + '_' + dateVersion(row.dateSimp)
-      row.filename = row.type + '_' + row.version
+      // 版本
+      let pubDateYMD = xutils.dateToYMD(pubDate)
+      let pubDateYM = xutils.dateToYM(pubDate)
+
+      let nextPubDate = xutils.nextMonth(pubDate)
+      let nextMonthYM = xutils.dateToYM(nextPubDate)
+
+      if (!xutils.newVersionRule(pubDate)) { // 旧版本
+        record.version = pubDateYMD + '_' + versionByDate(pubDate)
+        record.validPeriod = `${pubDateYM}28 ~ ${nextMonthYM}28`
+      } else { // 新版本
+        record.version = nextMonthYM + '_' + versionByDate(pubDate)
+        record.validPeriod = `${nextMonthYM}01 ~ ${nextMonthYM}${xutils.daysOfMonth(nextPubDate)}`
+      }
+
+      record.filename = record.type + '_' + record.version
     })
   }
 
   /**
    * 查询合并历史
-
    **/
   $scope.queryHists = function (type) {
     HttpService.post('/blacklist/mergedHistories', {type})
-      .then(function (respData) {
-        if (respData.success) {
-          $scope.histories = respData.data
+      .then(({data, success}) => {
+        if (success) {
+          $scope.histories = data
 
           // 转换类型
-          $scope.histories.map(function (hist, id) {
-            let type = hist.type
+          $scope.histories.forEach((hist, id) => hist.type = xutils.type2Name(hist.type))
 
-            if (!type) {
-              return
-            }
-
-            switch (type) {
-              case 'ip':
-                hist.type = 'IP黑名单'
-                break
-
-              case 'ua_spider':
-                hist.type = 'UA特征(机器及爬虫)'
-                break
-
-              case 'ua_client':
-                hist.type = 'UA特征(合格客户端)'
-                break
-
-              case 'domain':
-                hist.type = '域名黑名单'
-                break
-
-              case 'device':
-                hist.type = '设备ID黑名单'
-                break
-
-              case 'default':
-                hist.type = '设备ID白名单'
-                break
-
-              case 'publisher_ip':
-                hist.type = 'IP白名单'
-                break
-            }
-          })
-
+          // 格式化历史数据
           formatHistories()
         } else {
           alertMsgService.alert('获取失败', false)
           $scope.histories = []
         }
       })
-      .catch(function (err) {
-        alertMsgService.alert('投票失败', false)
-      })
   }
 
   /**
    * 标签选择
    */
-  $scope.selectTab = function (type) {
+  $scope.selectTab = type => {
     $scope.type = type
 
     // 查询
     $scope.queryHists(type)
   }
 
-  ;(function init () {
+  ;(() => {
     $scope.queryHists($scope.type)
   })()
 })

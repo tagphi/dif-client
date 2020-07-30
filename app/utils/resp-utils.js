@@ -2,28 +2,27 @@
 
 let CONFIG_SITE = require('../../config').site
 let logger = require('../utils/logger-utils').logger()
-var errResonse = function (res, msg) {
-  var response = {
+
+let ok = function (res, msg, data) {
+  let respData = {
+    success: true,
+    message: msg
+  }
+  logger.info(JSON.stringify(respData).substr(0,100))
+
+  if (data) respData.data = data
+
+  res.json(respData)
+}
+
+let err = function (res, msg) {
+  let response = {
     success: false,
     message: msg
   }
   logger.info(JSON.stringify(response))
 
   res.json(response)
-}
-
-var succResponse = function (res, msg, data) {
-  var respData = {
-    success: true,
-    message: msg
-  }
-  logger.info(JSON.stringify(respData))
-
-  if (data) {
-    respData.data = data
-  }
-
-  res.json(respData)
 }
 
 function download (res, filename, content) {
@@ -36,7 +35,10 @@ function download (res, filename, content) {
   res.send(content)
 }
 
-function page (res, result, pageNO) {
+/*
+* 分页
+* */
+function page (res, list, pageNO) {
   pageNO = pageNO || 1
   let pageSize = CONFIG_SITE.pageSize || 10
 
@@ -44,31 +46,22 @@ function page (res, result, pageNO) {
   let startOffset = (pageNO - 1) * pageSize
   let endOffset = startOffset + pageSize - 1
 
-  let pageResult = _getPageData(result, startOffset, endOffset)
+  let pageData = list.filter((row, id) => id >= startOffset && id <= endOffset)
 
-  let ret = {
+  let pageResp = {
     success: true,
     message: '查询成功',
-    total: result.length,
+    total: list.length,
     pageSize: pageSize
   }
-  logger.info(JSON.stringify(ret))
 
-  ret.data = pageResult
-  res.json(ret)
+  logger.info(JSON.stringify(pageResp).substr(0,100))
+
+  pageResp.data = pageData
+  res.json(pageResp)
 }
 
-function _getPageData (result, startOffset, endOffset) {
-  let pageResult = []
-  result.forEach(function (row, id) {
-    if (id >= startOffset && id <= endOffset) {
-      pageResult.push(row)
-    }
-  })
-  return pageResult
-}
-
-exports.errResonse = errResonse
-exports.succResponse = succResponse
+exports.err = err
+exports.ok = ok
 exports.download = download
 exports.page = page

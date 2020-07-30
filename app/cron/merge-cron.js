@@ -7,45 +7,79 @@ let logger = require('../utils/logger-utils').logger()
 
 let blacklistService = require('../services/blacklist-service')
 let queryCC = require('../cc/query')
+let cronUtil = require('./cron-util')
 
 const DATA_TYPES = [
+  {type: 'default', merging: false},
   {type: 'device', merging: false},
+
   {type: 'ip', merging: false},
+  {type: 'domain', merging: false},
 
   {type: 'ua_spider', merging: false},
-  {type: 'ua_client', merging: false},
-
-  {type: 'domain', merging: false},
-  {type: 'default', merging: false}
+  {type: 'ua_client', merging: false}
 ]
 
 let isRunning = false
 
 function startCron () {
   if (isRunning) return
+
   isRunning = true
-  let cronTime = cronTimeFromConfig(CONFIG.site.cron.merge_interval)
+
+  let cronTime = cronUtil.cronTimeFromConfig(CONFIG.site.cron.merge_interval)
   new CronJob(cronTime, onTick, null, true, CONFIG.site.cron.timezone)
 }
 
-function cronTimeFromConfig (configTime) {
-  configTime += ''
-
-  if (configTime.indexOf('*') !== -1) {
-    return configTime
-  } else {
-    return '*/' + configTime + ' * * * * *'
+/*
+* 合并指定的类型
+* @param item 格式{type: 'default', merging: false}
+* */
+async function mergeType (item) {
+  if (item.merging) {
+    logger.warn(`[${item.type}] still in merging,from:${item.old} to:${item.latest}`)
+    return
   }
+
+  item.merging = true
+  let latestVersion
+
+  try {
+    // 取的最新版本，每个类型对应不同的控制版本
+    let latestVersion = await queryCC('version', [item.type]) // ua查出来ua对应的最新版本，其他名单的提交不受影响
+
+    latestVersion = parseInt(latestVersion)
+
+    let latestMergedVersion = await getMergedVersionByType(item.type)
+    logger.info(`[${item.type}] latestVersion:${latestVersion},typedMergedVersion:${latestMergedVersion}`)
+
+    // 有全局新版本才去合并
+    if (latestVersion != 0 && latestVersion > latestMergedVersion) {
+      item.old = latestMergedVersion
+      item.latest = latestVersion
+      logger.info(`[${item.type}] start merge:currentVersion-${latestMergedVersion},latestVersion-${latestVersion}`)
+
+      await blacklistService.merge(item.type, latestVersion)
+      logger.info(`[${item.type}] success merge:from ${latestMergedVersion} to ${latestVersion}`)
+    }
+  } catch (e) {
+    logger.error(`[${item.type}] failed to merge to ${latestVersion}:${e}`)
+  } finally {
+    item.merging = false
+  }
+
+  item.merging = false
 }
 
 async function onTick () {
-  try {
-    logger.info('merge cron ticking...')
-
-    // 取的各类型的最新合并列表，并根据版本决定是否合并
-    DATA_TYPES.forEach(_tryToMergeTypedList())
-  } catch (e) {
-    logger.error('merge cron err', e)
+  // 取的各类型的最新合并列表，并根据版本决定是否合并
+  for (item of DATA_TYPES) {
+    try {
+      logger.info('merge cron ticking...')
+      await mergeType(item)
+    } catch (e) {
+      logger.error('merge cron err', e)
+    }
   }
 }
 
@@ -65,46 +99,10 @@ async function onTick () {
 async function getMergedVersionByType (type) {
   // 查询最新的合并版本信息
   let mergedListIpfsInfo = await queryCC('getOrgMergeList', [type])
+
   if (!mergedListIpfsInfo) return -1
 
-  mergedListIpfsInfo = JSON.parse(mergedListIpfsInfo)
-  return mergedListIpfsInfo.version
-}
-
-function _tryToMergeTypedList () {
-  async function _asyncTryToMergeTypedList (item) {
-    let isUA = item.type.indexOf('ua') !== -1
-
-    // 取的最新版本
-    let latestVersion = await queryCC('version', [isUA + '']) // ua查出来ua对应的最新版本，其他名单的提交不受影响
-    latestVersion = parseInt(latestVersion)
-
-    try {
-      let typedMergedVersion = await getMergedVersionByType(item.type)
-      logger.info(`[${item.type}] latestVersion-${latestVersion},typedMergedVersion-${typedMergedVersion}`)
-
-      if (latestVersion === 0 || // 初始版本1，没有任何的上传和移除操作
-        latestVersion <= typedMergedVersion) { // 没有新的版本
-        return
-      }
-
-      if (item.merging) return
-
-      item.merging = true
-      logger.info(`[${item.type}] start merge:currentVersion-${typedMergedVersion},latestVersion-${latestVersion}`)
-
-      await blacklistService.merge(item.type, latestVersion)
-      item.merging = false
-
-      logger.info(`[${item.type}] success merge:from ${typedMergedVersion} to ${latestVersion}`)
-
-    } catch (e) {
-      logger.error(`[${item.type}] failed to merge to ${latestVersion}:${e}`)
-      item.merging = false
-    }
-  }
-
-  return _asyncTryToMergeTypedList
+  return JSON.parse(mergedListIpfsInfo).version
 }
 
 exports.startCron = startCron

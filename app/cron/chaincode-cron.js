@@ -1,59 +1,61 @@
 /* eslint-disable no-trailing-spaces,padded-blocks,no-new */
 
-let CronJob = require('cron').CronJob
-let CONFIG = require('../../config')
-let ADMIN_ADDR = CONFIG.site.adminAddr
-let downloader = require('../utils/download-utils')
-var agent = require('superagent-promise')(require('superagent'), Promise)
-let queryCC = require('../../query-installed-chaincode')
-let path = require('path')
-let installCC = require('../../install-chaincode')
-let tar = require('../utils/tar-utils')
 let logger = require('../utils/logger-utils').logger()
 
-function startCron () {
-  let cronTime = '*/' + CONFIG.site.cron.query_cc_install + ' * * * * *'
-  new CronJob(cronTime, onTick, null, true, CONFIG.site.cron.timezone)
-}
+let CronJob = require('cron').CronJob
+
+let CONFIG = require('../../config')
+let ADMIN_ADDR = CONFIG.site.adminAddr
+
+let queryCC = require('../../query-installed-chaincode')
+let installCC = require('../../install-chaincode')
+
+let downloader = require('../utils/download-utils')
+let agent = require('superagent-promise')(require('superagent'), Promise)
+let path = require('path')
+let tar = require('../utils/tar-utils')
+let cronUtil = require('./cron-util')
 
 let isProcessing = false
+
+function startCron () {
+  new CronJob(cronUtil.cronTimeFromConfig(CONFIG.site.cron.query_cc_install),
+    onTick, null, true, CONFIG.site.cron.timezone)
+}
 
 async function onTick () {
   if (isProcessing) return
 
   isProcessing = true
-
   logger.info('chaincode sync ticking...')
+
   try {
     // 查询服务端的最新链码
-    let apiNewestCC = ADMIN_ADDR + '/static/cc_config.json'
-    let resp = await agent.get(apiNewestCC).buffer()
-    let remoteLatestCC = JSON.parse(resp.text)
-    let remoteLatestCCVersionInt = parseInt(remoteLatestCC.version.replace('v', ''))
+    let resp = await agent.get(ADMIN_ADDR + '/static/cc_config.json').buffer()
+    let adminLatestCC = JSON.parse(resp.text)
+    let adminLatestCCVersionInt = parseInt(adminLatestCC.version.replace('v', ''))
 
     // 查询本地peer上的已经安装的链码
     let localInstalledCCs = await queryCC.queryInstalledCC()
+
     if (!localInstalledCCs || localInstalledCCs.length === 0) { // 本地尚未安装链码
-      await downloadAndInstallCC(remoteLatestCC)
-      isProcessing = false
-      return
+      logger.info(`chaincodes not existed,try to install from admin...`)
+      await downloadAndInstallCC(adminLatestCC)
+    } else { // 已有安装的链码，判断是否管理员端更新
+      let localLatestCCInt = _findLatestVersionOfInstalledCC(localInstalledCCs)
+
+      if (adminLatestCCVersionInt <= localLatestCCInt) logger.info(`chaincode not updated,current version:${localLatestCCInt}`)
+      else {
+        logger.info(`installing new version:${adminLatestCCVersionInt},from old:${localLatestCCInt}`)
+        // 有较新的版本，下载并安装
+        await downloadAndInstallCC(adminLatestCC)
+      }
     }
-
-    let localLatestCCInt = _findLatestVersionOfInstalledCC(localInstalledCCs)
-
-    if (remoteLatestCCVersionInt <= localLatestCCInt) {
-      isProcessing = false
-      return
-    }
-
-    // 有较新的版本，下载并安装
-    await downloadAndInstallCC(remoteLatestCC)
   } catch (e) {
-    isProcessing = false
     logger.error(`chaincode sync err：${e}`)
+  } finally {
+    isProcessing = false
   }
-
-  isProcessing = false
 }
 
 /**
@@ -62,37 +64,41 @@ async function onTick () {
  **/
 function _findLatestVersionOfInstalledCC (installedCCs) {
   let latestVersion = -1
-  installedCCs.forEach(function (cc) {
+
+  installedCCs.forEach(cc => {
     let ccVersion = parseInt(cc.version.replace('v', ''))
+
     if (ccVersion > latestVersion) latestVersion = ccVersion
   })
+
   return latestVersion
 }
 
 async function downloadAndInstallCC (remoteLatestCC) {
-  let msg = '---- download new version of chaincode ----'
-  logger.info(msg)
+  logger.info('---- download new version of chaincode ----')
 
-  let ccPath = path.join(__dirname, '../../chaincode/build')
-  if (remoteLatestCC.type === 'golang') {
-    ccPath = path.join(__dirname, '../../chaincode/go/src')
-  }
-  let ccTmpPath = path.join(__dirname, '../../chaincode/tmp')
-  let saveName = 'cc.tar.gz'
+  let ccDir = remoteLatestCC.type === 'golang'
+    ? path.join(__dirname, '../../chaincode/go/src')
+    : path.join(__dirname, '../../chaincode/build')
+
+  // 用于下载和解压
+  let tmpPath = path.join(__dirname, '../../chaincode/tmp')
+  let ccPkgName = 'cc.tar.gz'
 
   // 下载链码包
-  await downloader.downloadFile(remoteLatestCC.downloadUrl, ccTmpPath, saveName)
+  await downloader.downloadFile(remoteLatestCC.downloadUrl, tmpPath, ccPkgName)
   // 解压
-  await tar.xz(ccTmpPath + '/' + saveName, ccPath)
+  await tar.xz(tmpPath + '/' + ccPkgName, ccDir)
   await installCC.installChaincode(remoteLatestCC.name, remoteLatestCC.version, remoteLatestCC.type)
 
-  await agent.post(ADMIN_ADDR + '/peer/reportPeerCC', {
-    mspId: CONFIG.msp.id,
-    cc: [{name: remoteLatestCC.name, version: remoteLatestCC.version}]
-  }).buffer()
+  // 汇报给admin自己的版本进度
+  await agent.post(ADMIN_ADDR + '/peer/reportPeerCC',
+    {
+      mspId: CONFIG.msp.id,
+      cc: [{name: remoteLatestCC.name, version: remoteLatestCC.version}]
+    }).buffer()
 
-  msg = 'Successfully install chaincode ——> name：' + remoteLatestCC.name + ' version：' + remoteLatestCC.version
-  logger.info(msg)
+  logger.info('Successfully install chaincode ——> name：' + remoteLatestCC.name + ' version：' + remoteLatestCC.version)
 }
 
 exports.startCron = startCron
