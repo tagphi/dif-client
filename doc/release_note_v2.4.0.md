@@ -105,6 +105,7 @@ crypto-config/
 
 - 1、首先将v2.4.0包中的`update_config.sh`和`config.json.tpl`拷贝到原v2.x部署的主目录中
 - 2、在原v2.x主目录中执行以下脚本即可
+- 3、注意升级后密码会被重置为p@ssw0rd。可以通过修改config.json然后重启dif-client容器修改。
 
 ```shell
 # 更新配置
