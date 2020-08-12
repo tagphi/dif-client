@@ -27,7 +27,7 @@
     - 4001、4002、5001
     - 8080、8081
 
-- 下载安装包 https://github.com/tagphi/dif-client/releases/download/2.0.0/dif-client-v2.0.0.tar.gz并解压
+- 下载安装包 https://github.com/tagphi/dif-client/releases/download/v2.4.0/dif-client-v2.4.0.tar.gz并解压
 
 - 拷贝组织证书到dif-client/crypto-config/ 目录下
 
