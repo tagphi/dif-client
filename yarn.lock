@@ -2909,10 +2909,10 @@ minimist@~0.0.1:
   resolved "https://registry.npm.taobao.org/minimist/download/minimist-0.0.10.tgz#de3f98543dbf96082be48ad1a0c7cda836301dcf"
   integrity sha1-3j+YVD2/lggr5IrRoMfNqDYwHc8=
 
-minipass@^2.2.1, minipass@^2.3.5:
-  version "2.3.5"
-  resolved "https://registry.npm.taobao.org/minipass/download/minipass-2.3.5.tgz#cacebe492022497f656b0f0f51e2682a9ed2d848"
-  integrity sha1-ys6+SSAiSX9law8PUeJoKp7S2Eg=
+minipass@^2.2.1, minipass@^2.8.6:
+  version "2.9.0"
+  resolved "https://registry.npm.taobao.org/minipass/download/minipass-2.9.0.tgz#e713762e7d3e32fed803115cf93e04bca9fcc9a6"
+  integrity sha1-5xN2Ln0+Mv7YAxFc+T4EvKn8yaY=
   dependencies:
     safe-buffer "^5.1.2"
     yallist "^3.0.0"
@@ -4640,14 +4640,14 @@ tar@^2.2.1:
     fstream "^1.0.12"
     inherits "2"
 
-tar@^4, tar@^4.4.4:
-  version "4.4.10"
-  resolved "https://registry.npm.taobao.org/tar/download/tar-4.4.10.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Ftar%2Fdownload%2Ftar-4.4.10.tgz#946b2810b9a5e0b26140cf78bea6b0b0d689eba1"
-  integrity sha1-lGsoELml4LJhQM94vqawsNaJ66E=
+tar@^4, tar@^4.4.15:
+  version "4.4.15"
+  resolved "https://registry.nlark.com/tar/download/tar-4.4.15.tgz?cache=0&sync_timestamp=1628062933010&other_urls=https%3A%2F%2Fregistry.nlark.com%2Ftar%2Fdownload%2Ftar-4.4.15.tgz#3caced4f39ebd46ddda4d6203d48493a919697f8"
+  integrity sha1-PKztTznr1G3dpNYgPUhJOpGWl/g=
   dependencies:
     chownr "^1.1.1"
     fs-minipass "^1.2.5"
-    minipass "^2.3.5"
+    minipass "^2.8.6"
     minizlib "^1.2.1"
     mkdirp "^0.5.0"
     safe-buffer "^5.1.2"
