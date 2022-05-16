@@ -1,39 +1,17 @@
-# Dif黑名单使用示例
+# DIF GIVT List使用示例
 
-## 目录
-
-- [全局说明](#全局说明)
-- [IP](#ip)
-	- [上传](#上传)
-	- [申诉](#申诉)
-	- [合并后名单](#合并后名单)
-- [媒体服务器IP](#媒体服务器ip)
-	- [上传](#上传)
-- [设备ID黑名单](#设备ID黑名单)
-	- [上传](#上传)
-	- [申诉](#申诉)
-	- [合并后名单](#合并后名单)
-- [设备ID灰名单](#设备ID灰名单)
-	- [上传](#上传)
-	- [申诉](#申诉)
-- [域名黑名单](#域名黑名单)
-	- [上传](#上传)
-	- [申诉](#申诉)
-	- [合并后名单](#合并后名单)
-- [UA(已知爬虫/合规客户端)](#ua已知爬虫合规客户端)
-	- [上传](#上传)
-	- [合并后规则名单](#合并后规则名单)
+[TOC]
 
 ### 全局说明
 
 - 每行为一条记录，行分隔符为`\n`
 - 每列分隔符为tab键，即`\t`
 
-### IP
+### IPv4黑名单
 
 ##### 上传
 
-**格式** - `ip	标志位`
+**格式** - `ipv4地址	标志位`
 
 - 标志位
 	- 0 - 删除，即该ip不是黑名单
@@ -50,7 +28,7 @@
 
 ##### 申诉
 
-**格式** - `ip`
+**格式** - `ipv4`
 
 示例：
 
@@ -63,7 +41,7 @@
 
 ##### 合并后名单
 
-**格式** - `ip:投票的组织id...`
+**格式** - `ipv4:投票的组织id...`
 
 示例
 
@@ -76,22 +54,6 @@
 1.119.140.2:Adsame,PUBLICISMEDIA
 ```
 
-### 媒体服务器IP
-
-##### 上传
-
-**格式** - `ip`
-
-示例：
-
-```
-223.104.64.14
-223.104.65.173
-117.136.29.176
-223.104.24.175
-```
-
-
 ### 设备ID黑名单
 
 ##### 上传
@@ -99,7 +61,7 @@
 **格式** - `设备id	设备类型	加密方式	标志位`
 
 - 设备类型	- 支持的设备类型有 `IMEI`、`IDFA`、`MAC`、`ANDROIDID`、`MAC_OTT`、`OAID`
-- 加密方式	- 支持的加密方式有 `MD5`、`RAW`
+- 加密方式	- 支持的加密方式有 `MD5`、`RAW`,允许上传原值或加密值
 - 标志位	- 支持的标志位有 `1`、`0`,`1`代表新增,`0`代表移除
 
 示例：
@@ -115,7 +77,6 @@
 0976110a15f468bd8f29818292262bc0	ANDROIDID	MD5	1
 ca7195d116bb0fe50b0fd3fe6d6cfad0	MAC_OTT	MD5	1
 af1c93c5e6b84f12	OAID	RAW	1
-
 ```
 
 ##### 申诉
@@ -123,7 +84,7 @@ af1c93c5e6b84f12	OAID	RAW	1
 **格式** - `设备id	设备类型	加密方式`
 
 - 设备类型	- 支持的设备类型有 `IMEI`、`IDFA`、`MAC`、`ANDROIDID`、`MAC_OTT`、`OAID`
-- 加密方式	- 支持的加密方式有 `MD5`、`RAW`
+- 加密方式	- 支持的加密方式有 `MD5`、`RAW`,允许申诉原值或加密值
 
 示例：
 
@@ -144,17 +105,21 @@ af1c93c5e6b84f12	OAID	RAW
 
 **格式** - `设备id	设备类型	加密方式:投票的组织id...`
 
+- 设备类型	- 支持的设备类型有 `IMEI`、`IDFA`、`MAC`、`ANDROIDID`、`MAC_OTT`、`OAID`
+- 加密方式	- 支持的加密方式有 ~~`RAW`~~、`MD5`。
+- **`特别说明：基于行业标准和相关法规要求，合并后名单只输出加密值。`**
+
 示例
 
 ```
-0009A7B7-3565-4D78-A4CB-0A63B310FCF5	IDFA	RAW:PUBLICISMEDIA,RTBAsia
+0b3daa4280b489c8c37907f2dd1954a5	IDFA	MD5:PUBLICISMEDIA,RTBAsia
 0009c8c1b960c3254db681649abe67a8	IMEI	MD5:LDN,RTBAsia
-000C1C14-3374-414A-B334-B3930589472B	IDFA	RAW:PUBLICISMEDIA,RTBAsia
+96ec75e901cbf0f3be6352433ed50be7	IDFA	MD5:PUBLICISMEDIA,RTBAsia
 001266b95c11c0b6de232092fb6dc35c	IMEI	MD5:Adsame,LDN
 454f0565bba9e7ea2c142d213975666c	MAC	MD5:PUBLICISMEDIA,ctr
 0976110a15f468bd8f29818292262bc0	ANDROIDID	MD5:LDN,ctr
 ca7195d116bb0fe50b0fd3fe6d6cfad0	MAC_OTT	MD5:PUBLICISMEDIA,ctr
-af1c93c5e6b84f12	OAID	RAW:RTBAsia,Adsame
+d225bc8e06ac954431b5243edb377348	OAID	RAW:RTBAsia,Adsame
 ```
 
 ### 设备ID灰名单
@@ -164,7 +129,8 @@ af1c93c5e6b84f12	OAID	RAW:RTBAsia,Adsame
 **格式** - `设备id	设备类型	标志位`
 
 - 设备类型	- 支持的设备类型有 `IMEI`、`IDFA`、`MAC`、`ANDROIDID`、`MAC_OTT`、`OAID`
-- 标志位	- 支持的标志位有 `1`、`0`,`1`代表新增,`0`代表移除
+- 标志位	- 支持的标志位有 `1`、`0`。`1`代表新增,`0`代表移除
+- **`特别说明：上传设备ID灰名单数据时即要上传数据的原值，也需要上传数据的MD5值。`**
 
 示例：
 
@@ -194,6 +160,23 @@ ad:d1:48:01:12:02	MAC_OTT
 af1c93c5e6b84f12	OAID
 ```
 
+##### 合并后名单
+
+**格式** - `设备id	设备类型:投票的组织id...`
+
+- 设备类型	- 支持的设备类型有 `IMEI`、`IDFA`、`MAC`、`ANDROIDID`、`MAC_OTT`、`OAID`
+- **`特别说明1：合并后的设备ID灰名单，即包括原值，也包括MD5值。使用时可直接与流量中的设备ID（无论时RAW值或MD5值）进行匹配，无需再做加密。`**
+- **`特别说明2：合并进入设备ID灰名单的设备ID，会自动从设备ID黑名单中移除。`**
+
+示例
+
+```
+02:00:00:00:00:00	MAC:PUBLICISMEDIA,RTBAsia
+d41d8cd98f00b204e9800998ecf8427e	OAID:LDN,RTBAsia
+9f89c84a559f573636a47ff8daed0d33	IDFA:PUBLICISMEDIA,RTBAsia
+00000000-0000-0000-0000-000000000000	IDFA:CAA,RTBAsia
+00000000-0000-0000-0000-000000000000	OAID:CAA,RTBAsia
+```
 
 ### 域名黑名单
 
@@ -204,8 +187,8 @@ af1c93c5e6b84f12	OAID
 示例：
 
 ```
-peer0.rtbasia.com	1
-peer0.rtbasia2.com	0
+peer0.test.com	1
+peer0.test2.com	0
 ```
 
 ##### 申诉
@@ -215,8 +198,8 @@ peer0.rtbasia2.com	0
 示例：
 
 ```
-peer0.rtbasia.com
-peer0.rtbasia2.com
+peer0.test.com
+peer0.test2.com
 ```
 
 ##### 合并后名单
@@ -226,8 +209,8 @@ peer0.rtbasia2.com
 示例
 
 ```
-peer0.rtbasia.com:HyLink,PUBLICISMEDIA
-peer0.rtbasia2.com:HyLink,PUBLICISMEDIA
+peer0.test.com:HyLink,PUBLICISMEDIA
+peer0.test2.com:HyLink,PUBLICISMEDIA
 ```
 
 
@@ -264,4 +247,19 @@ p2:360spider
 
 ```
 p2:360spider
+```
+
+### 媒体服务器IPv4
+
+##### 上传
+
+**格式** - `ipv4`
+
+示例：
+
+```
+223.104.64.14
+223.104.65.173
+117.136.29.176
+223.104.24.175
 ```
