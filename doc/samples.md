@@ -60,7 +60,7 @@
 
 **格式** - `设备id	设备类型	加密方式	标志位`
 
-- 设备类型	- 支持的设备类型有 `IMEI`、`IDFA`、`MAC`、`ANDROIDID`、`MAC_OTT`、`OAID`
+- 设备类型	- 支持的设备类型有 `IMEI`、`IDFA`、`MAC`、`ANDROIDID`、`OTT_MAC`、`OAID`
 - 加密方式	- 支持的加密方式有 `MD5`、`RAW`,允许上传原值或加密值
 - 标志位	- 支持的标志位有 `1`、`0`,`1`代表新增,`0`代表移除
 
@@ -75,7 +75,7 @@
 000958b5232b908401885a6286e5e1ad	IMEI	MD5	1
 454f0565bba9e7ea2c142d213975666c	MAC	MD5	1
 0976110a15f468bd8f29818292262bc0	ANDROIDID	MD5	1
-ca7195d116bb0fe50b0fd3fe6d6cfad0	MAC_OTT	MD5	1
+ca7195d116bb0fe50b0fd3fe6d6cfad0	OTT_MAC	MD5	1
 af1c93c5e6b84f12	OAID	RAW	1
 ```
 
@@ -83,7 +83,7 @@ af1c93c5e6b84f12	OAID	RAW	1
 
 **格式** - `设备id	设备类型	加密方式`
 
-- 设备类型	- 支持的设备类型有 `IMEI`、`IDFA`、`MAC`、`ANDROIDID`、`MAC_OTT`、`OAID`
+- 设备类型	- 支持的设备类型有 `IMEI`、`IDFA`、`MAC`、`ANDROIDID`、`OTT_MAC`、`OAID`
 - 加密方式	- 支持的加密方式有 `MD5`、`RAW`,允许申诉原值或加密值
 
 示例：
@@ -97,7 +97,7 @@ af1c93c5e6b84f12	OAID	RAW	1
 000958b5232b908401885a6286e5e1ad	IMEI	MD5
 454f0565bba9e7ea2c142d213975666c	MAC	MD5
 0976110a15f468bd8f29818292262bc0	ANDROIDID	MD5
-ca7195d116bb0fe50b0fd3fe6d6cfad0	MAC_OTT	MD5
+ca7195d116bb0fe50b0fd3fe6d6cfad0	OTT_MAC	MD5
 af1c93c5e6b84f12	OAID	RAW
 ```
 
@@ -105,7 +105,7 @@ af1c93c5e6b84f12	OAID	RAW
 
 **格式** - `设备id	设备类型	加密方式:投票的组织id...`
 
-- 设备类型	- 支持的设备类型有 `IMEI`、`IDFA`、`MAC`、`ANDROIDID`、`MAC_OTT`、`OAID`
+- 设备类型	- 支持的设备类型有 `IMEI`、`IDFA`、`MAC`、`ANDROIDID`、`OTT_MAC`、`OAID`
 - 加密方式	- 支持的加密方式有 ~~`RAW`~~、`MD5`。
 - **`特别说明：基于行业标准和相关法规要求，合并后名单只输出加密值。`**
 
@@ -118,7 +118,7 @@ af1c93c5e6b84f12	OAID	RAW
 001266b95c11c0b6de232092fb6dc35c	IMEI	MD5:Adsame,LDN
 454f0565bba9e7ea2c142d213975666c	MAC	MD5:PUBLICISMEDIA,ctr
 0976110a15f468bd8f29818292262bc0	ANDROIDID	MD5:LDN,ctr
-ca7195d116bb0fe50b0fd3fe6d6cfad0	MAC_OTT	MD5:PUBLICISMEDIA,ctr
+ca7195d116bb0fe50b0fd3fe6d6cfad0	OTT_MAC	MD5:PUBLICISMEDIA,ctr
 d225bc8e06ac954431b5243edb377348	OAID	RAW:RTBAsia,Adsame
 ```
 
@@ -128,7 +128,7 @@ d225bc8e06ac954431b5243edb377348	OAID	RAW:RTBAsia,Adsame
 
 **格式** - `设备id	设备类型	标志位`
 
-- 设备类型	- 支持的设备类型有 `IMEI`、`IDFA`、`MAC`、`ANDROIDID`、`MAC_OTT`、`OAID`
+- 设备类型	- 支持的设备类型有 `IMEI`、`IDFA`、`MAC`、`ANDROIDID`、`OTT_MAC`、`OAID`
 - 标志位	- 支持的标志位有 `1`、`0`。`1`代表新增,`0`代表移除
 - **`特别说明：上传设备ID灰名单数据时即要上传数据的原值，也需要上传数据的MD5值。`**
 
@@ -139,7 +139,7 @@ d225bc8e06ac954431b5243edb377348	OAID	RAW:RTBAsia,Adsame
 1234567890987654321	IMEI	0
 1234567890987654321	ANDROID	1
 ac:de:48:00:11:22	MAC	0
-ad:d1:48:01:12:02	MAC_OTT	0
+ad:d1:48:01:12:02	OTT_MAC	0
 af1c93c5e6b84f12	OAID	1
 ```
 
@@ -147,7 +147,7 @@ af1c93c5e6b84f12	OAID	1
 
 **格式** - `设备id	设备类型`
 
-- 设备类型	- 支持的设备类型有 `IMEI`、`IDFA`、`MAC`、`ANDROIDID`、`MAC_OTT`、`OAID`
+- 设备类型	- 支持的设备类型有 `IMEI`、`IDFA`、`MAC`、`ANDROIDID`、`OTT_MAC`、`OAID`
 
 示例
 
@@ -156,7 +156,7 @@ af1c93c5e6b84f12	OAID	1
 1234567890987654321	IMEI
 1234567890987654321	ANDROID
 ac:de:48:00:11:22	MAC
-ad:d1:48:01:12:02	MAC_OTT
+ad:d1:48:01:12:02	OTT_MAC
 af1c93c5e6b84f12	OAID
 ```
 
@@ -164,7 +164,7 @@ af1c93c5e6b84f12	OAID
 
 **格式** - `设备id	设备类型:投票的组织id...`
 
-- 设备类型	- 支持的设备类型有 `IMEI`、`IDFA`、`MAC`、`ANDROIDID`、`MAC_OTT`、`OAID`
+- 设备类型	- 支持的设备类型有 `IMEI`、`IDFA`、`MAC`、`ANDROIDID`、`OTT_MAC`、`OAID`
 - **`特别说明1：合并后的设备ID灰名单，即包括原值，也包括MD5值。使用时可直接与流量中的设备ID（无论时RAW值或MD5值）进行匹配，无需再做加密。`**
 - **`特别说明2：合并进入设备ID灰名单的设备ID，会自动从设备ID黑名单中移除。`**
 
@@ -263,3 +263,4 @@ p2:360spider
 117.136.29.176
 223.104.24.175
 ```
+
