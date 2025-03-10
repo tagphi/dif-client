@@ -45,7 +45,7 @@
     "sinon": "latest",
     "superagent": "latest",
     "superagent-promise": "latest",
-    "tar": "^4.4.4",
+    "tar": "^4.4.18",
     "uuid": "3.3.2"
   },
   "standard": {
