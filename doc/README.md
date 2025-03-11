@@ -54,7 +54,7 @@ crypto-config/
     └── 【组织域名：如rtbasia.com】
 ```
 
-- 从RTBAsia运维或开发人员获取 `swarm.key` - dif-ipfs私网秘钥，放置到解压目录下
+- 从RTBAsia (email: givt@china-caa.org)获取 `swarm.key` - dif-ipfs私网秘钥，放置到解压目录下
 
 - 生成配置
 
